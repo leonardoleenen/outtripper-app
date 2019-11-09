@@ -1,5 +1,6 @@
 import React from 'react';
-import '../statics/style/style.scss'
+import '../statics/style/style.scss';
 
 
-export default () => <div> Index</div>
+export default () => <div>Este es el index</div>
+;
