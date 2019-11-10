@@ -1,17 +1,18 @@
-import { dataAccessService, DataAccessService } from './database'
+import dataAccessService, { DataAccessService } from './database'
 
 
 interface Services {
-  getDestinations(): Promise<Destination>
+  getDestinations(): Promise<Array<Destination>>
 }
 
 class BusinessService implements Services {
-
   da: DataAccessService = dataAccessService
 
-  getDestinations(): Promise<Destination> {
+  getDestinations(): Promise<Array<Destination>> {
     return this.da.getDestinations()
   }
 }
 
-export const businessService = new BusinessService()
+export default new BusinessService()
+
+// export const businessService = new BusinessService()

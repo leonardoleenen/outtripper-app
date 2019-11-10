@@ -48,18 +48,9 @@
       2,
       "never"
     ],
-    "jsx-a11y/no-static-element-interactions": [
-      2,
-      "never"
-    ],
-    "no-unused-vars": [
-      "error",
-      {
-        "vars": "all",
-        "args": "after-used",
-        "ignoreRestSiblings": false
-      }
-    ],
+    "jsx-a11y/no-static-element-interactions": 0,
+    "jsx-a11y/click-events-have-key-events":0,
+    "react/jsx-key": [2, { "checkFragmentShorthand": false }],
     "arrow-body-style": [
       2,
       "as-needed"

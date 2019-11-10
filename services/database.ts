@@ -3,15 +3,16 @@ import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
 
 
-interface DataService {
-  getDestinations(): Promise<Destination>
+declare interface DataService {
+  getDestinations(): Promise<Array<Destination>>
 }
-export class DataAccessService implements DataService {
 
+export declare class DataAccessService implements DataService {
   db: any
+
   remote: any
 
-  getDestinations(): Promise<Destination> {
+  getDestinations(): Promise<Array<Destination>> {
     return this.db.find({
       selector: {
         collectionKind: 'destinationCatalogItem',
@@ -29,4 +30,4 @@ export class DataAccessService implements DataService {
   }
 }
 
-export const dataAccessService = new DataAccessService()
+export default new DataAccessService()
