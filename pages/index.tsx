@@ -8,6 +8,7 @@ export default () => {
 
 
   const lodge: User = {
+    uid: '1234567', 
     cn: 'Carlos Casanello',
     email: 'carloslc@gmail.com',
     accessToken: 'accesstoken',
@@ -16,6 +17,7 @@ export default () => {
 
 
   const agency: User = {
+    uid: '7654321',
     cn: 'Leonardo Leenen',
     email: 'leonardo@flicktrip.com',
     accessToken: 'accesstoken',
@@ -23,6 +25,7 @@ export default () => {
   }
 
   const consumer: User = {
+    uid: '000000',
     cn: 'Juan Antonucci ',
     email: 'juan@cafebinario.com',
     accessToken: 'accesstoken',
@@ -34,7 +37,7 @@ export default () => {
 
   return (
     <div>
-      <div onClick={() => disptach(login(consumer))}>Lodge</div>
+      <div onClick={() => disptach(login(lodge))}>Lodge</div>
       <div onClick={() => {
         disptach(login(agency))
         router.push('/agency/home')
