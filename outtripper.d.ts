@@ -25,7 +25,9 @@ type AvailableDate = {
   _id?: string,
   id: string,
   program: Program,
-  date: Date,
+  dateFrom: number,
+  dateTo: number,
   freeSpots: number,
-  totalSpots: number
+  totalSpots: number,
+  price: number
 }

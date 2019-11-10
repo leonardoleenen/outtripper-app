@@ -4,13 +4,13 @@ import thunkMiddleware from 'redux-thunk'
 import { userReducer } from './reducers/users'
 import { coreReducer, State as StateCore, initialState as initialStateCore } from './reducers/core'
 
-export interface Store {
+export interface StoreData {
   settings: any
   loggedUser: {}
   core: StateCore
 }
 
-const initialState: Store = {
+const initialState: StoreData = {
   settings: {},
   loggedUser: {},
   core: initialStateCore,

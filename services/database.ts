@@ -6,6 +6,7 @@ import PouchDBFind from 'pouchdb-find'
 declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(destination: Destination): Promise<Array<Program>>
+  getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
 }
 
 export class DataAccessService implements DataService {
@@ -13,10 +14,18 @@ export class DataAccessService implements DataService {
 
   remote: any
 
+  getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
+    return this.db.find({
+      selector: {
+        collectionKind: 'availableDate',
+      },
+    }).then((result) => result.docs.filter((p:AvailableDate) => p.program.destination.id === destination.id))
+  }
+
   getPrograms(destination: Destination): Promise<Program[]> {
     return this.db.find({
       selector: {
-        collectionKind: 'destinationCatalogItem',
+        collectionKind: 'program',
       },
     }).then((result) => result.docs.filter((p:Program) => p.destination.id === destination.id))
   }
