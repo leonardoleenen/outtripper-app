@@ -1,3 +1,7 @@
+
 type User = {
-    cn : string
+  cn: string
+  email: string
+  rol : 'AGENCY' | 'LODGE' | 'CONSUMER'
+  accessToken: string
 }

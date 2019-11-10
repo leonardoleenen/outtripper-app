@@ -1,15 +1,14 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import thunkMiddleware from 'redux-thunk'
-import { combineReducers } from 'redux';
-
+import { userReducer } from './reducers/users'
 
 export interface Store {
     settings: any
 }
 
-const initialState : Store= {
-  settings:{},
+const initialState : Store = {
+  settings: {},
 }
 
 export const settingReducer = (state = initialState.settings, action) => {
@@ -21,12 +20,13 @@ export const settingReducer = (state = initialState.settings, action) => {
 
 const reducers = combineReducers({
   settings: settingReducer,
-});
+  loggedUser: userReducer,
+})
 
-export function initializeStore (initialState) {
+export function initializeStore(initialState) {
   return createStore(
     reducers,
     initialState,
-    composeWithDevTools(applyMiddleware(thunkMiddleware))
+    composeWithDevTools(applyMiddleware(thunkMiddleware)),
   )
 }
