@@ -6,6 +6,7 @@ import { login } from '../redux/actions/users'
 
 export default () => {
   const lodge: User = {
+
     uid: '1234567',
     cn: 'Carlos Casanello',
     email: 'carloslc@gmail.com',
@@ -38,7 +39,7 @@ export default () => {
       <div onClick={() => disptach(login(lodge))}>Lodge</div>
       <div onClick={() => {
         disptach(login(agency))
-        router.push('/agency/home')
+        router.push('/agency')
       }}
       >
 Agencia

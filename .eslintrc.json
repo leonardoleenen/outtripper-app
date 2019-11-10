@@ -48,7 +48,10 @@
       2,
       "never"
     ],
+    "no-unused-vars": ["warn"],
+    "max-len": [2, { "code": 200 }],
     "jsx-a11y/no-static-element-interactions": 0,
+    "jsx-a11y/no-noninteractive-element-interactions":0,
     "jsx-a11y/click-events-have-key-events":0,
     "react/jsx-key": [2, { "checkFragmentShorthand": false }],
     "arrow-body-style": [

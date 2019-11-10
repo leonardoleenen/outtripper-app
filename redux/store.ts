@@ -2,31 +2,27 @@ import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import thunkMiddleware from 'redux-thunk'
 import { userReducer } from './reducers/users'
+import { coreReducer, State as StateCore, initialState as initialStateCore } from './reducers/core'
 
 export interface Store {
-    settings: any
+  settings: any
+  loggedUser: {}
+  core: StateCore
 }
 
-const initialState : Store = {
+const initialState: Store = {
   settings: {},
-}
-
-export const settingReducer = (state = initialState.settings, action) => {
-  switch (action.type) {
-    default:
-      return state
-  }
+  loggedUser: {},
+  core: initialStateCore,
 }
 
 const reducers = combineReducers({
-  settings: settingReducer,
   loggedUser: userReducer,
+  core: coreReducer,
 })
 
-export function initializeStore(initialState) {
-  return createStore(
-    reducers,
-    initialState,
-    composeWithDevTools(applyMiddleware(thunkMiddleware)),
-  )
-}
+export default () => createStore(
+  reducers,
+  initialState,
+  composeWithDevTools(applyMiddleware(thunkMiddleware)),
+)

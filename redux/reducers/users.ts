@@ -8,6 +8,6 @@ export const userReducer = (state = { user: null }, action) => {
     case UNSET_USER:
       return { ...state, user: null }
     default:
-      return { ...state, ...action }
+      return { ...state }
   }
 }

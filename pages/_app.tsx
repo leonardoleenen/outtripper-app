@@ -1,7 +1,8 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import App, { Container } from 'next/app'
 import React from 'react'
-import withReduxStore from '../lib/with-redux-store'
 import { Provider } from 'react-redux'
+import withReduxStore from '../lib/with-redux-store'
 
 
 interface Props {
@@ -9,8 +10,7 @@ interface Props {
 }
 
 class MyApp extends App<Props> {
-    
-  render () {
+  render() {
     const { Component, pageProps, reduxStore } = this.props
     return (
       <Container>
