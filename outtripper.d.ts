@@ -25,6 +25,7 @@ type Program = {
  destination: Destination,
  id: string,
  cn: string,
+ collectionKind?:string
 }
 
 type AvailableDate = {
@@ -36,6 +37,7 @@ type AvailableDate = {
   freeSpots: number,
   totalSpots: number,
   price: number
+  collectionKind?:string
 }
 
 type Contact = {
@@ -44,4 +46,5 @@ type Contact = {
   lastName: string
   email: string
   owner?: Organization
+  collectionKind?:string
 }

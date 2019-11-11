@@ -15,6 +15,7 @@ class BusinessService implements Services {
   saveContact(contact: Contact, user: User): void {
     const contactToSave = contact
     contactToSave.owner = user.organization
+    contactToSave.collectionKind = 'contact'
     contactToSave.id = this.generateUniversalId(user)
     this.da.saveContact(contactToSave)
   }
