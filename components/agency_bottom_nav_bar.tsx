@@ -16,32 +16,30 @@ export default () => (
   <div className="navigationBar  w-full">
     <div className="m-auto ">
       <HomeIcon />
-      <br />
-      Home
+      <p>Home</p>
+
     </div>
     <Link href="/agency/destinations">
       <div className="m-auto ">
         <DestinationsIcon />
-      Destinations
+        <p>Destinations</p>
       </div>
     </Link>
     <div className="m-auto ">
       <ReservationsIcon />
-      Reservations
+      <p>Reservations</p>
     </div>
     <div className="m-auto ">
       <NotificationsIcon />
-      Notifications
+      <p>Notifications</p>
     </div>
     <div className="m-auto ">
       <GuestsIcon />
-      <br />
-      Guests
+      <p>Guests</p>
     </div>
     <div className="m-auto ">
       <MoreIcon />
-      <br />
-      More
+      <p>More</p>
     </div>
 
 
@@ -51,18 +49,19 @@ export default () => (
          .navigationBar{
            display:grid;
            grid-template-columns:repeat(6, 1fr);
+           grid-gap:20px;
            font-family: Open Sans;
            font-style: normal;
            font-weight: 300;
            font-size: 9px;
-           line-height: 13px;
            text-align:center;
            align-items: center;
            letter-spacing: 0.15px;
            color: #718096;
-           bottom:15px;
+           bottom:10px;
            position:absolute;
          }
+         p{margin-top:3px;}
          svg{margin:auto
         display:block}
          

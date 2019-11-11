@@ -84,8 +84,8 @@ export default () => {
             letter-spacing: 0.75px;
             text-align:center;
             margin:auto;
-            padding-bottom:85px;
-            padding-top:200px;
+            padding-bottom:55px;
+            padding-top:150px;
             @apply m-auto
           }
           p{
@@ -115,7 +115,7 @@ export default () => {
             align-items: flex-end;
             letter-spacing: 0.15px;
             position:absolute;
-            bottom:50px;
+            bottom:20px;
           }
           input{
             border: 1px solid #fff;
