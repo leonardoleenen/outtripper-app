@@ -4,6 +4,9 @@ import { useDispatch } from 'react-redux'
 import BottomNavBar from '../../components/agency_bottom_nav_bar'
 import businessService from '../../services/business'
 import { setDestination } from '../../redux/actions/core'
+import DestinationCard from '../../components/destination_card'
+import DestinationTab from '../../components/destination_tabs'
+
 
 export default () => {
   const bs = businessService
@@ -25,7 +28,8 @@ export default () => {
   }
 
   return (
-    <div>
+    <div className="bg-gray">
+      <DestinationTab />
       <ul>
         {destinations.map((d:Destination) => (
           <li key={d.id} onClick={() => destinationSelected(d.id)}>
@@ -35,7 +39,22 @@ export default () => {
         )) }
       </ul>
       <BottomNavBar />
-      <div> Destination List</div>
+      <style jsx>
+        {
+        `
+
+        .bg-gray{
+          background: linear-gradient(180deg, #F7FAFC 0%, #CBD5E0 100%);
+          min-height:100vh;
+          
+        }
+
+          
+            `
+      }
+
+      </style>
+
     </div>
   )
 }

@@ -58,9 +58,13 @@ export default () => (
            align-items: center;
            letter-spacing: 0.15px;
            color: #718096;
-           bottom:10px;
-           position:absolute;
+           bottom:0px;
+           position:fixed;
+           background:#fff;
+           padding-top:8px;
+           padding-bottom:8px;
          }
+         .m-auto{margin:auto}
          p{margin-top:3px;}
          svg{margin:auto;
         display:block}
