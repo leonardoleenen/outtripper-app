@@ -21,6 +21,8 @@ export default () => {
 
   if (reservationHolder) { dispatch(setReservationHolder(reservationHolder)) }
 
+  console.log(reservationHolder)
+
   return (
     <div>
       <div onClick={() => goToContactCalendar()}>Reservation Holder</div>

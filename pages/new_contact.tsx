@@ -27,15 +27,15 @@ export default () => {
     <div>
       <h1> New Contact</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="first_name">
+        <label htmlFor="firstName">
         First Name
-          <input name="first_name" type="text" ref={register} />
+          <input name="firstName" type="text" ref={register} />
         </label>
-        <label htmlFor="first_name">
+        <label htmlFor="lastName">
         Last Name
-          <input name="last_name" type="text" ref={register} />
+          <input name="lastName" type="text" ref={register} />
         </label>
-        <label htmlFor="first_name">
+        <label htmlFor="email">
         email
           <input name="email" type="email" ref={register} />
         </label>

@@ -43,28 +43,24 @@ export default () => {
 
   const disptach = useDispatch()
   const router = useRouter()
-  /*
-  <div>
-        <div onClick={() => disptach(login(lodge))}>Lodge</div>
-        <div onClick={() => {
-          disptach(login(agency))
-          router.push('/agency')
-        }}
-        >
-  Agencia
 
-        </div>
-        <div onClick={() => disptach(login(consumer))}>Consumer</div>
-      </div>
-  */
   return (
     <div className="bg-gradient p-8">
       <h1>OutTripper</h1>
       <p>Please, choose your favorite social network to signin</p>
       <div className="icons">
-        <div className="m-auto"><GoogleIcon /></div>
-        <div className="m-auto"><TwitterIcon /></div>
-        <div className="m-auto"><LinkdinIcon /></div>
+        <div className="m-auto" onClick={() => disptach(login(lodge))}><GoogleIcon /></div>
+        <div
+          className="m-auto"
+          onClick={() => {
+            disptach(login(agency))
+            router.push('/agency')
+          }}
+        >
+          <TwitterIcon />
+
+        </div>
+        <div className="m-auto" onClick={() => disptach(login(consumer))}><LinkdinIcon /></div>
         <div className="m-auto"><FacebookIcon /></div>
       </div>
       <div className="terms">
