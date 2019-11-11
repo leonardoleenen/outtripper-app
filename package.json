@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "tailwind:css": "tailwind build statics/styles/style.src.scss -c  statics/styles/tailwind.js -o statics/styles/style.scss",
+    "tailwind:css": "tailwind build statics/style/style.src.scss -c  statics/style/tailwind.js -o statics/style/style.scss",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"

@@ -13,8 +13,7 @@ export default () => (
       {
         `
 
-          @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
-          .bg-gradient{
+         .bg-gradient{
             background: linear-gradient(179.96deg, #F56565 2.18%, #E53E3E 27.54%, #C53030 52.38%, #9B2C2C 98.95%);
             height:100vh;
             color:#fff;
