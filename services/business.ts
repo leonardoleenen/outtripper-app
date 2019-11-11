@@ -1,15 +1,31 @@
+import uuidv4 from 'uuid4'
 import dataAccessService, { DataAccessService } from './database'
-
 
 interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(destination: Destination) : Promise<Array<Program>>
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
   getContacts(organization: Organization) : Promise<Array<Contact>>
+  generateUniversalId(user: User): string
+  saveContact(contact: Contact, user: User) : void
 }
 
+
 class BusinessService implements Services {
+  saveContact(contact: Contact, user: User): void {
+    const contactToSave = contact
+    contactToSave.owner = user.organization
+    contactToSave.id = this.generateUniversalId(user)
+    this.da.saveContact(contactToSave)
+  }
+
   da: DataAccessService = dataAccessService
+
+
+  // eslint-disable-next-line class-methods-use-this
+  generateUniversalId(_user: User): string {
+    return uuidv4().toString()
+  }
 
   getContacts(organization: Organization): Promise<Contact[]> {
     return this.da.getContacts(organization)
