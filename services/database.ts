@@ -50,7 +50,7 @@ export class DataAccessService implements DataService {
   constructor() {
     PouchDB.plugin(PouchDBFind)
     this.db = new PouchDB('outtripper')
-    this.remote = new PouchDB('http://localhost:5984/outtripper')
+    this.remote = new PouchDB('http://35.221.43.54:5984/outtripper')
     this.db.sync(this.remote, {
       live: true,
     })
