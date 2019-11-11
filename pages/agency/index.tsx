@@ -14,6 +14,7 @@ export default () => (
             margin:auto;
             text-align:center;
             color: #3B414B;
+            padding-top:8%;
           }
          p{
           font-family: Open Sans;

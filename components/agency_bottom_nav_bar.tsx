@@ -20,7 +20,7 @@ export default () => (
 
     </div>
     <Link href="/agency/destinations">
-      <div className="m-auto ">
+      <div className="m-auto">
         <DestinationsIcon />
         <p>Destinations</p>
       </div>
@@ -62,7 +62,7 @@ export default () => (
            position:absolute;
          }
          p{margin-top:3px;}
-         svg{margin:auto
+         svg{margin:auto;
         display:block}
          
 
