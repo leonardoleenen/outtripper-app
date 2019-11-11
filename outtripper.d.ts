@@ -1,3 +1,8 @@
+type Organization = {
+  id: string
+  cn: string
+  type: 'AGENCY' | 'LODGE'
+}
 
 type User = {
   _id?: string,
@@ -6,6 +11,7 @@ type User = {
   email: string
   rol : 'AGENCY' | 'LODGE' | 'CONSUMER'
   accessToken: string
+  organization: Organization
 }
 
 type Destination = {
@@ -30,4 +36,12 @@ type AvailableDate = {
   freeSpots: number,
   totalSpots: number,
   price: number
+}
+
+type Contact = {
+  id?: string
+  firstName: string
+  lastName: string
+  email: string
+  owner?: Organization
 }

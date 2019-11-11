@@ -7,12 +7,21 @@ declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(destination: Destination): Promise<Array<Program>>
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
+  getContacts(organization: Organization) : Promise<Array<Contact>>
 }
 
 export class DataAccessService implements DataService {
   db: any
 
   remote: any
+
+  getContacts(organization: Organization): Promise<Contact[]> {
+    return this.db.find({
+      selector: {
+        collectionKind: 'contact',
+      },
+    }).then((result) => result.docs.filter((c:Contact) => c.owner.id === organization.id))
+  }
 
   getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
     return this.db.find({

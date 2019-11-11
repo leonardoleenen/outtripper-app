@@ -7,11 +7,13 @@ export interface State {
 interface Action {
   type: string
   destination:Destination
+  contact: Contact
 }
 
 export const initialState : State = {
   destination: null,
 }
+
 export const coreReducer = (state: State = initialState, action: Action) : State => {
   switch (action.type) {
     case SET_DESTINATION:

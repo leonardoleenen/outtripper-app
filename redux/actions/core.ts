@@ -5,4 +5,4 @@ export const setDestination = (destination: Destination) => (dispatch) => dispat
   destination,
 })
 
-export const fake = () => console.log('')
+export const fake = () => console.log('fake')
