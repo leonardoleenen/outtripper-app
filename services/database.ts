@@ -8,12 +8,17 @@ declare interface DataService {
   getPrograms(destination: Destination): Promise<Array<Program>>
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
   getContacts(organization: Organization) : Promise<Array<Contact>>
+  saveContact(contact: Contact) : void
 }
 
 export class DataAccessService implements DataService {
   db: any
 
   remote: any
+
+  saveContact(contact: Contact): void {
+    this.db.post(contact)
+  }
 
   getContacts(organization: Organization): Promise<Contact[]> {
     return this.db.find({
