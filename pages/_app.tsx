@@ -3,6 +3,7 @@ import App, { Container } from 'next/app'
 import React from 'react'
 import { Provider } from 'react-redux'
 import withReduxStore from '../lib/with-redux-store'
+import '../statics/style/style.scss'
 
 
 interface Props {
