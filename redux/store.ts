@@ -6,7 +6,7 @@ import { reservationReducer, State as StateReservation, initialState as InitialS
 import { contactCalendarReducer, State as StateContactCalendar, initialState as initialStateContactCalendar } from './reducers/contact_calendar'
 
 import { coreReducer, State as StateCore, initialState as initialStateCore } from './reducers/core'
-
+import { clientAppReducer } from './reducers/client_app'
 
 export interface StoreData {
   loggedUser: {
@@ -31,6 +31,7 @@ const reducers = combineReducers({
   core: coreReducer,
   reservation: reservationReducer,
   contactCalendar: contactCalendarReducer,
+  clientApp: clientAppReducer,
 })
 
 export default () => createStore(
