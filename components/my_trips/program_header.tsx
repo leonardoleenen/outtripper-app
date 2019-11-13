@@ -6,73 +6,76 @@ interface Props {
   program: MyTripProgram
 }
 
-export default (props: Props) => (
-  <div className="program_header_container">
-    <header>
-      <img src={props.program.thumbnail} alt="Header" />
-    </header>
-    <div className="trip_lodge pl-2 mt-3">
-      <p>{props.program.lodge}</p>
-      <p className="share_trip">
-        <ShareIcon />
-        Share this trip
-      </p>
+export default (props: Props) => {
+  const { program } = props
+  return (
+    <div className="program_header_container">
+      <header>
+        <img src={program.thumbnail} alt="Header" />
+      </header>
+      <div className="trip_lodge pl-2 mt-3">
+        <p>{program.lodge}</p>
+        <p className="share_trip">
+          <ShareIcon />
+          Share this trip
+        </p>
+      </div>
+      <div className="heading-3 pl-2">{program.title}</div>
+      <div className="subtitle pl-2">{program.subtitle}</div>
+      <div className="dates pl-2">
+        <p>
+          From
+          <strong>{moment(program.from).format('MMM Do')}</strong>
+        </p>
+        <p>
+          to
+          <strong>{moment(program.to).format('MMM Do')}</strong>
+        </p>
+      </div>
+      <style>
+        {
+              `
+              .program_header_container {
+                display: grid;
+                grid-template-rows: 4fr 0.5fr 0.5fr 0.5fr 0.5fr;
+              }
+              .trip_lodge {
+                display: grid;
+                grid-template-columns: 50% 50%;
+              }
+              .share_trip {
+                font-weight: 600;
+                font-size: 12px;
+              }
+              .share_trip svg {
+                display: inline-block;
+              }
+              .program_header_container .heading-3 {
+                font-weight: normal;
+                font-size: 24px;
+                line-height: 33px;
+                letter-spacing: 0.15px;
+              }
+              .program_header_container .subtitle {
+                font-weight: 300;
+                font-size: 14px;
+                line-height: 25px;
+                letter-spacing: 0.15px;
+              }
+              .program_header_container .dates {
+                font-weight: normal;
+                font-size: 12px;
+                line-height: 16px;
+                letter-spacing: 0.15px;
+                display: grid;
+                grid-template-columns: 30% 30%;
+               }
+              `
+            }
+      </style>
     </div>
-    <div className="heading-3 pl-2">{props.program.title}</div>
-    <div className="subtitle pl-2">{props.program.subtitle}</div>
-    <div className="dates pl-2">
-      <p>
-        From
-        <strong>{moment(props.program.from).format('MMM Do')}</strong>
-      </p>
-      <p>
-        to
-        <strong>{moment(props.program.to).format('MMM Do')}</strong>
-      </p>
-    </div>
-    <style>
-      {
-            `
-            .program_header_container {
-              display: grid;
-              grid-template-rows: 4fr 0.5fr 0.5fr 0.5fr 0.5fr;
-            }
-            .trip_lodge {
-              display: grid;
-              grid-template-columns: 50% 50%;
-            }
-            .share_trip {
-              font-weight: 600;
-              font-size: 12px;
-            }
-            .share_trip svg {
-              display: inline-block;
-            }
-            .program_header_container .heading-3 {
-              font-weight: normal;
-              font-size: 24px;
-              line-height: 33px;
-              letter-spacing: 0.15px;
-            }
-            .program_header_container .subtitle {
-              font-weight: 300;
-              font-size: 14px;
-              line-height: 25px;
-              letter-spacing: 0.15px;
-            }
-            .program_header_container .dates {
-              font-weight: normal;
-              font-size: 12px;
-              line-height: 16px;
-              letter-spacing: 0.15px;
-              display: grid;
-              grid-template-columns: 30% 30%;
-             }
-            `
-          }
-    </style>
-  </div>
-)
+  )
+}
 
 const ShareIcon = () => (
   <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
