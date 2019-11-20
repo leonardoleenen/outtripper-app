@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import moment from 'moment'
 import { StoreData } from '../../redux/store'
 import bs from '../../services/business'
+import BottomNavBar from '../../components/agency_bottom_nav_bar'
 
 interface RowProps {
   hasReaded:boolean
@@ -20,11 +21,11 @@ interface RowChatRoomProps {
 const Row = (props:RowProps) => {
   const { hasReaded, message, date } = props
   return (
-    <div className={`flex flex-row items-center mb-2 lineBottom pb-4 ${hasReaded ? ' bg-gray-200' : ''}`}>
+    <div className={`flex flex-row items-center pt-4 lineBottom pb-4 ${hasReaded ? ' bg-gray-200' : ''}`}>
       {hasReaded}
-      <div className="flex flex-col ml-2 mr-4">
-        <p>{message}</p>
-        <span className="date ">{date}</span>
+      <div className="flex flex-col ml-4 mr-4">
+        <p className="mr-1">{message}</p>
+        <span className="date mt-4 ">{date}</span>
       </div>
 
     </div>
@@ -36,7 +37,7 @@ const RowChatRoom = (props:RowChatRoomProps) => {
     hasReaded, title, date, message,
   } = props
   return (
-    <div className="content  mb-2 lineBottom pb-4 ">
+    <div className="content  pb-2 lineBottom pb-4 ">
       <img src="https://pbs.twimg.com/profile_images/594370331013476352/3us0t8bB_400x400.jpg" alt="" className="rounded-full avatarSmall ml-4" />
       {hasReaded}
       <div className="flex flex-col ml-2 mr-4">
@@ -51,7 +52,7 @@ const RowChatRoom = (props:RowChatRoomProps) => {
         `
         .content{
           display:grid;;
-          grid-template-columns:65px 2fr 1fr 20px;
+          grid-template-columns:65px 3fr 1fr 20px;
         }
        
         `
@@ -119,7 +120,7 @@ export default () => {
   return (
     <div>
 
-      <h2 className="ml-4 mb-2">Notifications</h2>
+      <h2 className="ml-4 mb-4 mt-12 mr-4">Notifications</h2>
       <Search />
 
       <div className="tabs  ">
@@ -166,8 +167,10 @@ export default () => {
             letter-spacing: 0.1px;
             color: #718096;
             cursor:pointer;
-            padding:15px 35px;
+            padding:15px 25px;
+           
             margin:auto;
+            margin-left:20px;
           }
           div.tabs input:checked + label{  
             border-bottom:2px solid #FF7D00;
@@ -182,6 +185,7 @@ export default () => {
         }
 
       </style>
+      <BottomNavBar />
     </div>
   )
 }
