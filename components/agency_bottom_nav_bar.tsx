@@ -1,81 +1,79 @@
 import React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-/*
- <ul>
-      <li>Home</li>
-      <Link href="/agency/destinations">
-        <li>destinations</li>
-      </Link>
-      <li>reservations</li>
-      <li>Notifications</li>
-    </ul>
- */
+export default () => {
+  const router = useRouter()
 
-export default () => (
-  <div className="navigationBar  w-full">
-    <div className="m-auto ">
-      <HomeIcon />
-      <p>Home</p>
+  return (
+    <div className="navigationBar  w-full">
+      <div className="m-auto ">
+        <HomeIcon />
+        <p>Home</p>
 
-    </div>
-    <Link href="/agency/destinations">
-      <div className="m-auto">
-        <DestinationsIcon />
-        <p>Destinations</p>
       </div>
-    </Link>
-    <div className="m-auto ">
-      <ReservationsIcon />
-      <p>Reservations</p>
-    </div>
-    <div className="m-auto ">
-      <NotificationsIcon />
-      <p>Notifications</p>
-    </div>
-    <div className="m-auto ">
-      <GuestsIcon />
-      <p>Guests</p>
-    </div>
-    <div className="m-auto ">
-      <MoreIcon />
-      <p>More</p>
-    </div>
+      <Link href="/agency/destinations">
+        <div className="m-auto">
+          <DestinationsIcon />
+          <p>Destinations</p>
+        </div>
+      </Link>
+      <div className="m-auto ">
+        <ReservationsIcon />
+        <p>Reservations</p>
+      </div>
+
+      <div className="m-auto " onClick={() => router.push('/notifications')}>
+        <NotificationsIcon />
+        <p>Notifications</p>
+      </div>
+
+      <div className="m-auto ">
+        <GuestsIcon />
+        <p>Guests</p>
+      </div>
+      <div className="m-auto ">
+        <MoreIcon />
+        <p>More</p>
+      </div>
 
 
-    <style jsx>
-      {
-        `
-         .navigationBar{
-           display:grid;
-           grid-template-columns:repeat(6, 1fr);
-           grid-gap:20px;
-           font-family: Open Sans;
-           font-style: normal;
-           font-weight: 300;
-           font-size: 9px;
-           text-align:center;
-           align-items: center;
-           letter-spacing: 0.15px;
-           color: #718096;
-           bottom:0px;
-           position:fixed;
-           background:#fff;
-           padding-top:8px;
-           padding-bottom:8px;
-         }
-         .m-auto{margin:auto}
-         p{margin-top:3px;}
-         svg{margin:auto;
-        display:block}
-         
-
+      <style jsx>
+        {
           `
-      }
+           .navigationBar{
+             display:grid;
+             grid-template-columns:repeat(6, 1fr);
+             grid-gap:20px;
+             font-family: Open Sans;
+             font-style: normal;
+             font-weight: 300;
+             font-size: 9px;
+             text-align:center;
+             align-items: center;
+             letter-spacing: 0.15px;
+             color: #718096;
+             bottom:0px;
+             position:fixed;
+             background:#fff;
+             padding-top:8px;
+             padding-bottom:8px;
+           }
+           .m-auto{margin:auto}
+           p{margin-top:3px;}
+           svg{margin:auto;
+          display:block}
+           
+  
+            `
+        }
 
-    </style>
-  </div>
-)
+      </style>
+    </div>
+  )
+}
+
+
 const HomeIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd" d="M18.9902 20H16.0002V13C16.0002 12.447 15.5522 12 15.0002 12H9.00024C8.44724 12 8.00024 12.447 8.00024 13V20H5.00024L5.00624 11.583L11.9982 4.432L19.0002 11.624L18.9902 20ZM10.0002 20H14.0002V14H10.0002V20ZM20.4242 10.185L12.7152 2.301C12.3382 1.916 11.6622 1.916 11.2852 2.301L3.57524 10.186C3.21024 10.561 3.00024 11.085 3.00024 11.624V20C3.00024 21.103 3.84724 22 4.88824 22H9.00024H15.0002H19.1112C20.1522 22 21.0002 21.103 21.0002 20V11.624C21.0002 11.085 20.7902 10.561 20.4242 10.185Z" fill="#718096" />
