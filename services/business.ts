@@ -8,6 +8,7 @@ interface Services {
   getContacts(organization: Organization) : Promise<Array<Contact>>
   generateUniversalId(user: User): string
   saveContact(contact: Contact, user: User) : void
+  getNotifications(user: User) : Promise<Array<SystemNotificaction>>
 }
 
 
@@ -22,6 +23,10 @@ class BusinessService implements Services {
 
   da: DataAccessService = dataAccessService
 
+
+  getNotifications(user: User): Promise<SystemNotificaction[]> {
+    return this.da.getNotifications(user)
+  }
 
   // eslint-disable-next-line class-methods-use-this
   generateUniversalId(_user: User): string {

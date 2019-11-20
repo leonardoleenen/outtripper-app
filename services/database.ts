@@ -9,12 +9,22 @@ declare interface DataService {
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
   getContacts(organization: Organization) : Promise<Array<Contact>>
   saveContact(contact: Contact) : void
+  getNotifications(user: User) : Promise<Array<SystemNotificaction>>
 }
 
 export class DataAccessService implements DataService {
   db: any
 
   remote: any
+
+  getNotifications(user: User): Promise<SystemNotificaction[]> {
+    console.log(user)
+    return this.db.find({
+      selector: {
+        collectionKind: 'notifications',
+      },
+    }).then((result) => result.docs)
+  }
 
   saveContact(contact: Contact): void {
     this.db.post(contact)

@@ -1,4 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import moment from 'moment'
+import { StoreData } from '../../redux/store'
+import bs from '../../services/business'
 
 interface RowProps {
   hasReaded:boolean
@@ -16,9 +20,7 @@ interface RowChatRoomProps {
 const Row = (props:RowProps) => {
   const { hasReaded, message, date } = props
   return (
-    <div className="flex flex-row items-center mb-2 lineBottom pb-4 ">
-
-      <img src="https://pbs.twimg.com/profile_images/594370331013476352/3us0t8bB_400x400.jpg" alt="" className="rounded-full avatarSmall ml-4" />
+    <div className={`flex flex-row items-center mb-2 lineBottom pb-4 ${hasReaded ? ' bg-gray-200' : ''}`}>
       {hasReaded}
       <div className="flex flex-col ml-2 mr-4">
         <p>{message}</p>
@@ -35,8 +37,7 @@ const RowChatRoom = (props:RowChatRoomProps) => {
   } = props
   return (
     <div className="content  mb-2 lineBottom pb-4 ">
-
-      <img src="https://pbs.twimg.com/profile_images/594370331013476352/3us0t8bB_400x400.jpg" alt="" className="rounded-full avatarMedium items-center " />
+      <img src="https://pbs.twimg.com/profile_images/594370331013476352/3us0t8bB_400x400.jpg" alt="" className="rounded-full avatarSmall ml-4" />
       {hasReaded}
       <div className="flex flex-col ml-2 mr-4">
         <h5>{title}</h5>
@@ -103,76 +104,87 @@ const Search = () => (
 )
 
 
-export default () => (
-  <div>
+export default () => {
+  const user: User = useSelector((state:StoreData) => state.loggedUser.user)
+  const [notifications, setNotifications] = useState([])
 
-    <h2 className="ml-4 mb-2">Notifications</h2>
-    <Search />
+  useEffect(() => {
+    const fetchNotificactions = async () => {
+      setNotifications(await bs.getNotifications(user))
+    }
 
-    <div className="tabs  ">
-      <input type="radio" defaultChecked name="tab" id="tab1" />
-      <label htmlFor="tab1" className="justify-between">Notifications</label>
+    fetchNotificactions()
+  }, [])
 
-      <input type="radio" name="tab" id="tab2" />
-      <label htmlFor="tab2" className="justify-between">Chat Room</label>
+  return (
+    <div>
+
+      <h2 className="ml-4 mb-2">Notifications</h2>
+      <Search />
+
+      <div className="tabs  ">
+        <input type="radio" defaultChecked name="tab" id="tab1" />
+        <label htmlFor="tab1" className="justify-between">Notifications</label>
+
+        <input type="radio" name="tab" id="tab2" />
+        <label htmlFor="tab2" className="justify-between">Chat Room</label>
 
 
-      <div className="tab">
-        <Row
-          hasReaded={false}
-          message="Thanks for choosing Yellowdog Fly Fishing adventures, your trip to Jurassic Lake Lodge is set!"
-          date="7 Oct 2019 - 4:47 a.m."
-        />
-        <Row
-          hasReaded={false}
-          message="Thanks for choosing Yellowdog Fly Fishing adventures, your trip to Jurassic Lake Lodge is set!"
-          date="7 Oct 2019 - 4:47 a.m."
-        />
+        <div className="tab">
+          {notifications.map((n: SystemNotificaction) => (
+            <Row
+              key={n.id}
+              hasReaded={n.hasReaded}
+              message={n.message}
+              date={moment(n.eventDate).format('Do MM YYYY')}
+            />
+          ))}
+        </div>
+        <div className="tab">
+          <RowChatRoom
+            hasReaded={false}
+            title="Contact Name"
+            date="11:00 a.m."
+            message="Last message goes here..."
+          />
+
+        </div>
+
+
       </div>
-      <div className="tab">
-        <RowChatRoom
-          hasReaded={false}
-          title="Contact Name"
-          date="11:00 a.m."
-          message="Last message goes here..."
-        />
-
-      </div>
 
 
+      <style jsx>
+        {
+          `
+           div.tabs input{ display:none;  min-width:30%;}
+          div.tabs label{ 
+            font-weight: normal;
+            font-size: 18px;
+            line-height: 28px;
+            text-align: center;
+            letter-spacing: 0.1px;
+            color: #718096;
+            cursor:pointer;
+            padding:15px 35px;
+            margin:auto;
+          }
+          div.tabs input:checked + label{  
+            border-bottom:2px solid #FF7D00;
+            color: #3B414B;
+            font-weight: 600;
+          }
+          div.tabs div.tab{ display:none; clear:left; margin-top:30px}
+          div.tabs input:nth-of-type(1):checked ~ .tab:nth-of-type(1),
+          div.tabs input:nth-of-type(2):checked ~ .tab:nth-of-type(2),
+          div.tabs input:nth-of-type(3):checked ~ .tab:nth-of-type(3){ display:block;}
+         `
+        }
+
+      </style>
     </div>
-
-
-    <style jsx>
-      {
-        `
-         div.tabs input{ display:none;  min-width:30%;}
-        div.tabs label{ 
-          font-weight: normal;
-          font-size: 18px;
-          line-height: 28px;
-          text-align: center;
-          letter-spacing: 0.1px;
-          color: #718096;
-          cursor:pointer;
-          padding:15px 35px;
-          margin:auto;
-        }
-        div.tabs input:checked + label{  
-          border-bottom:2px solid #FF7D00;
-          color: #3B414B;
-          font-weight: 600;
-        }
-        div.tabs div.tab{ display:none; clear:left; margin-top:30px}
-        div.tabs input:nth-of-type(1):checked ~ .tab:nth-of-type(1),
-        div.tabs input:nth-of-type(2):checked ~ .tab:nth-of-type(2),
-        div.tabs input:nth-of-type(3):checked ~ .tab:nth-of-type(3){ display:block;}
-       `
-      }
-
-    </style>
-  </div>
-)
+  )
+}
 
 
 const SearchIcon = () => (

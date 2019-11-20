@@ -48,3 +48,13 @@ type Contact = {
   owner?: Organization
   collectionKind?:string
 }
+
+type SystemNotificaction = {
+  _id: string
+  id: string
+  eventDate : number
+  message: string
+  to: User | Organization,
+  hasReaded: boolean
+  collectionKind? : string
+}
