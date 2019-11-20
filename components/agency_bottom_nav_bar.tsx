@@ -13,7 +13,7 @@ import Link from 'next/link'
  */
 
 export default () => (
-  <div className="navigationBar  w-full">
+  <div className="navigationBar pl-2  w-full">
     <div className="m-auto ">
       <HomeIcon />
       <p>Home</p>
