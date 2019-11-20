@@ -11405,10 +11405,64 @@ video {
 
 body{
   margin:0px;
+  color: #3B414B;
+}
+
+h2{
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 49px;
+  letter-spacing: 0.15px;
+}
+
+h5{
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 27px;
+  letter-spacing: 0.15px;
+  color: #3B414B;
+}
+
+p{
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.15px;
 }
 
 svg{
   margin:auto;
+}
+
+.date{
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 9px;
+  line-height: 12px;
+  letter-spacing: 0.15px;
+}
+
+.avatarSmall{
+  width: 49px;
+  height: 49px;
+}
+
+.avatarMedium{
+  width: 60px;
+  height: 60px;
+}
+
+.content{
+  padding: 16px;
+}
+
+.lineBottom{
+  border-bottom: 1px solid #CBD5E0;
 }
 
 .m-auto{
