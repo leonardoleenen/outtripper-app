@@ -25,7 +25,7 @@ const Row = (props:RowProps) => {
       {hasReaded}
       <div className="flex flex-col ml-4 mr-4">
         <p className="mr-1">{message}</p>
-        <span className="date mt-4 ">{date}</span>
+        <span className="date mt-6 ">{date}</span>
       </div>
 
     </div>
@@ -137,7 +137,7 @@ export default () => {
               key={n.id}
               hasReaded={n.hasReaded}
               message={n.message}
-              date={moment(n.eventDate).format('Do MM YYYY')}
+              date={moment(n.eventDate).format('Do MM YYYY hh:mm:ss')}
             />
           ))}
         </div>
