@@ -2,6 +2,7 @@
 import App, { Container } from 'next/app'
 import React from 'react'
 import { Provider } from 'react-redux'
+import Head from 'next/head'
 import withReduxStore from '../lib/with-redux-store'
 import '../statics/style/style.scss'
 
@@ -15,6 +16,9 @@ class MyApp extends App<Props> {
     const { Component, pageProps, reduxStore } = this.props
     return (
       <Container>
+        <Head>
+          <meta name="viewport" content="width=device-width, user-scalable=no" />
+        </Head>
         <Provider store={reduxStore}>
           <Component {...pageProps} />
         </Provider>
