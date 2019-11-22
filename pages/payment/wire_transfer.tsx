@@ -2,6 +2,7 @@ import React from 'react'
 
 interface InputText {
   label: string
+  placeholder:string
 }
 interface InputCheck {
   label: string
@@ -11,132 +12,46 @@ interface InputTextDisabled {
   value: string
 }
 const NavigationTop = () => (
-  <div className="navigation ml-4 mb-8  pt-8 mr-4">
+  <div className="navigationTop ml-4 mb-8  pt-8 mr-4">
     <BackIcon />
     <div />
     <ShareIcon />
 
-    <style jsx>
-      {`.navigation{
-              display:grid;
-              grid-template-columns:30px 3fr 30px;    
-              }
-          
-              `}
 
-    </style>
   </div>
 )
 const InputCheck = (props: InputCheck) => {
   const { label } = props
   return (
-    <div className="mt-4">
-      <label className="container ml-4 mr-4">
+    <div className="mb-8 mt-4">
+      <label className="InputCheckbox block relative mb-12 ml-4 mr-4 font-normal ">
         {label}
-        <input type="checkbox" />
-        <span className="checkmark" />
+        <input type="checkbox" className="absolute h-0 w-0 opacity-0" />
+        <span className="checkmark absolute bg-white " />
       </label>
-      <style jsx>
-        {
-          `.container {
-            display: block;
-            position: relative;
-            padding-left: 35px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-size: 22px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            font-family: Open Sans;
-font-style: normal;
-font-weight: 300;
-font-size: 14px;
-line-height: 25px;
-width:90%;
-          }
-          
-          .container input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-          }
-          
-          .checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 25px;
-            width: 25px;
-            background-color: #fff;
-            border:1px solid #fff;
-          }
-          .container:hover input ~ .checkmark {
-            border: 1px solid #fff;
-          }
-          .container input:checked ~ .checkmark {
-            background-color: #2196F3;
-          }
-          .checkmark:after {
-            content: "";
-            position: absolute;
-            display: none;
-          }
-          .container input:checked ~ .checkmark:after {
-            display: block;
-          }
-          .container .checkmark:after {
-            left: 9px;
-            top: 5px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 3px 3px 0;
-            -webkit-transform: rotate(45deg);
-            -ms-transform: rotate(45deg);
-            transform: rotate(45deg);
-          }`
-        }
-      </style>
+
     </div>
   )
 }
 
-
 const InputText = (props: InputText) => {
-  const { label } = props
+  const { label, placeholder } = props
   return (
-    <div className="contentInput pb-1 mb-4 mr-4 ml-4  ">
-      <label className=" px-4 pt-2 pb-1">{label}</label>
-      <input type="Text" className=" mx-4 mb-2 " />
+    <div className=" pb-1 mb-4 mx-4 bg-white  shadow-xl rounded input ">
+      <label className=" flex px-4 pt-2 pb-1 items-center font-normal    ">{label}</label>
+      <input type="Text" className=" mx-4 mb-2 font-light flex items-center bg-transparent  " placeholder={placeholder} />
 
       <style jsx>
         {`
-            .contentInput{
-                background: #FFFFFF;
-                box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.05);
-                border-radius: 4px;
-            }
+           
             label{
-                font-family: Open Sans;
-                font-style: normal;
-                font-weight: normal;
                 font-size: 11px;
                 line-height: 15px;
-               display: flex;
-                align-items: center;
                 color: #9B9B9B
             }
             input{
-              background: transparent;
-              font-weight: 300;
               font-size: 14px;
               line-height: 25px;
-              display: flex;
-              align-items: center;
               letter-spacing: 0.15px;
               color: #2D2D2D;
               width:90%;
@@ -154,34 +69,20 @@ const InputText = (props: InputText) => {
 const InputTextDisabled = (props: InputTextDisabled) => {
   const { label, value } = props
   return (
-    <div className="contentInput pb-1 mb-4 mr-4 ml-4 w-2/4">
+    <div className="pb-1 mb-4 mx-4 bg-white  shadow-xl rounded  ">
       <label className=" px-4 pt-2 pb-1">{label}</label>
       <input type="Text" className=" mx-4 mb-2 " value={value} disabled />
-
       <style jsx>
         {`
-            .contentInput{
-                background: #FFFFFF;
-                box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.05);
-                border-radius: 4px;
-            }
+           
             label{
-                font-family: Open Sans;
-                font-style: normal;
-                font-weight: normal;
                 font-size: 11px;
                 line-height: 15px;
-               display: flex;
-                align-items: center;
                 color: #9B9B9B
             }
             input{
-              background: transparent;
-              font-weight: 300;
               font-size: 14px;
               line-height: 25px;
-              display: flex;
-              align-items: center;
               letter-spacing: 0.15px;
               color: #2D2D2D;
               width:90%;
@@ -205,12 +106,12 @@ export default () => (
         <a className=" inline-block  py-2 px-4 " href="credit_card">Credit Card</a>
       </li>
       <li className="mr-1">
-        <a className="inline-block actived py-2 px-4 " defaultChecked href="wire_transfer">Wire transfer</a>
+        <a className="inline-block activedTabs py-2 px-4 " defaultChecked href="wire_transfer">Wire transfer</a>
       </li>
 
     </ul>
-    <InputText label="Date" />
-    <InputText label="Bank" />
+    <InputText label="Date" placeholder="19/09/2019" />
+    <InputText label="Bank" placeholder="Bank" />
     <InputTextDisabled label="Amount" value="$ 123.00" />
     <InputCheck label="I agree with terms and conditions " />
 
@@ -221,26 +122,16 @@ export default () => (
 
     <style jsx>
       {
-        `
-            li{
-                width:49%;
+        `li{
+            width:49%;
             }
-            a{font-family: Open Sans;
-                font-style: normal;
-                font-weight: 600;
-                font-size: 18px;
-                line-height: 28px;
-                text-align: center;
-                letter-spacing: 0.1px;
-                color: #718096;
-                border-radius: 0px}
-                
-            .actived{
-                border-bottom:2px solid #FF7D00;
-                background:transparent;
-                color: #3B414B;
-                font-weight:600;
+          a{
+            font-size: 18px;
+            line-height: 28px;
+            letter-spacing: 0.1px;
+            color: #718096;
             }
+        
             .left{left:35%}
             button:focus{
               outline:0px;
