@@ -23,7 +23,6 @@ class BusinessService implements Services {
 
   da: DataAccessService = dataAccessService
 
-
   getNotifications(user: User): Promise<SystemNotificaction[]> {
     return this.da.getNotifications(user)
   }

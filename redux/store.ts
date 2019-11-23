@@ -33,6 +33,7 @@ const reducers = combineReducers({
   contactCalendar: contactCalendarReducer,
 })
 
+
 export default () => createStore(
   reducers,
   initialState,
