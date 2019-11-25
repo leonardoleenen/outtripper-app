@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
+import _ from 'underscore'
 import { StoreData } from '../redux/store'
 import bs from '../services/business'
 import BottomNavBar from '../components/agency_bottom_nav_bar'
@@ -110,20 +111,18 @@ export default () => {
   const [notifications, setNotifications] = useState([])
 
 
-  function reactToChanges() {
-    bs.da.db.changes({ live: true, since: 'now', include_docs: true }).on('change', (change) => {
-      console.log(change)
-    }).on('error', console.log.bind(console))
-  }
-
-
   const fetchNotificactions = async () => {
-    setNotifications(await bs.getNotifications(user))
+    setNotifications(await bs.getNotifications())
   }
 
   useEffect(() => {
     fetchNotificactions() // Initial Load
-    bs.getNotifications(user).then(reactToChanges).catch(console.log.bind(console))
+    function reactToChanges() {
+      bs.da.db.changes({ live: true, since: 'now', include_docs: true }).on('change', (change) => {
+        console.log(change)
+      }).on('error', console.log.bind(console))
+    }
+    bs.getNotifications().then(reactToChanges).catch(console.log.bind(console))
   }, [])
 
 
@@ -141,7 +140,7 @@ export default () => {
         <label htmlFor="tab2" className="justify-between">Chat Room</label>
 
         <div className="tab">
-          {notifications.map((n: SystemNotificaction) => (
+          {notifications.map((n: SystemNotification) => (
             <Row
               key={n.id}
               hasReaded={n.hasReaded}

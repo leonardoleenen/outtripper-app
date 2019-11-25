@@ -26,6 +26,7 @@
     "import/resolver": {
       "node": {
         "extensions": [
+          ".json",
           ".js",
           ".jsx",
           ".ts",

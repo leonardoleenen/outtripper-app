@@ -1,66 +1,69 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../statics/style/style.scss'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
-import { login } from '../redux/actions/users'
+import dbs from '../services/database'
+import bs from '../services/business'
+import Waiting from '../components/loading'
+
 
 export default () => {
-  const lodge: User = {
-    uid: '1234567',
-    cn: 'Carlos Casanello',
-    email: 'carloslc@gmail.com',
-    accessToken: 'accesstoken',
-    rol: 'LODGE',
-    organization: {
-      id: 'JURASSICLAKE',
-      cn: 'Jurassic Lake',
-      type: 'LODGE',
-    },
-  }
-
-
-  const agency: User = {
-    uid: '7654321',
-    cn: 'Leonardo Leenen',
-    email: 'leonardo@flicktrip.com',
-    accessToken: 'accesstoken',
-    rol: 'AGENCY',
-    organization: {
-      id: 'FWT',
-      cn: 'Fly Water Travel',
-      type: 'AGENCY',
-    },
-  }
-
-  const consumer: User = {
-    uid: '000000',
-    cn: 'Juan Antonucci ',
-    email: 'juan@cafebinario.com',
-    accessToken: 'accesstoken',
-    rol: 'CONSUMER',
-    organization: null,
-  }
-
   const disptach = useDispatch()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const provider = new dbs.fb.auth.GoogleAuthProvider()
+
+  const showGoogleLogin = () => {
+    dbs.fb.auth().signInWithPopup(provider).then((result) => {
+      const { user } = result
+      setIsLoading(true)
+      bs.login(user.uid, user.displayName, user.email).then((token: TokenOuttripper) => {
+        localStorage.setItem('user', btoa(JSON.stringify({
+          token,
+          photoURL: user.photoURL,
+        })))
+
+        switch (token.organizationKind) {
+          case 'LODGE':
+            router.push('/home')
+            break
+          case 'AGENCY':
+            router.push('/agency')
+            break
+          default:
+            router.push('/consumer')
+            break
+        }
+      })
+    }).catch((error) => {
+      setIsLoading(false)
+      // Handle Errors here.
+      const errorCode = error.code
+      const errorMessage = error.message
+      // The email of the user's account used.
+      const { email } = error
+      // The firebase.auth.AuthCredential type that was used.
+      const { credential } = error
+      // ...
+    })
+  }
+
+  if (isLoading) return <Waiting />
+
 
   return (
     <div className="bg-gradient p-8">
       <h1>OutTripper</h1>
       <p>Please, choose your favorite social network to signin</p>
       <div className="icons">
-        <div className="m-auto" onClick={() => disptach(login(lodge))}><GoogleIcon /></div>
+        <div className="m-auto" onClick={() => showGoogleLogin()}><GoogleIcon /></div>
         <div
           className="m-auto"
-          onClick={() => {
-            disptach(login(agency))
-            router.push('/agency')
-          }}
         >
           <TwitterIcon />
 
         </div>
-        <div className="m-auto" onClick={() => disptach(login(consumer))}><LinkdinIcon /></div>
+        <div className="m-auto"><LinkdinIcon /></div>
         <div className="m-auto"><FacebookIcon /></div>
       </div>
       <div className="terms">
@@ -132,6 +135,8 @@ export default () => {
     </div>
   )
 }
+
+
 const GoogleIcon = () => (
   <svg width="40" className="svg" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g id="Icon/Outline/google">

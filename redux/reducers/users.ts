@@ -1,16 +1,18 @@
-export const SET_USER = 'SET_USER'
-export const UNSET_USER = 'UNSET_USER'
+export const LOGIN = 'LOGIN'
+export const LOGOUT = 'LOGOUT'
 
 export interface State {
-  user: User
+  token: TokenOuttripper
 }
 
-export const userReducer = (state : State = { user: null }, action) => {
+export const initialState = {
+  token: null,
+}
+
+export const userReducer = (state : State = initialState, action) => {
   switch (action.type) {
-    case SET_USER:
-      return { ...state, user: action.user }
-    case UNSET_USER:
-      return { ...state, user: null }
+    case LOGIN:
+      return { ...state, token: action.token }
     default:
       return { ...state }
   }
