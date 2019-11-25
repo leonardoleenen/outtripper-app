@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
-import { StoreData } from '../../redux/store'
-import bs from '../../services/business'
-import BottomNavBar from '../../components/agency_bottom_nav_bar'
+import _ from 'underscore'
+import { StoreData } from '../redux/store'
+import bs from '../services/business'
+import BottomNavBar from '../components/agency_bottom_nav_bar'
 
 interface RowProps {
   hasReaded:boolean
@@ -109,13 +110,21 @@ export default () => {
   const user: User = useSelector((state:StoreData) => state.loggedUser.user)
   const [notifications, setNotifications] = useState([])
 
-  useEffect(() => {
-    const fetchNotificactions = async () => {
-      setNotifications(await bs.getNotifications(user))
-    }
 
-    fetchNotificactions()
+  const fetchNotificactions = async () => {
+    setNotifications(await bs.getNotifications())
+  }
+
+  useEffect(() => {
+    fetchNotificactions() // Initial Load
+    function reactToChanges() {
+      bs.da.db.changes({ live: true, since: 'now', include_docs: true }).on('change', (change) => {
+        console.log(change)
+      }).on('error', console.log.bind(console))
+    }
+    bs.getNotifications().then(reactToChanges).catch(console.log.bind(console))
   }, [])
+
 
   return (
     <div>
@@ -130,9 +139,8 @@ export default () => {
         <input type="radio" name="tab" id="tab2" />
         <label htmlFor="tab2" className="justify-between">Chat Room</label>
 
-
         <div className="tab">
-          {notifications.map((n: SystemNotificaction) => (
+          {notifications.map((n: SystemNotification) => (
             <Row
               key={n.id}
               hasReaded={n.hasReaded}
@@ -140,6 +148,15 @@ export default () => {
               date={moment(n.eventDate).format('Do MM YYYY hh:mm:ss')}
             />
           ))}
+
+          <button
+            type="button"
+            onClick={() => bs.da.db.post({
+              eventDate: 1574246447000, message: 'Prueba', collectionKind: 'notifications', hasReaded: false,
+            })}
+          >
+Prueba
+          </button>
         </div>
         <div className="tab">
           <RowChatRoom
@@ -148,7 +165,6 @@ export default () => {
             date="11:00 a.m."
             message="Last message goes here..."
           />
-
         </div>
 
 

@@ -1,7 +1,21 @@
+declare module '*.json' {
+  const value: any
+  export default value
+}
+
 type Organization = {
   id: string
   cn: string
   type: 'AGENCY' | 'LODGE'
+}
+
+type TokenOuttripper = {
+  id: string
+  userCn: string
+  organizationId?: string
+  organizationCn?: string
+  organizationKind? : string
+  rol?: string
 }
 
 type User = {
@@ -9,9 +23,15 @@ type User = {
   uid: string
   cn: string
   email: string
+  photoAvatar: string
   rol : 'AGENCY' | 'LODGE' | 'CONSUMER'
   accessToken: string
   organization: Organization
+}
+
+type LoggedUser = {
+  token : TokenOuttripper
+  photoURL : string
 }
 
 type Destination = {
@@ -32,11 +52,11 @@ type AvailableDate = {
   _id?: string,
   id: string,
   program: Program,
-  dateFrom: number,
-  dateTo: number,
+  from: number,
+  to: number,
   freeSpots: number,
   totalSpots: number,
-  price: number
+  regularPrice: number
   collectionKind?:string
 }
 
@@ -49,7 +69,7 @@ type Contact = {
   collectionKind?:string
 }
 
-type SystemNotificaction = {
+type SystemNotification = {
   _id: string
   id: string
   eventDate : number
@@ -57,4 +77,14 @@ type SystemNotificaction = {
   to: User | Organization,
   hasReaded: boolean
   collectionKind? : string
+}
+
+type Invitation = {
+  invitationSendBy: string
+  invitationTo: string
+  status: string
+  memberOf: string
+  organizationName: string
+  rol: string
+  bindToUserId?: string
 }

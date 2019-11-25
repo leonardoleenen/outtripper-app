@@ -1,10 +1,11 @@
-import { SET_USER, UNSET_USER } from '../reducers/users'
+import { LOGIN, LOGOUT } from '../reducers/users'
 
-export const login = (user: User) => (dispatch) => dispatch({
-  type: SET_USER,
-  user,
+export const login = (token: TokenOuttripper) => (dispatch) => dispatch({
+  type: LOGIN,
+  token,
 })
 
 export const logout = () => (dispatch) => dispatch({
-  type: UNSET_USER,
+  type: LOGOUT,
+  token: null,
 })

@@ -1,14 +1,23 @@
 import uuidv4 from 'uuid4'
+import axios from 'axios'
 import dataAccessService, { DataAccessService } from './database'
 
 interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(destination: Destination) : Promise<Array<Program>>
+
+
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
+
+
   getContacts(organization: Organization) : Promise<Array<Contact>>
   generateUniversalId(user: User): string
   saveContact(contact: Contact, user: User) : void
-  getNotifications(user: User) : Promise<Array<SystemNotificaction>>
+  getNotifications() : Promise<Array<SystemNotification>>
+  getInvitation(id: string): Promise<Invitation>
+  login(uid:string, cn:string, email:string) : Promise<TokenOuttripper>
+  getLoggedUser() : LoggedUser
+
 }
 
 
@@ -21,11 +30,27 @@ class BusinessService implements Services {
     this.da.saveContact(contactToSave)
   }
 
+  outtripperServer = axios
+
   da: DataAccessService = dataAccessService
 
+  login(uid: string, cn: string, email: string): Promise<TokenOuttripper> {
+    return this.outtripperServer.post('https://us-central1-norse-carport-258615.cloudfunctions.net/login', {
+      uid, cn, email,
+    }).then((result) => result.data as TokenOuttripper)
+  }
 
-  getNotifications(user: User): Promise<SystemNotificaction[]> {
-    return this.da.getNotifications(user)
+  // eslint-disable-next-line class-methods-use-this
+  getLoggedUser() : LoggedUser {
+    return localStorage.getItem('user') ? JSON.parse(atob(localStorage.getItem('user'))) as LoggedUser : null
+  }
+
+  getInvitation(id: string): Promise<Invitation> {
+    return this.da.getInvitation(id)
+  }
+
+  getNotifications(): Promise<SystemNotification[]> {
+    return this.da.getNotifications()
   }
 
   // eslint-disable-next-line class-methods-use-this
