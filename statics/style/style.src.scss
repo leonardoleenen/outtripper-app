@@ -9,6 +9,10 @@ body{
     color: #3B414B;
 
 }
+.bg-gradient{
+  background: linear-gradient(179.96deg, #F56565 2.18%, #E53E3E 27.54%, #C53030 52.38%, #9B2C2C 98.95%);
+  min-height:100vh;
+  color:#fff;}
 h2{
     font-family: Open Sans;
 font-style: normal;
@@ -21,6 +25,13 @@ h5{
   font-weight: 600;
 font-size: 20px;
 line-height: 27px;
+letter-spacing: 0.15px;
+color: #3B414B;
+}
+h6{
+  font-weight: 600;
+font-size: 16px;
+line-height: 20px;
 letter-spacing: 0.15px;
 color: #3B414B;
 }
