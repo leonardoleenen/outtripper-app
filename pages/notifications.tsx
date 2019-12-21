@@ -107,7 +107,10 @@ const Search = () => (
 
 
 export default () => {
-  const user: User = useSelector((state:StoreData) => state.loggedUser.user)
+  // const user: User = useSelector((state:StoreData) => state.loggedUser.user)
+
+  // const user : LoggedUser = bs.getLoggedUser()
+
   const [notifications, setNotifications] = useState([])
 
 

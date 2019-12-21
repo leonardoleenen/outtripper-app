@@ -7,12 +7,16 @@ import businessService from '../services/business'
 
 export default () => {
   const bs = businessService
-  const { user } = useSelector((state : StoreData) => state.loggedUser)
+  const user : LoggedUser = businessService.getLoggedUser()
   const [contactList, setContactList] = useState([])
 
   useEffect(() => {
     const fetchContacts = async () => {
-      setContactList(await bs.getContacts(user.organization))
+      setContactList(await bs.getContacts({
+        id: user.token.organizationId,
+        cn: user.token.organizationCn,
+        type: user.token.organizationKind,
+      } as Organization))
     }
 
     fetchContacts()

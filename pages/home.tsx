@@ -1,49 +1,58 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import BottomNavBar from '../components/agency_bottom_nav_bar'
+import bs from '../services/business'
 
-export default () => (
-  <div className="content">
-    <BottomNavBar />
-    <FreeIcon />
-    <h1>Free Date!</h1>
-    <p>We don't have any reservation for this date. Make your first reservation right now and save the date</p>
-    <style jsx>
-      {
-          `
-         .content{
+export default () => {
+  useEffect(() => {
+    bs.getToken().then((result) => {
+      console.log(result)
+    })
+  })
+
+  return (
+    <div className="content">
+      <BottomNavBar />
+      <FreeIcon />
+      <h1>Free Date!</h1>
+      <p>We dont have any reservation for this date. Make your first reservation right now and save the date</p>
+      <style jsx>
+        {
+            `
+           .content{
+              margin:auto;
+              text-align:center;
+              color: #3B414B;
+              padding-top:8%;
+            }
+           p{
+            font-family: Open Sans;
+            font-style: normal;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 25px;
+            text-align: center;
+            letter-spacing: 0.15px;
+            width:70%;
             margin:auto;
-            text-align:center;
-            color: #3B414B;
-            padding-top:8%;
+           }
+           h1{
+            font-family: Open Sans;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 36px;
+            line-height: 49px;
+            text-align: center;
+            letter-spacing: 0.15px;
+            
+           }
+  
+            `
           }
-         p{
-          font-family: Open Sans;
-          font-style: normal;
-          font-weight: normal;
-          font-size: 14px;
-          line-height: 25px;
-          text-align: center;
-          letter-spacing: 0.15px;
-          width:70%;
-          margin:auto;
-         }
-         h1{
-          font-family: Open Sans;
-          font-style: normal;
-          font-weight: 600;
-          font-size: 36px;
-          line-height: 49px;
-          text-align: center;
-          letter-spacing: 0.15px;
-          
-         }
 
-          `
-        }
-
-    </style>
-  </div>
-)
+      </style>
+    </div>
+  )
+}
 
 const FreeIcon = () => (
   <svg width="262" height="222" viewBox="0 0 262 20" fill="none" xmlns="http://www.w3.org/2000/svg">

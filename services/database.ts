@@ -2,6 +2,7 @@
 import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
 import firebase from 'firebase'
+import { throws } from 'assert'
 import { firebaseKey } from '../keys'
 
 
@@ -16,8 +17,14 @@ if (!firebase.apps.length) {
 declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(destination: Destination): Promise<Array<Program>>
+
+  setToken(token : TokenOuttripper) : void
+  getToken() : Promise<TokenOuttripper>
+
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
   addAvailableDate(date: AvailableDate) : void
+  getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
+
   getContacts(organization: Organization) : Promise<Array<Contact>>
   saveContact(contact: Contact) : void
   getNotifications() : Promise<Array<SystemNotification>>
@@ -34,6 +41,22 @@ export class DataAccessService implements DataService {
   fb = firebase
 
   remote: any
+
+  setToken(token: TokenOuttripper): void {
+    this.db.post({
+      ...token,
+      collectionKind: 'token',
+    })
+  }
+
+  getToken(): Promise<TokenOuttripper> {
+    return this.db.find({
+      selector: {
+        collectionKind: 'token',
+
+      },
+    }).then((result) => result.docs[0])
+  }
 
   getInvitation(id: string): Promise<Invitation> {
     return this.fb.firestore()
@@ -118,6 +141,16 @@ export class DataAccessService implements DataService {
       .collection('availability')
       .get()
       .then((snap) => snap.docs.map((doc) => doc.data() as AvailableDate))
+  }
+
+  getAvailableDate(id: string, destinationId: string): Promise<AvailableDate> {
+    return this.fb.firestore()
+      .collection(destinationId)
+      .doc('dates')
+      .collection('availability')
+      .where('id', '==', id)
+      .get()
+      .then((snap) => snap.docs.map((doc) => doc.data() as AvailableDate)[0])
   }
 
 

@@ -16,6 +16,8 @@ type TokenOuttripper = {
   organizationCn?: string
   organizationKind? : string
   rol?: string
+  photoAvatar?: string
+  collectionKind?: string
 }
 
 type User = {
@@ -27,6 +29,7 @@ type User = {
   rol : 'AGENCY' | 'LODGE' | 'CONSUMER'
   accessToken: string
   organization: Organization
+  collectionKind? : string
 }
 
 type LoggedUser = {

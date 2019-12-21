@@ -8,16 +8,15 @@ interface Services {
 
 
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
-
+  getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
 
   getContacts(organization: Organization) : Promise<Array<Contact>>
   generateUniversalId(user: User): string
   saveContact(contact: Contact, user: User) : void
   getNotifications() : Promise<Array<SystemNotification>>
   getInvitation(id: string): Promise<Invitation>
-  login(uid:string, cn:string, email:string) : Promise<TokenOuttripper>
-  getLoggedUser() : LoggedUser
-
+  login(uid:string, cn:string, email:string, photoAvatar?:string) : Promise<TokenOuttripper>
+  getToken() : Promise<TokenOuttripper>
 }
 
 
@@ -34,15 +33,19 @@ class BusinessService implements Services {
 
   da: DataAccessService = dataAccessService
 
-  login(uid: string, cn: string, email: string): Promise<TokenOuttripper> {
+  login(uid: string, cn: string, email: string, photoAvatar?: string): Promise<TokenOuttripper> {
     return this.outtripperServer.post('https://us-central1-norse-carport-258615.cloudfunctions.net/login', {
       uid, cn, email,
-    }).then((result) => result.data as TokenOuttripper)
+    }).then((result) => {
+      // eslint-disable-next-line no-param-reassign
+      result.data.photoAvatar = photoAvatar
+      this.da.setToken(result.data)
+      return result.data as TokenOuttripper
+    })
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getLoggedUser() : LoggedUser {
-    return localStorage.getItem('user') ? JSON.parse(atob(localStorage.getItem('user'))) as LoggedUser : null
+  getToken(): Promise<TokenOuttripper> {
+    return this.da.getToken()
   }
 
   getInvitation(id: string): Promise<Invitation> {
@@ -64,6 +67,10 @@ class BusinessService implements Services {
 
   getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
     return this.da.getAllAvailableDate(destination)
+  }
+
+  getAvailableDate(id: string, destinationId: string): Promise<AvailableDate> {
+    return this.da.getAvailableDate(id, destinationId)
   }
 
   getPrograms(destination: Destination): Promise<Program[]> {

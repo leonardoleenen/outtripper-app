@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../statics/style/style.scss'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
@@ -14,15 +14,14 @@ export default () => {
   const provider = new dbs.fb.auth.GoogleAuthProvider()
 
   const showGoogleLogin = () => {
-    dbs.fb.auth().signInWithPopup(provider).then((result) => {
+    dbs.fb.auth().signInWithRedirect(provider)
+  }
+
+  useEffect(() => {
+    dbs.fb.auth().getRedirectResult().then((result) => {
       const { user } = result
       setIsLoading(true)
-      bs.login(user.uid, user.displayName, user.email).then((token: TokenOuttripper) => {
-        localStorage.setItem('user', btoa(JSON.stringify({
-          token,
-          photoURL: user.photoURL,
-        })))
-
+      bs.login(user.uid, user.displayName, user.email, user.photoURL).then((token: TokenOuttripper) => {
         switch (token.organizationKind) {
           case 'LODGE':
             router.push('/home')
@@ -46,7 +45,8 @@ export default () => {
       const { credential } = error
       // ...
     })
-  }
+  }, [])
+
 
   if (isLoading) return <Waiting />
 
