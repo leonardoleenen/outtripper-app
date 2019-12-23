@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import BottomNavBar from '../components/agency_bottom_nav_bar'
+// import BottomNavBar from '../components/agency_bottom_nav_bar'
+import BottomNavBar from '../components/bottom_nav_bar'
 import bs from '../services/business'
 
 export default () => {
@@ -10,8 +11,8 @@ export default () => {
   })
 
   return (
-    <div className="content">
-      <BottomNavBar />
+    <div className="content relative h-screen">
+
       <FreeIcon />
       <h1>Free Date!</h1>
       <p>We dont have any reservation for this date. Make your first reservation right now and save the date</p>
@@ -50,6 +51,7 @@ export default () => {
           }
 
       </style>
+      <BottomNavBar />
     </div>
   )
 }
