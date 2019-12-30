@@ -1,15 +1,20 @@
 import React from 'react'
+import { useRouter } from 'next/router'
 
 interface Props {
   children: any
-  next: string
   back: string
   label: string
   title: string
 }
 
 export default (props: Props) => {
-  const { children, label, title } = props
+  const {
+    children, label, title,
+  } = props
+
+  const router = useRouter()
+
   return (
     <div className="page h-screen text-white relative  ">
 
@@ -21,7 +26,6 @@ export default (props: Props) => {
 
       <p className="mx-4 mt-16 text-3xl font-thin">{title}</p>
       {children}
-      <div className=" ripple right-0 bottom-0 absolute h-16 w-16 mr-8 mb-8 bg-white rounded-full flex items-center"><IconArrow /></div>
 
       <style>
         {`
@@ -50,15 +54,6 @@ export default (props: Props) => {
   )
 }
 
-const IconArrow = () => (
-  <svg width="31" height="31" viewBox="0 0 31 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M13.1381 24.5436C13.5152 24.5436 13.8898 24.3796 14.1456 24.0618L20.3817 16.3118C20.7666 15.8326 20.7615 15.148 20.3675 14.6753L13.9092 6.92529C13.4532 6.37762 12.6382 6.30399 12.0892 6.75995C11.5416 7.21591 11.4679 8.03095 11.9252 8.57862L17.7054 15.5162L12.1319 22.4421C11.6849 22.9975 11.7728 23.8112 12.3295 24.2582C12.5671 24.4506 12.8539 24.5436 13.1381 24.5436Z" fill="#539394" />
-    <mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="11" y="6" width="10" height="19">
-      <path fillRule="evenodd" clipRule="evenodd" d="M13.1381 24.5436C13.5152 24.5436 13.8898 24.3796 14.1456 24.0618L20.3817 16.3118C20.7666 15.8326 20.7615 15.148 20.3675 14.6753L13.9092 6.92529C13.4532 6.37762 12.6382 6.30399 12.0892 6.75995C11.5416 7.21591 11.4679 8.03095 11.9252 8.57862L17.7054 15.5162L12.1319 22.4421C11.6849 22.9975 11.7728 23.8112 12.3295 24.2582C12.5671 24.4506 12.8539 24.5436 13.1381 24.5436Z" fill="white" />
-    </mask>
-    <g mask="url(#mask0)" />
-  </svg>
-)
 
 const IconBack = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

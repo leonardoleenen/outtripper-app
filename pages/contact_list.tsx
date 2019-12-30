@@ -2,6 +2,10 @@
 import React, { useEffect, useState } from 'react'
 import * as _ from 'underscore'
 import lunr from 'lunr'
+import { useDispatch } from 'react-redux'
+import { useRouter } from 'next/router'
+import { setContact } from '../redux/actions/contact_calendar'
+
 import { IconBack, IconSearch } from '../statics/icons'
 import '../statics/style/style.scss'
 import ItemList from '../components/contacts/item_list'
@@ -15,6 +19,8 @@ let contactFiltered = []
 export default () => {
   const [contacts, setContacts] = useState<Array<Contact>>([])
   const [textToSearch, setTextToSearch] = useState('')
+  const dispatch = useDispatch()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -37,12 +43,10 @@ export default () => {
 
   if (contactIndex) {
     contactFiltered = contacts.filter((c:Contact) => contactIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)
-    // console.log(contactFiltered.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === contacts))
   }
 
-  // contactFiltered ? contactFiltered.search(`*${textToSearch}*`).map((cf) => cf.ref === 'leonado@flicktrip.com') : 'Nada')
   return (
-    <div className="flex-cols">
+    <div className="flex-cols relative">
       <div className="flex mt-8  items-center">
         <div className="h-8 w-8 mx-4"><IconBack /></div>
         <h1 className="font-bold text-2xl m-auto w-2/3">Contacts</h1>
@@ -56,12 +60,40 @@ export default () => {
           placeholder="Search"
         />
       </div>
+
       {contactFiltered.map((c: Contact, index:number) => (
-        <div key={c.email}>
+        <div
+          key={c.email}
+          onClick={() => {
+            dispatch(setContact(c))
+            router.push('/reservation/holder')
+          }}
+        >
           {index === 0 || contactFiltered[index - 1].lastName.substring(0, 1).toUpperCase() !== c.lastName.substring(0, 1).toUpperCase() ? <div className="h-8 ml-4 text-2xl font-bold mt-4">{c.lastName.substring(0, 1).toUpperCase()}</div> : ''}
           <ItemList cn={`${c.lastName} ${c.firstName}`} subText="5 trips" avatar={null} key={c.id} email={c.email} />
         </div>
       ))}
+
+
+      <div className="buttonAdd absolute h-16 w-16 bg-teal-500 shadow-2xl right-0 bottom-0 rounded-full mb-8 mr-8 flex items-center">
+        <IconAdd />
+      </div>
+      <style>
+        {
+          `
+          .buttonAdd {
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
+          }
+          `
+        }
+      </style>
     </div>
   )
 }
+
+const IconAdd = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd" d="M19 11H13V5H11V11H5V13H11V19H13V13H19V11Z" fill="white" />
+  </svg>
+
+)
