@@ -1,6 +1,9 @@
 import uuidv4 from 'uuid4'
 import axios from 'axios'
+import getConfig from 'next/config'
 import dataAccessService, { DataAccessService } from './database'
+
+const { publicRuntimeConfig: { API_SERVER } } = getConfig()
 
 interface Services {
   getDestinations(): Promise<Array<Destination>>
@@ -10,7 +13,7 @@ interface Services {
   getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
   getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
 
-  getContacts(organization: Organization) : Promise<Array<Contact>>
+  getContacts() : Promise<Array<Contact>>
   generateUniversalId(user: User): string
   saveContact(contact: Contact, user: User) : void
   getNotifications() : Promise<Array<SystemNotification>>
@@ -29,9 +32,12 @@ class BusinessService implements Services {
     this.da.saveContact(contactToSave)
   }
 
+
   outtripperServer = axios
 
   da: DataAccessService = dataAccessService
+
+  // tokenToB64 = (token: any) : string => `Basic ${btoa(JSON.stringify(token))}`
 
   login(uid: string, cn: string, email: string, photoAvatar?: string): Promise<TokenOuttripper> {
     return this.outtripperServer.post('https://us-central1-norse-carport-258615.cloudfunctions.net/login', {
@@ -40,6 +46,8 @@ class BusinessService implements Services {
       // eslint-disable-next-line no-param-reassign
       result.data.photoAvatar = photoAvatar
       this.da.setToken(result.data)
+
+      this.outtripperServer.defaults.headers.common.Authorization = `Basic ${btoa(JSON.stringify(result.data))}`
       return result.data as TokenOuttripper
     })
   }
@@ -61,8 +69,13 @@ class BusinessService implements Services {
     return uuidv4().toString()
   }
 
-  getContacts(organization: Organization): Promise<Contact[]> {
-    return this.da.getContacts(organization)
+  getContacts(): Promise<Contact[]> {
+    // console.log(this.outtripperServer.defaults.headers)
+    // eslint-disable-next-line max-len
+    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
+      .then((result) => result.data))
+
+    // this.outtripperServer.get(`${API_SERVER}getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } }).then((result) => result.data as Array<Contact>)
   }
 
   getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {

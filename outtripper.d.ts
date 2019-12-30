@@ -70,6 +70,7 @@ type Contact = {
   email: string
   owner?: Organization
   collectionKind?:string
+  rawText?: string
 }
 
 type SystemNotification = {

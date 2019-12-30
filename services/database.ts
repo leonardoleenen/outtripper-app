@@ -25,7 +25,6 @@ declare interface DataService {
   addAvailableDate(date: AvailableDate) : void
   getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
 
-  getContacts(organization: Organization) : Promise<Array<Contact>>
   saveContact(contact: Contact) : void
   getNotifications() : Promise<Array<SystemNotification>>
   addNotification(notification : SystemNotification) : void
@@ -43,6 +42,7 @@ export class DataAccessService implements DataService {
   remote: any
 
   setToken(token: TokenOuttripper): void {
+    console.log(JSON.stringify(token))
     this.db.post({
       ...token,
       collectionKind: 'token',
@@ -126,13 +126,14 @@ export class DataAccessService implements DataService {
     this.db.post(contact)
   }
 
+  /*
   getContacts(organization: Organization): Promise<Contact[]> {
     return this.db.find({
       selector: {
         collectionKind: 'contact',
       },
     }).then((result) => result.docs.filter((c:Contact) => c.owner.id === organization.id))
-  }
+  } */
 
   getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
     return this.fb.firestore()
