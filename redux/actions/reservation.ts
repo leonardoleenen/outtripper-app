@@ -1,5 +1,5 @@
 import {
-  SET_AVAILABLE_DATE, SET_RESERVATION_HOLDER, SET_GUEST_QTY, Action, SET_RESERVATION_LABEL,
+  SET_AVAILABLE_DATE, SET_RESERVATION_HOLDER, SET_GUEST_QTY, Action, SET_RESERVATION_LABEL, SET_DAYS_IN_HOLD, SET_INSTALLMENTS,
 } from '../reducers/reservation'
 
 
@@ -21,4 +21,14 @@ export const setGuestQuantity = (quantity: number) => (dispatch) => dispatch({
 export const setReservationLabel = (label: string) => (dispatch) => dispatch({
   type: SET_RESERVATION_LABEL,
   label,
+})
+
+export const setDaysInHold = (daysInHold: number) => (dispatch) => dispatch({
+  type: SET_DAYS_IN_HOLD,
+  daysInHold,
+})
+
+export const setInstallments = (installments: number) => (dispatch) => dispatch({
+  type: SET_INSTALLMENTS,
+  installments,
 })

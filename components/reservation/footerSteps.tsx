@@ -17,7 +17,7 @@ export default (props: Props) => {
           <span className="w-11/12 ml-4"> 1 </span>
         </div>
       </div>
-      <div className="bg-teal-500 p-4 h-12 rounded-lg text-white font-semibold flex items-center w-1/3 mr-4" onClick={callFunction}>
+      <div className="bg-teal-600 p-4 h-12 rounded uppercase text-white font-thin text-sm flex items-center w-1/3 mr-4" onClick={callFunction}>
         <span>Next</span>
       </div>
     </div>

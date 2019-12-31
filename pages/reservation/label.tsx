@@ -16,7 +16,7 @@ export default () => {
   }
 
   return (
-    <Page back="/reservation/holder" label="Fullweek Program" title="Give this reservation a label">
+    <Page back="/reservation/holder" label={label} title="Give this reservation a label">
       <input
         onChange={(e) => setLabel(e.target.value)}
         value={label}
