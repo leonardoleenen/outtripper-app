@@ -10,7 +10,7 @@ interface Props {
 
 export default (props: Props) => {
   const {
-    children, label, title,
+    children, label, title, back,
   } = props
 
   const router = useRouter()
@@ -19,12 +19,12 @@ export default (props: Props) => {
     <div className="page h-screen text-white relative  ">
 
       <div className="flex pt-8">
-        <div className=" h-12 w-12"><IconBack /></div>
-        <div className="font-thin">{label}</div>
+        <div className=" h-12 w-12" onClick={() => router.push(back)}><IconBack /></div>
+        <div className="font-thin ">{label}</div>
       </div>
 
 
-      <p className="mx-4 mt-16 text-3xl font-thin">{title}</p>
+      <p className="mx-4 mt-16 text-3xl font-thin leading-relaxed">{title}</p>
       {children}
 
       <style>

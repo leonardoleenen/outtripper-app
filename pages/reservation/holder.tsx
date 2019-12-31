@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import Page from '../../components/reservation/page'
 import { setCallingPage, setHolderIsAPartyMember } from '../../redux/actions/contact_calendar'
+import { setReservationHolder } from '../../redux/actions/reservation'
 
 
 export default () => {
@@ -52,7 +53,18 @@ export default () => {
           </div>
         )}
 
-      {holder ? <div className=" ripple right-0 bottom-0 absolute h-16 w-16 mr-8 mb-8 bg-white rounded-full flex items-center" onClick={() => router.push('/reservation/label')}><IconArrow /></div> : ''}
+      {holder ? (
+        <div
+          className=" ripple right-0 bottom-0 absolute h-16 w-16 mr-8 mb-8 bg-white rounded-full flex items-center"
+          onClick={() => {
+            dispatch(setReservationHolder(holder))
+            router.push('/reservation/label')
+          }}
+        >
+          <IconArrow />
+
+        </div>
+      ) : ''}
 
 
       <style>
