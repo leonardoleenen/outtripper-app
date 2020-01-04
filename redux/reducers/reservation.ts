@@ -4,6 +4,7 @@ export const SET_GUEST_QTY = 'SET_GUEST_QTY'
 export const SET_RESERVATION_LABEL = 'SET_RESERVATION_LABEL'
 export const SET_DAYS_IN_HOLD = 'SET_DAYS_IN_HOLD'
 export const SET_INSTALLMENTS = 'SET_INSTALLMENTS'
+export const SET_PROGRAM_SELECTED = 'SET_PROGRAM_SELECTED'
 
 export interface State {
   availableDate: AvailableDate
@@ -12,6 +13,7 @@ export interface State {
   reservationLabel: string,
   daysInHold: number,
   installments: number
+  programSelected: Program
 }
 
 export interface Action {
@@ -22,6 +24,7 @@ export interface Action {
   label: string,
   daysInHold: number
   installments: number
+  program: Program
 }
 
 export const initialState: State = {
@@ -31,6 +34,7 @@ export const initialState: State = {
   reservationLabel: '',
   daysInHold: 1,
   installments: 1,
+  programSelected: null,
 }
 
 
@@ -48,6 +52,8 @@ export const reservationReducer = (state: State = initialState, action: Action) 
       return { ...state, daysInHold: action.daysInHold }
     case SET_INSTALLMENTS:
       return { ...state, installments: action.installments }
+    case SET_PROGRAM_SELECTED:
+      return { ...state, programSelected: action.program }
     default:
       return { ...state }
   }

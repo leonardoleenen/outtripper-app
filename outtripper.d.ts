@@ -43,24 +43,27 @@ type Destination = {
   cn: string,
 }
 
+
 type Program = {
-  _id?: string,
- destination: Destination,
- id: string,
- cn: string,
- collectionKind?:string
+  id: string
+  bedNights: number
+  kind: string
+  minimunForBooking: number
+  monthAvailable: Array<string>
+  name: string
+  reserveSpotForEachBooking: number
+  startingDay: Array<string>
 }
 
+
 type AvailableDate = {
-  _id?: string,
-  id: string,
-  program: Program,
-  from: number,
-  to: number,
-  freeSpots: number,
-  totalSpots: number,
-  regularPrice: number
-  collectionKind?:string
+  id : string
+  from : number
+  to: number
+  programId: string
+  freeSpots: number
+  totalSpots: number
+  days?: Array<any>
 }
 
 type Contact = {

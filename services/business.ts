@@ -1,17 +1,15 @@
 import uuidv4 from 'uuid4'
 import axios from 'axios'
 import getConfig from 'next/config'
+import moment from 'moment'
 import dataAccessService, { DataAccessService } from './database'
 
 const { publicRuntimeConfig: { API_SERVER } } = getConfig()
 
 interface Services {
   getDestinations(): Promise<Array<Destination>>
-  getPrograms(destination: Destination) : Promise<Array<Program>>
-
-
-  getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
-  getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
+  getPrograms(organtizationId: string) : Promise<Array<Program>>
+  getAvailability(year: number) : Promise<Array<AvailableDate>>
 
   getContacts() : Promise<Array<Contact>>
   generateUniversalId(user: User): string
@@ -72,26 +70,146 @@ class BusinessService implements Services {
   getContacts(): Promise<Contact[]> {
     // console.log(this.outtripperServer.defaults.headers)
     // eslint-disable-next-line max-len
-    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
+    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}/getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
       .then((result) => result.data))
 
     // this.outtripperServer.get(`${API_SERVER}getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } }).then((result) => result.data as Array<Contact>)
   }
 
-  getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
-    return this.da.getAllAvailableDate(destination)
-  }
 
-  getAvailableDate(id: string, destinationId: string): Promise<AvailableDate> {
-    return this.da.getAvailableDate(id, destinationId)
-  }
-
-  getPrograms(destination: Destination): Promise<Program[]> {
-    return this.da.getPrograms(destination)
+  getPrograms(organizationId: string): Promise<Program[]> {
+    return this.da.getPrograms(organizationId)
   }
 
   getDestinations(): Promise<Array<Destination>> {
     return this.da.getDestinations()
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  mergeAvailability(emptyAvailability: any) : Promise<Array<AvailableDate>> {
+    // eslint-disable-next-line no-return-assign
+    // eslint-disable-next-line no-param-reassign
+    const mergedResult = emptyAvailability
+
+    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}/getAvailability`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
+      .then((result) => {
+        // console.log(result.data)
+        let month = 0
+        let day = 0
+        result.data.forEach((v) => {
+          // console.log(moment(v.to).diff(moment(v.from), 'days'))
+
+          month = new Date(v.from).getMonth()
+
+          for (let i = 0; i <= moment(v.to).diff(moment(v.from), 'days'); i += 1) {
+            day = parseInt(moment(v.from).format('DD'), 10) + i
+            mergedResult[month].days[day - 1] = {
+              availability: [v],
+            }
+          }
+        })
+
+
+        // result.data
+        return mergedResult
+      }))
+  }
+
+
+  // eslint-disable-next-line class-methods-use-this
+  getAvailability(year:number): Promise<Array<AvailableDate>> {
+    // const empty = Array(31)
+    const feb = moment([year]).isLeapYear() ? 29 : 28
+    console.log(feb, year)
+
+    const emptyMonth = [{
+      month: 1,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    }, {
+      month: 2,
+      year,
+      days: Array<undefined>(moment([year]).isLeapYear() ? 29 : 28).fill(undefined),
+    },
+    {
+      month: 3,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    },
+    {
+      month: 4,
+      year,
+      days: Array<undefined>(30).fill(undefined),
+    },
+    {
+      month: 5,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    }, {
+      month: 6,
+      year,
+      days: Array<undefined>(30).fill(undefined),
+    },
+    {
+      month: 7,
+      year,
+      days: Array<undefined>(30).fill(undefined),
+    },
+    {
+      month: 8,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    },
+    {
+      month: 9,
+      year,
+      days: Array<undefined>(30).fill(undefined),
+    },
+    {
+      month: 10,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    },
+    {
+      month: 11,
+      year,
+      days: Array<undefined>(30).fill(undefined),
+    }, {
+      month: 12,
+      year,
+      days: Array<undefined>(31).fill(undefined),
+    },
+    ]
+
+    return this.mergeAvailability(emptyMonth)
+    /* return [{
+      month: 1,
+      year,
+      days: [{
+        day: 1,
+        availability: null,
+      }, {
+        availability: [{
+          program: 'FULLWEEK',
+          spots: 4,
+          price: 6400,
+        }],
+      }, {
+        day: 3,
+        availability: null,
+      },
+      {
+        day: 4,
+        availability: null,
+      }, {
+        day: 5,
+        availability: null,
+      }, {
+        day: 6,
+        availability: null,
+      }],
+    }]
+  } */
   }
 }
 

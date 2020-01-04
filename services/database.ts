@@ -2,7 +2,6 @@
 import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
 import firebase from 'firebase'
-import { throws } from 'assert'
 import { firebaseKey } from '../keys'
 
 
@@ -16,15 +15,9 @@ if (!firebase.apps.length) {
 
 declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
-  getPrograms(destination: Destination): Promise<Array<Program>>
-
+  getPrograms(organizationId: string): Promise<Array<Program>>
   setToken(token : TokenOuttripper) : void
   getToken() : Promise<TokenOuttripper>
-
-  getAllAvailableDate(destination: Destination): Promise<Array<AvailableDate>>
-  addAvailableDate(date: AvailableDate) : void
-  getAvailableDate(id: string, destinationId: string) : Promise<AvailableDate>
-
   saveContact(contact: Contact) : void
   getNotifications() : Promise<Array<SystemNotification>>
   addNotification(notification : SystemNotification) : void
@@ -42,7 +35,6 @@ export class DataAccessService implements DataService {
   remote: any
 
   setToken(token: TokenOuttripper): void {
-    console.log(JSON.stringify(token))
     this.db.post({
       ...token,
       collectionKind: 'token',
@@ -126,53 +118,22 @@ export class DataAccessService implements DataService {
     this.db.post(contact)
   }
 
-  /*
-  getContacts(organization: Organization): Promise<Contact[]> {
-    return this.db.find({
-      selector: {
-        collectionKind: 'contact',
-      },
-    }).then((result) => result.docs.filter((c:Contact) => c.owner.id === organization.id))
-  } */
 
-  getAllAvailableDate(destination: Destination): Promise<AvailableDate[]> {
+  getPrograms(organizationId: string): Promise<Program[]> {
+    const programs : Array<Program> = []
+
     return this.fb.firestore()
-      .collection(destination.id)
-      .doc('dates')
-      .collection('availability')
+      .collection(organizationId)
+      .doc('settings')
+      .collection('programs')
       .get()
-      .then((snap) => snap.docs.map((doc) => doc.data() as AvailableDate))
-  }
-
-  getAvailableDate(id: string, destinationId: string): Promise<AvailableDate> {
-    return this.fb.firestore()
-      .collection(destinationId)
-      .doc('dates')
-      .collection('availability')
-      .where('id', '==', id)
-      .get()
-      .then((snap) => snap.docs.map((doc) => doc.data() as AvailableDate)[0])
-  }
-
-
-  addAvailableDate(date: AvailableDate): void {
-    this.db.find({
-      selector: {
-        collectionKind: 'availableDates',
-        id: date.id,
-      },
-    }).then((result) => {
-      if (result.docs.length === 0) { this.db.post(date) }
-    })
-  }
-
-
-  getPrograms(destination: Destination): Promise<Program[]> {
-    return this.db.find({
-      selector: {
-        collectionKind: 'program',
-      },
-    }).then((result) => result.docs.filter((p:Program) => p.destination.id === destination.id))
+      .then((snap) => {
+        // eslint-disable-next-line array-callback-return
+        snap.docs.map((doc) => {
+          programs.push(doc.data() as Program)
+        })
+        return programs
+      })
   }
 
   getDestinations(): Promise<Array<Destination>> {
