@@ -10,7 +10,7 @@ interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(organtizationId: string) : Promise<Array<Program>>
   getAvailability(year: number) : Promise<Array<AvailableDate>>
-
+  getAvailabilityByMonthAndYear(programId:string, month: number, year: number) : Promise<Array<AvailableDate>>
   getContacts() : Promise<Array<Contact>>
   generateUniversalId(user: User): string
   saveContact(contact: Contact, user: User) : void
@@ -70,8 +70,8 @@ class BusinessService implements Services {
   getContacts(): Promise<Contact[]> {
     // console.log(this.outtripperServer.defaults.headers)
     // eslint-disable-next-line max-len
-    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}/getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
-      .then((result) => result.data))
+    return this.getToken().then((token : TokenOuttripper) => this.da.getContacts(token.organizationId)
+      .then((result) => result))
 
     // this.outtripperServer.get(`${API_SERVER}getContactsCalendar`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } }).then((result) => result.data as Array<Contact>)
   }
@@ -91,28 +91,21 @@ class BusinessService implements Services {
     // eslint-disable-next-line no-param-reassign
     const mergedResult = emptyAvailability
 
-    return this.getToken().then((token) => this.outtripperServer.get(`${API_SERVER}/getAvailability`, { headers: { Authorization: `Basic ${btoa(JSON.stringify(token))}` } })
-      .then((result) => {
-        // console.log(result.data)
-        let month = 0
-        let day = 0
-        result.data.forEach((v) => {
-          // console.log(moment(v.to).diff(moment(v.from), 'days'))
-
-          month = new Date(v.from).getMonth()
-
-          for (let i = 0; i <= moment(v.to).diff(moment(v.from), 'days'); i += 1) {
-            day = parseInt(moment(v.from).format('DD'), 10) + i
-            mergedResult[month].days[day - 1] = {
-              availability: [v],
-            }
+    return this.getToken().then((token: TokenOuttripper) => this.da.getAvailability(token.organizationId).then((result : Array<AvailableDate>) => {
+      let month = 0
+      let day = 0
+      result.forEach((v) => {
+        month = new Date(v.from).getMonth()
+        for (let i = 0; i <= moment(v.to).diff(moment(v.from), 'days'); i += 1) {
+          day = parseInt(moment(v.from).format('DD'), 10) + i
+          mergedResult[month].days[day - 1] = {
+            availability: [v],
           }
-        })
-
-
-        // result.data
-        return mergedResult
-      }))
+        }
+      })
+      // result.data
+      return mergedResult
+    }))
   }
 
 
@@ -182,34 +175,10 @@ class BusinessService implements Services {
     ]
 
     return this.mergeAvailability(emptyMonth)
-    /* return [{
-      month: 1,
-      year,
-      days: [{
-        day: 1,
-        availability: null,
-      }, {
-        availability: [{
-          program: 'FULLWEEK',
-          spots: 4,
-          price: 6400,
-        }],
-      }, {
-        day: 3,
-        availability: null,
-      },
-      {
-        day: 4,
-        availability: null,
-      }, {
-        day: 5,
-        availability: null,
-      }, {
-        day: 6,
-        availability: null,
-      }],
-    }]
-  } */
+  }
+
+  getAvailabilityByMonthAndYear(programId: string, month: number, year: number): Promise<AvailableDate[]> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getAvailableDates(token.organizationId, programId, month, year))
   }
 }
 

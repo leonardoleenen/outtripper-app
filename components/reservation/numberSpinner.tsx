@@ -2,22 +2,24 @@ import React, { useState } from 'react'
 
 interface Props {
   callBackFunction: any
+  value: number
 }
 
 export default (props:Props) => {
-  const [value, setValue] = useState(1)
-  const { callBackFunction } = props
+  const { callBackFunction, value } = props
+  const [spinnerValue, setSpinnerValue] = useState(value)
+
 
   const increse = () => {
     const finalValue = value + 1
 
-    setValue(finalValue)
+    setSpinnerValue(finalValue)
     callBackFunction(finalValue)
   }
 
   const decrease = () => {
     const finalValue = value - 1
-    setValue(finalValue)
+    setSpinnerValue(finalValue)
     callBackFunction(finalValue)
   }
 
@@ -26,7 +28,7 @@ export default (props:Props) => {
       <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => decrease()}>
         <span className="m-auto">-</span>
       </div>
-      <div className="text-5xl font-bold">{value}</div>
+      <div className="text-5xl font-bold">{spinnerValue}</div>
       <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => increse()}>
         <span>+</span>
       </div>

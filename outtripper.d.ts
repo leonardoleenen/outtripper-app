@@ -64,6 +64,7 @@ type AvailableDate = {
   freeSpots: number
   totalSpots: number
   days?: Array<any>
+  price: number
 }
 
 type Contact = {
@@ -94,4 +95,9 @@ type Invitation = {
   organizationName: string
   rol: string
   bindToUserId?: string
+}
+
+type MonthAndYear = {
+  month: number
+  year: number
 }

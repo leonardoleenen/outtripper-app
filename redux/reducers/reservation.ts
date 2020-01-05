@@ -5,6 +5,7 @@ export const SET_RESERVATION_LABEL = 'SET_RESERVATION_LABEL'
 export const SET_DAYS_IN_HOLD = 'SET_DAYS_IN_HOLD'
 export const SET_INSTALLMENTS = 'SET_INSTALLMENTS'
 export const SET_PROGRAM_SELECTED = 'SET_PROGRAM_SELECTED'
+export const SET_MONTH_AND_YEAR = 'SET_MONTH_AND_YEAR'
 
 export interface State {
   availableDate: AvailableDate
@@ -14,6 +15,8 @@ export interface State {
   daysInHold: number,
   installments: number
   programSelected: Program
+  monthAndYearSelected: MonthAndYear
+  availability: Array<AvailableDate>
 }
 
 export interface Action {
@@ -25,6 +28,8 @@ export interface Action {
   daysInHold: number
   installments: number
   program: Program
+  monthAndYear: MonthAndYear
+  availability: Array<AvailableDate>
 }
 
 export const initialState: State = {
@@ -35,6 +40,8 @@ export const initialState: State = {
   daysInHold: 1,
   installments: 1,
   programSelected: null,
+  monthAndYearSelected: null,
+  availability: [],
 }
 
 
@@ -54,6 +61,8 @@ export const reservationReducer = (state: State = initialState, action: Action) 
       return { ...state, installments: action.installments }
     case SET_PROGRAM_SELECTED:
       return { ...state, programSelected: action.program }
+    case SET_MONTH_AND_YEAR:
+      return { ...state, monthAndYearSelected: action.monthAndYear }
     default:
       return { ...state }
   }

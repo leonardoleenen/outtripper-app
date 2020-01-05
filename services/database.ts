@@ -18,16 +18,35 @@ declare interface DataService {
   getPrograms(organizationId: string): Promise<Array<Program>>
   setToken(token : TokenOuttripper) : void
   getToken() : Promise<TokenOuttripper>
+  getContacts(organizationId: string) : Promise<Array<Contact>>
   saveContact(contact: Contact) : void
   getNotifications() : Promise<Array<SystemNotification>>
   addNotification(notification : SystemNotification) : void
   saveNotification(notification: SystemNotification): void
-
+  getAvailableDates(organizationId: string, programId: string, month: number, year: number)
+  getAvailability(organizationId: string) : Promise<Array<AvailableDate>>
   getInvitation(id: string): Promise<Invitation>
 
 }
 
 export class DataAccessService implements DataService {
+  getAvailability(organizationId: string): Promise<AvailableDate[]> {
+    const dates : Array<AvailableDate> = []
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('availability')
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          dates.push(doc.data() as AvailableDate)
+        })
+
+        return dates
+      })
+  }
+
   db: any
 
   fb = firebase
@@ -135,6 +154,40 @@ export class DataAccessService implements DataService {
         return programs
       })
   }
+
+  getAvailableDates(organizationId: string, programId: string, month: number, year: number) {
+    const availability : Array<AvailableDate> = []
+    return this.fb.firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('availability')
+      .where('from', '>=', new Date(year, month, 0).getTime())
+      .where('programId', '==', programId)
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          if (doc.data().to < new Date(year, month + 1, 1)) { availability.push(doc.data() as AvailableDate) }
+        })
+        return availability
+      })
+  }
+
+  getContacts(organizationId: string): Promise<Array<Contact>> {
+    const contacts : Array<Contact> = []
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('people')
+      .collection('contact')
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          contacts.push(doc.data() as Contact)
+        })
+        return contacts
+      })
+  }
+
 
   getDestinations(): Promise<Array<Destination>> {
     return this.db.find({

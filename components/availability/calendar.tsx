@@ -2,6 +2,10 @@
 import React from 'react'
 import uuid4 from 'uuid4'
 import moment from 'moment'
+import { useDispatch } from 'react-redux'
+import { useRouter } from 'next/router'
+import { setMonthAndYear } from '../../redux/actions/reservation'
+
 
 interface Props {
   year: number,
@@ -11,32 +15,36 @@ interface Props {
 
 export default (props:Props) => {
   const { year, value } = props
+  const dispatch = useDispatch()
+  const router = useRouter()
+
 
   const setColor = (day: any) : string => {
     if (!day) { return 'red-700' }
 
-    // eslint-disable-next-line no-return-assign
-    // const qty : number = day.availability.reduce((total: number, av: { spots: number }) => total += av.spots)
 
     // eslint-disable-next-line no-return-assign
     const qty : number = day.availability.map((m) => m.freeSpots).reduce((t : number, v : number) => t += v)
 
-    console.log(qty)
     if (qty === 10) { return 'green-500' }
 
 
-    if (qty >= 8) return 'orange-400'
-    return 'yellow-500'
+    if (qty >= 8) return 'yellow-400'
+    return 'orange-500'
   }
 
-  // eslint-disable-next-line dot-notation
-  window['m'] = moment
 
   return (
     <div className="overflow-auto">
       <div className="flex w-40 h-40 grid m-2">
-        {value.map((m: { month: number; days: any[] }, idxMonth: { toString: () => any }) => (
-          <div key={idxMonth.toString() + uuid4()}>
+        {value.map((m: { month: number; year: number; days: any[] }, idxMonth: { toString: () => any }) => (
+          <div
+            key={idxMonth.toString() + uuid4()}
+            onClick={() => {
+              dispatch(setMonthAndYear({ month: m.month, year: m.year }))
+              router.push('/available_dates')
+            }}
+          >
             <div className="my-4 text-gray-700">{moment(new Date(year, m.month, 0)).format('MMMM')}</div>
             <div className="gridDays">
 

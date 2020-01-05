@@ -1,4 +1,6 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
+import moment from 'moment'
 
 interface Props {
   callFunction : any
@@ -6,15 +8,18 @@ interface Props {
 
 export default (props: Props) => {
   const { callFunction } = props
+  const program : Program = useSelector((state) => state.reservation.programSelected)
+  const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
+  const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
 
   return (
     <div className="absolute inset-x-0 bottom-0 h-24 bg-white flex items-center">
       <div className="text-gray-800 w-2/3 mx-4">
-        <div className="font-semibold text-black text-lg">Full Week Program</div>
-        <div className="font-base text-gray-700 text-sm">Sat, 11 dec. - Sat 18</div>
+        <div className="font-semibold text-black text-lg">{program.name}</div>
+        <div className="font-base text-gray-700 text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
         <div className="flex justify-start">
           <IconPeople />
-          <span className="w-11/12 ml-4"> 1 </span>
+          <span className="w-11/12 ml-4">{`${guestQuantity} Guest - ${dateSelected.price * guestQuantity}`}</span>
         </div>
       </div>
       <div className="bg-teal-600 p-4 h-12 rounded uppercase text-white font-thin text-sm flex items-center w-1/3 mr-4" onClick={callFunction}>

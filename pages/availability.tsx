@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Calendar from '../components/availability/calendar'
 import '../statics/style/style.scss'
 import BottomNavBar from '../components/bottom_nav_bar'
@@ -14,7 +14,8 @@ const styleButtonUnSelectd = 'buttonProgram h-8 w-3/6 p-4 ml-4 mt-4 border borde
 export default () => {
   const [availability, setAvailability] = useState<Array<AvailableDate>>(null)
   const [year, setYear] = useState<number>(new Date().getFullYear())
-  const [programSelected, setProgramSelected] = useState<Program>(null)
+  // const [programSelected, setProgramSelected] = useState<Program>(null)
+  const programSelected = useSelector((state) => state.reservation.programSelected)
   const [allPrograms, setAllPrograms] = useState<Array<Program>>([])
   const [paxSelected, setPaxSelected] = useState(null)
   const [showProgramMenu, setShowProgramMenu] = useState(false)
@@ -30,6 +31,7 @@ export default () => {
       av.filter((d1) => d1.days.filter((d2) => d2 !== undefined).length > 0).map((w) => w.days.map((h) => (h !== undefined ? preResult.push(h) : null)))
       // eslint-disable-next-line no-return-assign
       preResult.map((r) => r.availability.map((t) => t.programId)).map((f) => grouped[f] = f)
+      console.log(preResult)
       // console.log(Object.keys(grouped))
       setAllPrograms(ap)
       // console.log(ap)
@@ -51,7 +53,7 @@ export default () => {
 
           <div
             onClick={() => {
-              setProgramSelected(null)
+              dispatch(setProgram(null))
               setShowProgramMenu(false)
             }}
             key="Clear Selection"
@@ -63,7 +65,6 @@ export default () => {
           {allPrograms.map((program: Program) => (
             <div
               onClick={() => {
-                setProgramSelected(program)
                 setShowProgramMenu(false)
                 dispatch(setProgram(program))
               }}
