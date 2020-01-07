@@ -5,7 +5,7 @@ import lunr from 'lunr'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import { setContact } from '../redux/actions/contact_calendar'
-
+import Loading from '../components/loading'
 import { IconBack, IconSearch } from '../statics/icons'
 import '../statics/style/style.scss'
 import ItemList from '../components/contacts/item_list'
@@ -17,7 +17,7 @@ let contactIndex = null
 let contactFiltered = []
 
 export default () => {
-  const [contacts, setContacts] = useState<Array<Contact>>([])
+  const [contacts, setContacts] = useState<Array<Contact>>(null)
   const [textToSearch, setTextToSearch] = useState('')
   const dispatch = useDispatch()
   const router = useRouter()
@@ -41,6 +41,7 @@ export default () => {
     fetchContacts()
   }, [])
 
+  if (!contacts) return <Loading />
 
   if (contactIndex) {
     contactFiltered = contacts.filter((c:Contact) => contactIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)

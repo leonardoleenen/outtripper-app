@@ -128,3 +128,11 @@ type Invoice = {
   id: string
   items : Array<ItemInvoice>
 }
+
+type Payment = {
+  id: string
+  invoiceId: string
+  date: number
+  kind: string
+  amount: number
+}

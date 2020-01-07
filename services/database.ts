@@ -32,6 +32,9 @@ declare interface DataService {
   createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>) : void
   reservationSetStatus(organizationId: string, reservationId: string, status: number) : Promise<void>
   setPax(organizationId: string, reservationid: string, pax: Contact, index: number) : Promise<Reservation>
+  updateAvailableDate(organizationid: string, date: AvailableDate) : void
+  deleteAvailableDate(organizationId: string, date: AvailableDate): void
+  getPaymentsByInvoiceId(organizationId: string, invoiceId: string) : Promise<Array<Payment>>
  }
 
 export class DataAccessService implements DataService {
@@ -245,7 +248,7 @@ export class DataAccessService implements DataService {
       .doc('dates')
       .collection('reservations')
       .doc(reservationId)
-      .set({ status })
+      .update({ status })
   }
 
   setPax(organizationId: string, reservationId: string, pax: Contact, index: number): Promise<Reservation> {
@@ -272,6 +275,43 @@ export class DataAccessService implements DataService {
 
 
         return reservationFetched
+      })
+  }
+
+  updateAvailableDate(organizationId: string, date: AvailableDate): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('availability')
+      .doc(date.id)
+      .set(date)
+  }
+
+  deleteAvailableDate(organizationId: string, date: AvailableDate): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('availability')
+      .doc(date.id)
+      .delete()
+  }
+
+  getPaymentsByInvoiceId(organizationId: string, invoiceId: string): Promise<Payment[]> {
+    const payments : Array<Payment> = []
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('payments')
+      .where('invoiceId', '==', invoiceId)
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          payments.push(doc.data() as Payment)
+        })
+        return payments
       })
   }
 

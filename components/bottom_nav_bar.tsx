@@ -1,5 +1,6 @@
 import React from 'react'
 import '../statics/style/style.scss'
+import Link from 'next/link'
 
 const styleBox = 'ml-2 my-4 w-1/4 '
 const styleText = 'font-thin text-sm  '
@@ -10,10 +11,12 @@ export default () => (
       <IconHome />
       <div className={styleText}>home</div>
     </div>
-    <div className={styleBox}>
-      <IconRoomService />
-      <div className={styleText}>Availability</div>
-    </div>
+    <Link href="/availability">
+      <div className={styleBox}>
+        <IconRoomService />
+        <div className={styleText}>Availability</div>
+      </div>
+    </Link>
     <div className={styleBox}>
       <IconPromotions />
       <div className={styleText}>Promotions</div>

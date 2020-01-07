@@ -40,12 +40,14 @@ export default () => {
     <Page back="/reservation/guest_qty" label={label} title="How many days to the hold goes on due?">
       <div className="flex-cols">
         <div className="flex mt-16">
-          <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => decrease()}>
-            <span className="m-auto">-</span>
-          </div>
-          <div className="text-5xl font-bold">{spinnerValue}</div>
-          <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => increse()}>
-            <span>+</span>
+          <div className="flex mt-16 items-center m-auto">
+            <div className=" border-4 rounded-full h-16 w-16 flex justify-center items-center mx-8" onClick={() => decrease()}>
+              <span className="text-5xl font-bold">-</span>
+            </div>
+            <div className="text-5xl font-bold">{spinnerValue}</div>
+            <div className=" border-4 rounded-full h-16 w-16 flex items-center justify-center mx-8" onClick={() => increse()}>
+              <span className="text-5xl font-bold">+</span>
+            </div>
           </div>
         </div>
         <div className="flex mt-20"><span className="m-auto font-semibold text-2xl">{moment().add(value + daysInHold, 'days').format('MMM, Do')}</span></div>

@@ -50,15 +50,16 @@ export default () => {
     <Page back="/reservation/hold_days" label={label} title="How many installments do you want to offer?">
       <div className="flex-cols">
         <div className="flex mt-16">
-          <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => decrease()}>
-            <span className="m-auto">-</span>
-          </div>
-          <div className="text-5xl font-bold">{spinnerValue}</div>
-          <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => increse()}>
-            <span>+</span>
+          <div className="flex mt-16 items-center m-auto">
+            <div className=" border-4 rounded-full h-16 w-16 flex justify-center items-center mx-8" onClick={() => decrease()}>
+              <span className="text-5xl font-bold">-</span>
+            </div>
+            <div className="text-5xl font-bold">{spinnerValue}</div>
+            <div className=" border-4 rounded-full h-16 w-16 flex items-center justify-center mx-8" onClick={() => increse()}>
+              <span className="text-5xl font-bold">+</span>
+            </div>
           </div>
         </div>
-
       </div>
       <Footer callFunction={goNext} />
     </Page>

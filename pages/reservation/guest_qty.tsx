@@ -39,12 +39,12 @@ export default () => {
       <div className="flex-cols">
         <div className="flex mt-16">
           <div className="flex mt-16 items-center m-auto">
-            <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => decrease()}>
-              <span className="m-auto">-</span>
+            <div className=" border-4 rounded-full h-16 w-16 flex justify-center items-center mx-8" onClick={() => decrease()}>
+              <span className="text-5xl font-bold">-</span>
             </div>
             <div className="text-5xl font-bold">{spinnerValue}</div>
-            <div className="text-5xl font-bold border-4 rounded-full h-16 w-16 flex items-center mx-8" onClick={() => increse()}>
-              <span>+</span>
+            <div className=" border-4 rounded-full h-16 w-16 flex items-center justify-center mx-8" onClick={() => increse()}>
+              <span className="text-5xl font-bold">+</span>
             </div>
           </div>
         </div>

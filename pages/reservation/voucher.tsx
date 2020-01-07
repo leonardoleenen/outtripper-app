@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import moment from 'moment'
 import uuid4 from 'uuid4'
 import { useSelector, useDispatch } from 'react-redux'
+import Link from 'next/link'
 import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage } from '../../redux/actions/contact_calendar'
@@ -16,6 +17,8 @@ export default () => {
   const [reservation, setReservation] = useState<Reservation>(null)
   const [invoice, setInvoice] = useState<Invoice>(null)
   const [program, setProgram] = useState<Program>(null)
+  const [payments, setPayments] = useState<Array<Payment>>(null)
+  const [amountOfPayments, setAmountOfPayments] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const dispatch = useDispatch()
   const paxToAdd : Contact = useSelector((state) => state.contactCalendar.contactSelected)
@@ -32,7 +35,11 @@ export default () => {
         setInvoice(invoiceList[0])
       })
 
+
       const programs = await bs.getPrograms()
+      const paymentList = await bs.getPaymentsByInvoiceId(invoiceList[0].id)
+      setPayments(paymentList)
+      setAmountOfPayments(paymentList.length > 0 ? paymentList.map((p : Payment) => p.amount).reduce((total, v) => total += v) : 0)
       setProgram(programs.filter((p:Program) => p.id === invoiceList[0].items.filter((i : ItemInvoice) => i.kind === 'PROGRAM')[0].id)[0])
       if (paxIndex) {
         setReservation(await bs.setPax(r, paxToAdd, parseInt(paxIndex as string, 10)))
@@ -43,6 +50,11 @@ export default () => {
     fetch()
   }, [])
 
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  })
 
   const send = () => {
     setIsProcessing(true)
@@ -65,7 +77,9 @@ export default () => {
     <div className="h-screen ">
       <header className="bg-teal-700">
         <div className="text-white flex p-2 pt-8">
-          <div className="h-8 w-8"><IconArrowLeft /></div>
+          <Link href="/availability">
+            <div className="h-8 w-8"><IconArrowLeft /></div>
+          </Link>
           <div className="font-thin w-full ml-4">{reservation.reservationLabel}</div>
           <div className="h-8 w-8 mr-2"><IconMenu /></div>
         </div>
@@ -85,7 +99,7 @@ export default () => {
         </div>
         <div className="text-white p-4 flex justify-center">
           <div>
-            <span className="text-4xl font-bold">{`$ ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i).toFixed(2)}`}</span>
+            <span className="text-4xl font-bold">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i))}</span>
             <span className="font-thin ml-5">Total group</span>
           </div>
         </div>
@@ -99,15 +113,15 @@ export default () => {
             <div className="font-thin text-xs ml-2">Visualized</div>
           </div>
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${reservation.status >= 3 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2 ${payments && payments.length > 0 ? 'bg-teal-100' : ''}`} />
             <div className="font-thin text-xs ml-2">Partially Paid</div>
           </div>
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${reservation.status >= 4 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2 ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments <= 0 ? 'bg-teal-100' : ''}`} />
             <div className="font-thin text-xs ml-2">Full Paid</div>
           </div>
         </div>
-        {reservation.status <= 2
+        {!payments || payments.length === 0
           ? (
             <div className="text-white p-2 border-t flex">
               <div className=" h-8 suppercase text-black bg-yellow-300 rounded-lg p-1">Hold</div>
@@ -143,13 +157,25 @@ export default () => {
 
 
         </div>
-        <div className="pl-4  py-4 border-b flex">
-          <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
-          <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+        <div className="pl-4  py-4 border-b flex-cols">
+          <div className="flex w-full">
+            <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
+            <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+          </div>
+          <div>
+            {payments.map((p: Payment) => (
+              <div key={p.id} className="flex text-xs my-2">
+                <div className="w-24"><span>{moment(p.date).format('YYYY-MM-DD')}</span></div>
+                <div className="w-4/6"><span>{p.kind}</span></div>
+                <div className="w-24 mr-4"><span>{`$ ${p.amount.toFixed(2)}`}</span></div>
+              </div>
+            ))}
+          </div>
+
         </div>
         <div className="pl-4  py-4 border-b flex items-center">
           <div className="text-base font-semibold text-gray-600 w-4/6">{invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM')[0].description}</div>
-          <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end"><span>{`$ ${invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v).toFixed(2)} `}</span></div>
+          <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end"><span>{formatter.format(invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v))}</span></div>
         </div>
         <div className="pl-4  py-4 border-b flex">
           <div className="text-base font-semibold text-gray-600 w-full">Group Extra</div>
@@ -162,7 +188,9 @@ export default () => {
         <div className="pl-4  py-4 border-b flex items-center">
 
           <div className="text-base font-semibold text-gray-600 w-4/6">Balance</div>
-          <div className="mr-4 text-2xl font-semibold text-teal-700">{`$ ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i).toFixed(2)}`}</div>
+          <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end">
+            <span className="">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments)}</span>
+          </div>
         </div>
 
         {reservation.status === 0 ? (

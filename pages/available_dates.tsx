@@ -63,7 +63,7 @@ export default () => {
       </article>
 
       {dateSelected ? (
-        <div className="absolute inset-x-0 bottom-0 bg-gray-100 flex px-4">
+        <div className="absolute inset-x-0 bottom-0 bg-gray-100 flex px-4 justify-center items-center mb-4">
           <div className="w-4/6 mt-4">
             <div className="font-semibold text-sm">{program.name}</div>
             <div className="font-thin text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
@@ -71,7 +71,9 @@ export default () => {
               {`${guestQuantity || '1'} Guest - ${dateSelected.price}`}
             </div>
           </div>
-          <div className="w-2/6 px-8 py-4 bg-teal-500 uppercase " onClick={() => router.push('/reservation/holder')}>next</div>
+          <div className="h-12 w-2/6 px-8 py-4 bg-teal-500 flex " onClick={() => router.push('/reservation/holder')}>
+            <span className="uppercase text-white ">next</span>
+          </div>
         </div>
       )
         : ''}

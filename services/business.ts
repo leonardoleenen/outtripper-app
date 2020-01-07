@@ -23,6 +23,8 @@ interface Services {
   getInvoice(invoiceId: string) : Promise<Invoice>
   createReservation(reservationHolder: Contact, daysInHold:number, pax: Array<Contact>, reservationLabel: string, date: AvailableDate) : Promise<Reservation>
   sendReservationToParticipants(reservation: Reservation) : Promise<Reservation>
+  updateAvailableDate(date:AvailableDate, reservation: Reservation) : void
+  getPaymentsByInvoiceId(invoiceId: string) : Promise<Array<Payment>>
 }
 
 
@@ -236,6 +238,7 @@ class BusinessService implements Services {
       }
 
       this.da.createReservation(token.organizationId, reservation)
+      this.updateAvailableDate(date, reservation)
 
       return reservation
     })
@@ -252,6 +255,20 @@ class BusinessService implements Services {
 
   setPax(reservation: Reservation, pax: Contact, index: number) : Promise<Reservation> {
     return this.getToken().then((token: TokenOuttripper) => this.da.setPax(token.organizationId, reservation.id, pax, index))
+  }
+
+  updateAvailableDate(date: AvailableDate, reservation: Reservation): void {
+    this.getToken().then((token: TokenOuttripper) => {
+      if (date.freeSpots === reservation.pax.length) { this.da.deleteAvailableDate(token.organizationId, date) } else {
+        // eslint-disable-next-line no-param-reassign
+        date.freeSpots -= reservation.pax.length
+        this.da.updateAvailableDate(token.organizationId, date)
+      }
+    })
+  }
+
+  getPaymentsByInvoiceId(invoiceId: string): Promise<Payment[]> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getPaymentsByInvoiceId(token.organizationId, invoiceId))
   }
 }
 
