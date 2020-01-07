@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import uuid4 from 'uuid4'
+import { useSelector, useDispatch } from 'react-redux'
 import Loading from '../../components/loading'
 import bs from '../../services/business'
+import { setCallingPage } from '../../redux/actions/contact_calendar'
 import '../../statics/style/style.scss'
 
 
@@ -15,8 +17,10 @@ export default () => {
   const [invoice, setInvoice] = useState<Invoice>(null)
   const [program, setProgram] = useState<Program>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const dispatch = useDispatch()
+  const paxToAdd : Contact = useSelector((state) => state.contactCalendar.contactSelected)
   const router = useRouter()
-  const { id } = router.query
+  const { id, paxIndex } = router.query
 
 
   useEffect(() => {
@@ -30,6 +34,10 @@ export default () => {
 
       const programs = await bs.getPrograms()
       setProgram(programs.filter((p:Program) => p.id === invoiceList[0].items.filter((i : ItemInvoice) => i.kind === 'PROGRAM')[0].id)[0])
+      if (paxIndex) {
+        setReservation(await bs.setPax(r, paxToAdd, parseInt(paxIndex as string, 10)))
+        return
+      }
       setReservation(r)
     }
     fetch()
@@ -42,6 +50,11 @@ export default () => {
       setReservation(r)
       setIsProcessing(false)
     })
+  }
+
+  const callContactListForSetPax = (index: number) => {
+    dispatch(setCallingPage(`/reservation/voucher?id=${id}&paxIndex=${index}`))
+    router.push('/contact_list')
   }
 
 
@@ -110,10 +123,21 @@ export default () => {
         <div className=" carrusel py-4 flex border-b pl-4">
 
 
-          {reservation.pax.map((p:Contact) => (
-            <div key={uuid4()} className="flex-cols justify-center avatarBox">
+          {reservation.pax.map((p:Contact, index:number) => (
+            <div
+              onClick={() => {
+                if (!p) {
+                  callContactListForSetPax(index)
+                }
+              }}
+              key={uuid4()}
+              className="flex-cols justify-center avatarBox"
+            >
               <div className="avatar rounded-full" />
-              <div className="text-xs font-semibold text-xs">{p ? `${p.lastName}, ${p.firstName}` : 'Guest'}</div>
+              <div className="text-xs font-semibold text-xs">
+                {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
+
+              </div>
             </div>
           ))}
 

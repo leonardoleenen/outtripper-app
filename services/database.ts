@@ -31,6 +31,7 @@ declare interface DataService {
   createReservation(organizationId: string, reservation: Reservation) : void
   createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>) : void
   reservationSetStatus(organizationId: string, reservationId: string, status: number) : Promise<void>
+  setPax(organizationId: string, reservationid: string, pax: Contact, index: number) : Promise<Reservation>
  }
 
 export class DataAccessService implements DataService {
@@ -245,6 +246,33 @@ export class DataAccessService implements DataService {
       .collection('reservations')
       .doc(reservationId)
       .set({ status })
+  }
+
+  setPax(organizationId: string, reservationId: string, pax: Contact, index: number): Promise<Reservation> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .doc(reservationId)
+      .get()
+      .then((doc) => {
+        const paxs : Array<Contact> = (doc.data() as Reservation).pax
+        const reservationFetched : Reservation = doc.data() as Reservation
+        paxs[index] = pax
+        reservationFetched.pax = paxs
+
+        this.fb
+          .firestore()
+          .collection(organizationId)
+          .doc('dates')
+          .collection('reservations')
+          .doc(reservationId)
+          .update({ pax: paxs })
+
+
+        return reservationFetched
+      })
   }
 
 

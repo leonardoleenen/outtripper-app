@@ -249,6 +249,10 @@ class BusinessService implements Services {
       return reservation
     })
   }
+
+  setPax(reservation: Reservation, pax: Contact, index: number) : Promise<Reservation> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.setPax(token.organizationId, reservation.id, pax, index))
+  }
 }
 
 export default new BusinessService()

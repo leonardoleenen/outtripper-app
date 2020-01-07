@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import * as _ from 'underscore'
 import lunr from 'lunr'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import { setContact } from '../redux/actions/contact_calendar'
 
@@ -21,6 +21,7 @@ export default () => {
   const [textToSearch, setTextToSearch] = useState('')
   const dispatch = useDispatch()
   const router = useRouter()
+  const goTo = useSelector((state) => state.contactCalendar.callingPage)
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -66,7 +67,7 @@ export default () => {
           key={c.email}
           onClick={() => {
             dispatch(setContact(c))
-            router.push('/reservation/holder')
+            router.push(goTo)
           }}
         >
           {index === 0 || contactFiltered[index - 1].lastName.substring(0, 1).toUpperCase() !== c.lastName.substring(0, 1).toUpperCase() ? <div className="h-8 ml-4 text-2xl font-bold mt-4">{c.lastName.substring(0, 1).toUpperCase()}</div> : ''}
