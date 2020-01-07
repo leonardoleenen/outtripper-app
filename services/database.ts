@@ -35,6 +35,7 @@ declare interface DataService {
   updateAvailableDate(organizationid: string, date: AvailableDate) : void
   deleteAvailableDate(organizationId: string, date: AvailableDate): void
   getPaymentsByInvoiceId(organizationId: string, invoiceId: string) : Promise<Array<Payment>>
+  createPayment(organizationId: string, payment: Payment) : void
  }
 
 export class DataAccessService implements DataService {
@@ -322,6 +323,16 @@ export class DataAccessService implements DataService {
         collectionKind: 'destinationCatalogItem',
       },
     }).then((result) => result.docs)
+  }
+
+  createPayment(organizationId: string, payment: Payment): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('payments')
+      .doc(payment.id)
+      .set(payment)
   }
 
   constructor() {

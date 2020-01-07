@@ -9,6 +9,7 @@ import Link from 'next/link'
 import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage } from '../../redux/actions/contact_calendar'
+import { setCallingFrom as setCallingPaymentPage } from '../../redux/actions/payment'
 import '../../statics/style/style.scss'
 
 
@@ -99,7 +100,7 @@ export default () => {
         </div>
         <div className="text-white p-4 flex justify-center">
           <div>
-            <span className="text-4xl font-bold">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i))}</span>
+            <span className="text-4xl font-semibold">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i))}</span>
             <span className="font-thin ml-5">Total group</span>
           </div>
         </div>
@@ -160,7 +161,16 @@ export default () => {
         <div className="pl-4  py-4 border-b flex-cols">
           <div className="flex w-full">
             <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
-            <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+            <div
+              className="h-8 w-8 mr-4"
+              onClick={() => {
+                dispatch(setCallingPaymentPage(`/reservation/voucher?id=${reservation.id}`))
+                router.push(`/pay?invoiceId=${invoice.id}`)
+              }}
+            >
+              <IconAddCircle />
+
+            </div>
           </div>
           <div>
             {payments.map((p: Payment) => (

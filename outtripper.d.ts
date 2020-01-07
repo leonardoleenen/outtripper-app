@@ -134,5 +134,20 @@ type Payment = {
   invoiceId: string
   date: number
   kind: string
-  amount: number
+  amount: number,
+  paymentDate: number,
+  reference: string
+}
+
+type CreditCard = {
+  brand: string
+  cardHolder: string
+  cardNumber: string
+  dueDate: string
+  cvc: number
+}
+
+type WireTransfer = {
+  bank: string
+  reference : string
 }

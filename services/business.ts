@@ -25,6 +25,8 @@ interface Services {
   sendReservationToParticipants(reservation: Reservation) : Promise<Reservation>
   updateAvailableDate(date:AvailableDate, reservation: Reservation) : void
   getPaymentsByInvoiceId(invoiceId: string) : Promise<Array<Payment>>
+  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string) : Promise<Payment>
+
 }
 
 
@@ -269,6 +271,28 @@ class BusinessService implements Services {
 
   getPaymentsByInvoiceId(invoiceId: string): Promise<Payment[]> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getPaymentsByInvoiceId(token.organizationId, invoiceId))
+  }
+
+  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string): Promise<Payment> {
+    const paymentId : string = voucherVodes.generate({
+      length: 8,
+      count: 1,
+    })[0].toUpperCase()
+
+    return this.getToken().then((token: TokenOuttripper) => {
+      const payment : Payment = {
+        id: paymentId,
+        amount,
+        date: new Date().getTime(),
+        invoiceId,
+        kind,
+        paymentDate,
+        reference: paymentReference,
+      }
+
+      this.da.createPayment(token.organizationId, payment)
+      return payment
+    })
   }
 }
 
