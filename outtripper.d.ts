@@ -3,6 +3,7 @@ declare module '*.json' {
   export default value
 }
 
+
 type Organization = {
   id: string
   cn: string
@@ -100,4 +101,30 @@ type Invitation = {
 type MonthAndYear = {
   month: number
   year: number
+}
+
+type Reservation = {
+  id : string
+  reservationHolder: Contact
+  daysInHold: number
+  reservationLabel: string
+  invoices: Array<string>
+  reservedAt: number
+  reservedBy: string
+  serviceFrom: number
+  serviceTo: number
+  pax: Array<Contact>
+  status: number
+}
+
+type ItemInvoice = {
+  id: string
+  description: string
+  kind: string
+  price : number
+}
+
+type Invoice = {
+  id: string
+  items : Array<ItemInvoice>
 }

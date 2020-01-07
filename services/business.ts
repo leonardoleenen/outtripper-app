@@ -2,13 +2,14 @@ import uuidv4 from 'uuid4'
 import axios from 'axios'
 import getConfig from 'next/config'
 import moment from 'moment'
+import voucherVodes from 'voucher-code-generator'
 import dataAccessService, { DataAccessService } from './database'
 
 const { publicRuntimeConfig: { API_SERVER } } = getConfig()
 
 interface Services {
   getDestinations(): Promise<Array<Destination>>
-  getPrograms(organtizationId: string) : Promise<Array<Program>>
+  getPrograms() : Promise<Array<Program>>
   getAvailability(year: number) : Promise<Array<AvailableDate>>
   getAvailabilityByMonthAndYear(programId:string, month: number, year: number) : Promise<Array<AvailableDate>>
   getContacts() : Promise<Array<Contact>>
@@ -18,6 +19,10 @@ interface Services {
   getInvitation(id: string): Promise<Invitation>
   login(uid:string, cn:string, email:string, photoAvatar?:string) : Promise<TokenOuttripper>
   getToken() : Promise<TokenOuttripper>
+  getReservation(reservationId: string) : Promise<Reservation>
+  getInvoice(invoiceId: string) : Promise<Invoice>
+  createReservation(reservationHolder: Contact, daysInHold:number, pax: Array<Contact>, reservationLabel: string, date: AvailableDate) : Promise<Reservation>
+  sendReservationToParticipants(reservation: Reservation) : Promise<Reservation>
 }
 
 
@@ -77,8 +82,8 @@ class BusinessService implements Services {
   }
 
 
-  getPrograms(organizationId: string): Promise<Program[]> {
-    return this.da.getPrograms(organizationId)
+  getPrograms(): Promise<Program[]> {
+    return this.getToken().then((token : TokenOuttripper) => this.da.getPrograms(token.organizationId))
   }
 
   getDestinations(): Promise<Array<Destination>> {
@@ -179,6 +184,70 @@ class BusinessService implements Services {
 
   getAvailabilityByMonthAndYear(programId: string, month: number, year: number): Promise<AvailableDate[]> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getAvailableDates(token.organizationId, programId, month, year))
+  }
+
+  getReservation(reservationId: string): Promise<Reservation> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getReservation(token.organizationId, reservationId))
+  }
+
+  getInvoice(invoiceId: string): Promise<Invoice> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getInvoice(token.organizationId, invoiceId))
+  }
+
+  createReservation(reservationHolder: Contact, daysInHold: number, pax: Contact[], reservationLabel: string, date: AvailableDate): Promise<Reservation> {
+    let reservation : Reservation = null
+    return this.getToken().then(async (token:TokenOuttripper) => {
+      const reservationId: string = voucherVodes.generate({
+        length: 8,
+        count: 1,
+      })[0]
+
+      const invoiceId: string = voucherVodes.generate({
+        length: 8,
+        count: 1,
+      })[0]
+
+      const itemsArray : Array<ItemInvoice> = []
+      const program : Program = (await this.getPrograms())
+        .filter((p:Program) => p.id === date.programId)[0]
+
+      itemsArray.push({
+        id: date.programId,
+        description: program.name,
+        kind: 'PROGRAM',
+        price: 6300 * pax.length,
+      } as ItemInvoice)
+
+      this.da.createInvoice(token.organizationId, invoiceId, itemsArray)
+
+
+      reservation = {
+        id: reservationId.toUpperCase(),
+        daysInHold,
+        reservationHolder,
+        reservationLabel,
+        pax,
+        serviceFrom: date.from,
+        serviceTo: date.to,
+        invoices: [invoiceId],
+        reservedAt: new Date().getTime(),
+        status: 0,
+        reservedBy: token.id,
+      }
+
+      this.da.createReservation(token.organizationId, reservation)
+
+      return reservation
+    })
+  }
+
+  sendReservationToParticipants(reservation: Reservation): Promise<Reservation> {
+    return this.getToken().then((token: TokenOuttripper) => {
+      this.da.reservationSetStatus(token.organizationId, reservation.id, 1)
+      // eslint-disable-next-line no-param-reassign
+      reservation.status = 1
+      return reservation
+    })
   }
 }
 

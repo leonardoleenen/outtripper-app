@@ -26,8 +26,12 @@ declare interface DataService {
   getAvailableDates(organizationId: string, programId: string, month: number, year: number)
   getAvailability(organizationId: string) : Promise<Array<AvailableDate>>
   getInvitation(id: string): Promise<Invitation>
-
-}
+  getReservation(organizationId: string, id: string) : Promise<Reservation>
+  getInvoice(organizationId: string, id: string) :Promise<Invoice>
+  createReservation(organizationId: string, reservation: Reservation) : void
+  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>) : void
+  reservationSetStatus(organizationId: string, reservationId: string, status: number) : Promise<void>
+ }
 
 export class DataAccessService implements DataService {
   getAvailability(organizationId: string): Promise<AvailableDate[]> {
@@ -186,6 +190,61 @@ export class DataAccessService implements DataService {
         })
         return contacts
       })
+  }
+
+  getReservation(organizationId: string, id: string): Promise<Reservation> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .doc(id)
+      .get()
+      .then((doc) => doc.data() as Reservation)
+  }
+
+  getInvoice(organizationId: string, id: string): Promise<Invoice> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('invoices')
+      .doc(id)
+      .get()
+      .then((doc) => doc.data() as Invoice)
+  }
+
+  createReservation(organizationId: string, reservation: Reservation): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .doc(reservation.id)
+      .set(reservation)
+  }
+
+  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('invoices')
+      .doc(invoiceId)
+      .set({
+        id: invoiceId,
+        items,
+      })
+  }
+
+  reservationSetStatus(organizationId: string, reservationId: string, status: number): Promise<void> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .doc(reservationId)
+      .set({ status })
   }
 
 

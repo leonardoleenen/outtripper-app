@@ -11401,7 +11401,11 @@ video {
   z-index: auto;
 }
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap');
+
+* {
+  font-family: Open Sans;
+}
 
 body{
   margin:0px;

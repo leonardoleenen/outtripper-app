@@ -23,7 +23,7 @@ export default () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const ap = await bs.getPrograms('JURASSICLAKE')
+      const ap = await bs.getPrograms()
       const av = await bs.getAvailability(year)
 
       const preResult = []

@@ -16,7 +16,6 @@ export interface State {
   installments: number
   programSelected: Program
   monthAndYearSelected: MonthAndYear
-  availability: Array<AvailableDate>
 }
 
 export interface Action {
@@ -29,7 +28,6 @@ export interface Action {
   installments: number
   program: Program
   monthAndYear: MonthAndYear
-  availability: Array<AvailableDate>
 }
 
 export const initialState: State = {
@@ -41,7 +39,6 @@ export const initialState: State = {
   installments: 1,
   programSelected: null,
   monthAndYearSelected: null,
-  availability: [],
 }
 
 

@@ -1,18 +1,33 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 import Page from '../../components/reservation/page'
 import Footer from '../../components/reservation/footerSteps'
 import { setInstallments } from '../../redux/actions/reservation'
+import bs from '../../services/business'
+import Loading from '../../components/loading'
+
 
 export default () => {
   const dispatch = useDispatch()
+  const router = useRouter()
   const label = useSelector((state) => state.reservation.reservationLabel)
+  const daysInHold : number = useSelector((state) => state.reservation.daysInHold)
+  const holder : Contact = useSelector((state) => state.reservation.reservationHolder)
+  const date: AvailableDate = useSelector((state) => state.reservation.availableDate)
+  const guests : number = useSelector((state) => state.reservation.guestQuantity)
   const installments = useSelector((state) => state.reservation.installments)
   const [spinnerValue, setSpinnerValue] = useState(installments || 1)
+  const [waitForCreation, setWaitForCreation] = useState(false)
 
+  const paxes = Array(guests).fill(null)
+  paxes[0] = holder
 
   const goNext = () => {
-    console.log('Go next')
+    setWaitForCreation(true)
+    bs.createReservation(holder, daysInHold, paxes, label, date).then((reservation : Reservation) => {
+      router.push(`/reservation/voucher?id=${reservation.id}`)
+    })
   }
 
   const increse = () => {
@@ -30,6 +45,7 @@ export default () => {
     // callBackFunction(finalValue)
   }
 
+  if (waitForCreation) return <Loading />
   return (
     <Page back="/reservation/hold_days" label={label} title="How many installments do you want to offer?">
       <div className="flex-cols">
