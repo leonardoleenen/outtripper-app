@@ -1,7 +1,9 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import moment from 'moment'
+import _ from 'underscore'
 
 import bs from '../services/business'
 import Loading from '../components/loading'
@@ -19,8 +21,7 @@ export default () => {
   useEffect(() => {
     const fetch = async () => {
       const av = await bs.getAvailabilityByMonthAndYear(program.id, monthAndYear.month - 1, monthAndYear.year)
-      console.log(av)
-      setAvailability(av)
+      setAvailability(_.sortBy(av, (ad : AvailableDate) => ad.from))
     }
     fetch()
   }, [])
@@ -33,6 +34,13 @@ export default () => {
     return 'orange-200'
   }
 
+  const isDifferentMonth = (prev: AvailableDate, curr:AvailableDate) : boolean => {
+    const prevMonth = new Date(prev.from).getMonth()
+    const curMonth = new Date(curr.from).getMonth()
+    console.log(prevMonth, curMonth)
+    return prevMonth === curMonth
+  }
+
 
   if (!availability) return <Loading />
 
@@ -42,21 +50,25 @@ export default () => {
         <div onClick={() => router.push('/availability')}><IconArrowLeft /></div>
         <IconCalendar />
       </header>
-      <div className="text-3xl font-semibold ml-4 mt-8">{`${program.name} for ${moment(new Date(monthAndYear.year, monthAndYear.month, 0)).format('MMMM')} ${monthAndYear.year}`}</div>
+      <div className="text-3xl font-semibold ml-4 mt-8">{`${program.name} availability`}</div>
       <article className="mt-8">
-        {availability.map((a:AvailableDate) => (
-          <div key={a.id} className={`flex border-b p-5 ${dateSelected && (dateSelected.id === a.id) ? 'bg-teal-100' : ''}`} onClick={() => dispatch(setAvailableDate(a))}>
-            <div className="w-4/6 font-thin text-gray-700">
-              {`${moment(a.from).format('MMM D')} to ${moment(a.to).format('MMM D')}`}
-            </div>
-            <div className="w-2/6 ">
-              <div className="font-thin text-gray-700">
-                {` ${a.freeSpots} free / `}
-                <span className="text-xs text-gray-500">
-                  {a.totalSpots}
-                </span>
+        {availability.map((a:AvailableDate, index: number) => (
+          <div key={a.id} className="flex-cols " onClick={() => dispatch(setAvailableDate(a))}>
+            {index === 0 ? <div className="w-full">{moment(a.from).format('MMMM YYYY')}</div> : isDifferentMonth(availability[index - 1], a) ? <div className="w-full">{moment(a.from).format('MMMM YYYY')}</div> : '' }
+
+            <div className={`flex p-5 border-b  ${dateSelected && (dateSelected.id === a.id) ? 'bg-teal-100' : ''}`}>
+              <div className="w-4/6 font-thin text-gray-700">
+                {`${moment(a.from).format('ddd DD')} to ${moment(a.to).format('ddd DD')}`}
               </div>
-              <div className="font-thin text-xs text-indigo-700">$ todo</div>
+              <div className="w-2/6 ">
+                <div className="font-thin text-gray-700">
+                  {` ${a.freeSpots} free / `}
+                  <span className="text-xs text-gray-500">
+                    {a.totalSpots}
+                  </span>
+                </div>
+                <div className="font-thin text-xs text-indigo-700">$ todo</div>
+              </div>
             </div>
           </div>
         )) }

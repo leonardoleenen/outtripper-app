@@ -92,7 +92,7 @@ export default () => {
 
   const proceed = () => {
     setWaiting(true)
-    bs.setAPayment(invoiceId as string, amount, mode, parseInt(moment(paymentDate, 'YYYY-MM-DD').format('x'), 10), paymentReference).then(() => {
+    bs.setAPayment(invoiceId as string, amount, mode, mode === PaymentMode.WIRETRANSFER ? parseInt(moment(paymentDate, 'YYYY-MM-DD').format('x'), 10) : new Date().getTime(), paymentReference).then(() => {
       router.push(goTo)
     }).catch((err) => {
       console.error(err)

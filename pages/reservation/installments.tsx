@@ -25,7 +25,7 @@ export default () => {
 
   const goNext = () => {
     setWaitForCreation(true)
-    bs.createReservation(holder, daysInHold, paxes, label, date).then((reservation : Reservation) => {
+    bs.createReservation(holder, daysInHold, paxes, label, date, installments).then((reservation : Reservation) => {
       router.push(`/reservation/voucher?id=${reservation.id}`)
     })
   }

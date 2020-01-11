@@ -7,10 +7,12 @@ const styleText = 'font-thin text-sm  '
 
 export default () => (
   <div className="absolute inset-x-0 bottom-0 flex  center-items">
-    <div className={styleBox}>
-      <IconHome />
-      <div className={styleText}>home</div>
-    </div>
+    <Link href="/home">
+      <div className={styleBox}>
+        <IconHome />
+        <div className={styleText}>home</div>
+      </div>
+    </Link>
     <Link href="/availability">
       <div className={styleBox}>
         <IconRoomService />

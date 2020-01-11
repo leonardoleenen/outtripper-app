@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 
 import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
@@ -29,13 +30,15 @@ declare interface DataService {
   getReservation(organizationId: string, id: string) : Promise<Reservation>
   getInvoice(organizationId: string, id: string) :Promise<Invoice>
   createReservation(organizationId: string, reservation: Reservation) : void
-  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>) : void
+  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>, installments: Array<Installment>) : void
   reservationSetStatus(organizationId: string, reservationId: string, status: number) : Promise<void>
   setPax(organizationId: string, reservationid: string, pax: Contact, index: number) : Promise<Reservation>
   updateAvailableDate(organizationid: string, date: AvailableDate) : void
   deleteAvailableDate(organizationId: string, date: AvailableDate): void
   getPaymentsByInvoiceId(organizationId: string, invoiceId: string) : Promise<Array<Payment>>
   createPayment(organizationId: string, payment: Payment) : void
+  getMyReservations(organizationId: string) : Promise<Array<Reservation>>
+  updateInvoice(organizationId: string, invoice: Invoice) : void
  }
 
 export class DataAccessService implements DataService {
@@ -175,7 +178,8 @@ export class DataAccessService implements DataService {
       .get()
       .then((snap) => {
         snap.docs.forEach((doc) => {
-          if (doc.data().to < new Date(year, month + 1, 1)) { availability.push(doc.data() as AvailableDate) }
+          // if (doc.data().to < new Date(year, month + 1, 1)) { availability.push(doc.data() as AvailableDate) }
+          availability.push(doc.data() as AvailableDate)
         })
         return availability
       })
@@ -197,8 +201,8 @@ export class DataAccessService implements DataService {
       })
   }
 
-  getReservation(organizationId: string, id: string): Promise<Reservation> {
-    return this.fb
+  async getReservation(organizationId: string, id: string): Promise<Reservation> {
+    const reservation = await this.fb
       .firestore()
       .collection(organizationId)
       .doc('dates')
@@ -206,6 +210,33 @@ export class DataAccessService implements DataService {
       .doc(id)
       .get()
       .then((doc) => doc.data() as Reservation)
+
+    const invoices = await this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('invoices')
+      .where('id', 'in', (await reservation).invoices)
+      .get()
+      .then((snap) => snap.docs.map((doc) => doc.data())) as Array<Invoice>
+
+    const payments = await this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('payments')
+      .where('invoiceId', 'in', (await reservation).invoices)
+      .get()
+      .then((snap) => snap.docs.map((doc) => doc.data())) as Array<Payment>
+
+
+    reservation.invoicesObject = invoices
+    // eslint-disable-next-line no-param-reassign
+    reservation.amountOfPurchase = invoices.map((invoice: Invoice) => invoice.items).reduce((total, v) => v).map((item: ItemInvoice) => item.price).reduce((total, v) => total += v)
+    reservation.isOnHold = payments.length === 0 || false
+    // eslint-disable-next-line no-param-reassign
+    reservation.amountOfPayment = payments.length > 0 ? payments.map((p: Payment) => p.amount).reduce((total, v) => total += v) : 0
+    return reservation
   }
 
   getInvoice(organizationId: string, id: string): Promise<Invoice> {
@@ -229,7 +260,7 @@ export class DataAccessService implements DataService {
       .set(reservation)
   }
 
-  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>): void {
+  createInvoice(organizationId: string, invoiceId: string, items: Array<ItemInvoice>, installments: Array<Installment>): void {
     this.fb
       .firestore()
       .collection(organizationId)
@@ -239,6 +270,7 @@ export class DataAccessService implements DataService {
       .set({
         id: invoiceId,
         items,
+        installments,
       })
   }
 
@@ -334,6 +366,32 @@ export class DataAccessService implements DataService {
       .doc(payment.id)
       .set(payment)
   }
+
+  async getMyReservations(organizationId: string): Promise<Reservation[]> {
+    const queryResult : Array<Reservation> = await this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .where('serviceFrom', '>', new Date().getTime())
+      .get()
+      .then(async (snap) => snap.docs.map((doc) => doc.data() as Reservation))
+
+    queryResult.map(async (r:Reservation) => this.getReservation(organizationId, r.id))
+
+    return Promise.all(queryResult.map(async (r:Reservation) => this.getReservation(organizationId, r.id)))
+  }
+
+  updateInvoice(organizationId: string, invoice: Invoice): void {
+    this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('invoices')
+      .doc(invoice.id)
+      .update(invoice)
+  }
+
 
   constructor() {
     PouchDB.plugin(PouchDBFind)

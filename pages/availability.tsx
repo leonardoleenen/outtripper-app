@@ -44,13 +44,11 @@ export default () => {
   if (showProgramMenu) {
     return (
       <div className="relative bg-gray-400 h-screen">
-        <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-lg ">
+        <div className="absolute inset-x-0 bottom-0 bg-white rounded-top ">
           <div className="flex justify-center"><div className="bg-gray-300 h-2 w-20 mt-2 rounded " /></div>
           <div className="flex">
             <div className="w-full flex justify-center font-semibold text-black border-b p-4"><span>Please Choice a program</span></div>
           </div>
-
-
           <div
             onClick={() => {
               dispatch(setProgram(null))
@@ -71,11 +69,19 @@ export default () => {
               key={program.id}
               className="p-4 text-base text-indigo-500 border-b"
             >
-              {program.name}
+              {`${program.name} ${program.bedNights} Nights / ${program.serviceDaysQuantity} fishing days`}
             </div>
           ))}
           <div className="flex justify-center"><span className="p-2 m-4 rounded-full bg-gray-300 w-20 flex justify-center" onClick={() => setShowProgramMenu(false)}>Cancel</span></div>
         </div>
+        <style>
+          {`
+            .rounded-top { 
+              border-top-left-radius: 1.5rem;
+              border-top-right-radius: 1.5rem;
+            }
+          `}
+        </style>
       </div>
     )
   }

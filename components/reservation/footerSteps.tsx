@@ -12,14 +12,20 @@ export default (props: Props) => {
   const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
   const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
 
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  })
+
   return (
     <div className="absolute inset-x-0 bottom-0 h-24 bg-white flex items-center">
       <div className="text-gray-800 w-2/3 mx-4">
         <div className="font-semibold text-black text-lg">{program.name}</div>
         <div className="font-base text-gray-700 text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
-        <div className="flex justify-start">
+        <div className="flex justify-start items-center">
           <IconPeople />
-          <span className="w-11/12 ml-4">{`${guestQuantity} Guest - ${dateSelected.price * guestQuantity}`}</span>
+          <span className="w-11/12 ml-4 text-xs">{`${guestQuantity} Guest - ${formatter.format(dateSelected.price * guestQuantity)}`}</span>
         </div>
       </div>
       <div className="bg-teal-600 p-4 h-12 rounded uppercase text-white font-thin text-sm flex items-center w-1/3 mr-4" onClick={callFunction}>

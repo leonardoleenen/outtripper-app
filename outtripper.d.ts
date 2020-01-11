@@ -54,6 +54,7 @@ type Program = {
   name: string
   reserveSpotForEachBooking: number
   startingDay: Array<string>
+  serviceDaysQuantity: number
 }
 
 
@@ -115,6 +116,12 @@ type Reservation = {
   serviceTo: number
   pax: Array<Contact>
   status: number
+  program? : Program
+  invoicesObject? : Array<Invoice>
+  isOnHold?: boolean
+  amountOfPayment? : number
+  amountOfPurchase? : number
+  termsAndConditionsLiteral: string
 }
 
 type ItemInvoice = {
@@ -124,9 +131,16 @@ type ItemInvoice = {
   price : number
 }
 
+type Installment = {
+  dueDate: number,
+  amount: number
+  order: number
+}
+
 type Invoice = {
   id: string
   items : Array<ItemInvoice>
+  installments: Array<Installment>
 }
 
 type Payment = {

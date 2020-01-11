@@ -7,6 +7,12 @@ import dataAccessService, { DataAccessService } from './database'
 
 const { publicRuntimeConfig: { API_SERVER } } = getConfig()
 
+export const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+})
+
 interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms() : Promise<Array<Program>>
@@ -21,12 +27,15 @@ interface Services {
   getToken() : Promise<TokenOuttripper>
   getReservation(reservationId: string) : Promise<Reservation>
   getInvoice(invoiceId: string) : Promise<Invoice>
-  createReservation(reservationHolder: Contact, daysInHold:number, pax: Array<Contact>, reservationLabel: string, date: AvailableDate) : Promise<Reservation>
+  createReservation(reservationHolder: Contact, daysInHold:number, pax: Array<Contact>, reservationLabel: string, date: AvailableDate, installments: number) : Promise<Reservation>
   sendReservationToParticipants(reservation: Reservation) : Promise<Reservation>
   updateAvailableDate(date:AvailableDate, reservation: Reservation) : void
   getPaymentsByInvoiceId(invoiceId: string) : Promise<Array<Payment>>
   setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string) : Promise<Payment>
-
+  getMyReservations() : Promise<Array<Reservation>>
+  getNextInstallmentInDueDate(reservation: Reservation) : Installment
+  getListPendingInstallments(reservation: Reservation) : Array<Installment>
+  getDiffDaysForInstallmentNextDue(reservation :Reservation) : number
 }
 
 
@@ -122,7 +131,6 @@ class BusinessService implements Services {
   getAvailability(year:number): Promise<Array<AvailableDate>> {
     // const empty = Array(31)
     const feb = moment([year]).isLeapYear() ? 29 : 28
-    console.log(feb, year)
 
     const emptyMonth = [{
       month: 1,
@@ -198,7 +206,7 @@ class BusinessService implements Services {
     return this.getToken().then((token: TokenOuttripper) => this.da.getInvoice(token.organizationId, invoiceId))
   }
 
-  createReservation(reservationHolder: Contact, daysInHold: number, pax: Contact[], reservationLabel: string, date: AvailableDate): Promise<Reservation> {
+  createReservation(reservationHolder: Contact, daysInHold: number, pax: Contact[], reservationLabel: string, date: AvailableDate, installments: number): Promise<Reservation> {
     let reservation : Reservation = null
     return this.getToken().then(async (token:TokenOuttripper) => {
       const reservationId: string = voucherVodes.generate({
@@ -219,10 +227,23 @@ class BusinessService implements Services {
         id: date.programId,
         description: program.name,
         kind: 'PROGRAM',
-        price: 6300 * pax.length,
+        price: date.price * pax.length,
       } as ItemInvoice)
 
-      this.da.createInvoice(token.organizationId, invoiceId, itemsArray)
+      const installmentsList: Array<Installment> = []
+      const totalDays = moment(date.from).diff(moment(new Date().getTime()).add(daysInHold, 'days'), 'days')
+
+
+      for (let i:number = 0; i < installments; i += 1) {
+        installmentsList.push({
+          order: i + 1,
+          amount: (date.price * pax.length) / installments,
+          // eslint-disable-next-line radix
+          dueDate: parseInt(moment(new Date().getTime()).add(daysInHold + (totalDays / installments) * i, 'days').format('x')),
+        } as Installment)
+      }
+
+      this.da.createInvoice(token.organizationId, invoiceId, itemsArray, installmentsList)
 
 
       reservation = {
@@ -237,6 +258,7 @@ class BusinessService implements Services {
         reservedAt: new Date().getTime(),
         status: 0,
         reservedBy: token.id,
+        termsAndConditionsLiteral: this.buildTerminsAndConditions(installmentsList),
       }
 
       this.da.createReservation(token.organizationId, reservation)
@@ -286,15 +308,79 @@ class BusinessService implements Services {
         date: new Date().getTime(),
         invoiceId,
         kind,
-        paymentDate,
-        reference: paymentReference,
+        paymentDate: paymentDate || new Date().getTime(),
+        reference: paymentReference || '',
       }
-
       this.da.createPayment(token.organizationId, payment)
+
+
+      this.da.getInvoice(token.organizationId, invoiceId).then((invoice: Invoice) => {
+        let balance = amount
+
+        const calculateAmount = (installmentBalance : number) : number => {
+          const prevBalanceValue : number = balance
+
+          if (balance === 0) return installmentBalance
+
+          if ((installmentBalance - balance) < 0) {
+            balance -= (installmentBalance - prevBalanceValue) * -1
+            return 0
+          }
+
+          if ((installmentBalance - balance) > 0) {
+            balance = 0
+            return (installmentBalance - prevBalanceValue)
+          }
+
+          balance = 0
+          return 0
+        }
+
+        // eslint-disable-next-line no-param-reassign
+        invoice.installments = invoice.installments.map((installment: Installment) => {
+          // eslint-disable-next-line no-param-reassign
+          installment.amount = calculateAmount(installment.amount)
+          return installment
+        })
+
+        this.da.updateInvoice(token.organizationId, invoice)
+      })
       return payment
     })
   }
+
+  getMyReservations(): Promise<Reservation[]> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getMyReservations(token.organizationId))
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getNextInstallmentInDueDate(reservation: Reservation): Installment {
+    const listInstallments = reservation.invoicesObject[0].installments.filter((i:Installment) => i.amount !== 0)
+
+    if (listInstallments.length === 0) { return null }
+
+    return listInstallments[0]
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getListPendingInstallments(reservation: Reservation) : Array<Installment> {
+    return reservation.invoicesObject[0].installments.filter((i:Installment) => i.amount !== 0)
+  }
+
+  getDiffDaysForInstallmentNextDue = (reservation :Reservation) : number => {
+    this.getNextInstallmentInDueDate(reservation)
+    return moment(moment(this.getNextInstallmentInDueDate(reservation).dueDate)).diff(new Date(), 'days')
+  }
+
+  buildTerminsAndConditions = (installmentsList: Array<Installment>) : string => {
+    const literal = `${installmentsList} payments,${installmentsList.map((i: Installment) => (
+      `${formatter.format(i.amount)} due on ${moment(i.dueDate).format('MMM, DD YYYY')}`
+    )).join(', ')}`
+
+    return literal
+  }
 }
+
 
 export default new BusinessService()
 
