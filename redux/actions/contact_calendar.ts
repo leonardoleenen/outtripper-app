@@ -5,11 +5,7 @@ import businessService from '../../services/business'
 
 
 export const newContact = (contact: Contact) => (dispatch, getState) => {
-  const { user } = getState().loggedUser
-
-  const contactToSave = contact
-  contactToSave.owner = user.organization
-  businessService.saveContact(contactToSave, user)
+  businessService.saveContact(contact)
 
   return dispatch({
     type: NEW_CONTACT,

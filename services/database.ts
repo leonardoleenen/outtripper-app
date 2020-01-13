@@ -3,8 +3,8 @@
 import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
 import firebase from 'firebase'
+import uuid4 from 'uuid4'
 import { firebaseKey } from '../keys'
-
 
 // eslint-disable-next-line import/no-unresolved
 // const serviceAccount = require('../keys/firebase.json')
@@ -19,8 +19,9 @@ declare interface DataService {
   getPrograms(organizationId: string): Promise<Array<Program>>
   setToken(token : TokenOuttripper) : void
   getToken() : Promise<TokenOuttripper>
+  getContact(organizationId: string, id: string) : Promise<Contact>
   getContacts(organizationId: string) : Promise<Array<Contact>>
-  saveContact(contact: Contact) : void
+  saveContact(organizationId: string, contact: Contact) : Promise<Contact>
   getNotifications() : Promise<Array<SystemNotification>>
   addNotification(notification : SystemNotification) : void
   saveNotification(notification: SystemNotification): void
@@ -145,8 +146,18 @@ export class DataAccessService implements DataService {
     }).then((result) => result.docs)
   }
 
-  saveContact(contact: Contact): void {
-    this.db.post(contact)
+  saveContact(organizationId: string, contact: Contact): Promise<Contact> {
+    const newContact : Contact = {
+      ...contact,
+      id: contact.id || uuid4(),
+    }
+    return this.fb.firestore()
+      .collection(organizationId)
+      .doc('people')
+      .collection('contact')
+      .doc()
+      .set(newContact)
+      .then(() => newContact)
   }
 
 
@@ -390,6 +401,17 @@ export class DataAccessService implements DataService {
       .collection('invoices')
       .doc(invoice.id)
       .update(invoice)
+  }
+
+  getContact(organizationId: string, id: string): Promise<Contact> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('people')
+      .collection('contact')
+      .doc(id)
+      .get()
+      .then((doc) => doc.data() as Contact)
   }
 
 

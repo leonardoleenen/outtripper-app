@@ -40,6 +40,9 @@ export default () => {
     fetch()
   }, [])
 
+  const openMenuProgram = () => {
+    setShowProgramMenu(true)
+  }
 
   if (showProgramMenu) {
     return (
@@ -110,7 +113,7 @@ export default () => {
         <div className="h-22 w-22 m-auto"><IconArrowRight /></div>
       </div>
 
-      <Calendar year={new Date().getFullYear()} value={availability} />
+      <Calendar year={new Date().getFullYear()} value={availability} defaultFunction={!programSelected ? openMenuProgram : null} />
       <BottomNavBar />
       <style>
         {`

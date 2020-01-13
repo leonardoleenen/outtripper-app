@@ -10,6 +10,7 @@ import { setMonthAndYear } from '../../redux/actions/reservation'
 interface Props {
   year: number,
   value: Array<any>
+  defaultFunction : any
 }
 
 
@@ -41,8 +42,12 @@ export default (props:Props) => {
           <div
             key={idxMonth.toString() + uuid4()}
             onClick={() => {
-              dispatch(setMonthAndYear({ month: m.month, year: m.year }))
-              router.push('/available_dates')
+              if (props.defaultFunction) {
+                props.defaultFunction()
+              } else {
+                dispatch(setMonthAndYear({ month: m.month, year: m.year }))
+                router.push('/available_dates')
+              }
             }}
           >
             <div className="my-4 text-gray-700">{moment(new Date(year, m.month, 0)).format('MMMM')}</div>

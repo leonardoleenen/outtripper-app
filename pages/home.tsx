@@ -1,21 +1,38 @@
+/* eslint-disable react/no-this-in-sfc */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import moment from 'moment'
+import lunr from 'lunr'
 import BottomNavBar from '../components/bottom_nav_bar'
 import Loading from '../components/loading'
 import bs from '../services/business'
 import '../statics/style/style.scss'
+import { IconSearch } from '../statics/icons'
+
+let reservationIndex = null
+let reservationFiltered = []
 
 export default () => {
   const [reservations, setReservations] = useState<Array<Reservation>>(null)
+  const [textToSearch, setTextToSearch] = useState('')
   const router = useRouter()
   useEffect(() => {
     const fetch = async () => {
       const reservationsList = await bs.getMyReservations()
+
+      reservationIndex = lunr(function () {
+        this.ref('id')
+        this.field('rawText')
+        reservationsList.forEach((r: Reservation) => {
+          // eslint-disable-next-line no-param-reassign
+          r.rawText = `${r.reservationLabel} ${r.reservationHolder.lastName} ${r.reservationHolder.firstName} ${r.pax.map((c:Contact) => (c ? `${c.lastName} ${c.firstName}` : '')).join(' ')}`
+          this.add(r)
+        })
+      })
+
       setReservations(reservationsList)
-      console.log(reservationsList)
     }
     fetch()
   }, [])
@@ -29,10 +46,26 @@ export default () => {
 
   if (!reservations) return <Loading />
 
+  if (reservationIndex) {
+    reservationFiltered = reservations.filter((c:Reservation) => reservationIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)
+  }
+
   return (
     <div className="content relative h-screen">
+      <header className="flex mt-4 items-center">
+        <div className="ml-4"><span className="text-2xl font-semibold">My Reservations</span></div>
+      </header>
+      <div className="flex ml-4 mt-4 h-8">
+        <div className=" bg-gray-200 flex items-center pl-4 rounded-l "><IconSearch /></div>
+        <input
+          value={textToSearch}
+          onChange={(e) => setTextToSearch(e.target.value)}
+          className=" bg-gray-200 w-full mr-4 pl-4 rounded-r text-gray-800 focus:outline-none"
+          placeholder="Search"
+        />
+      </div>
       {reservations.length === 0 ? <EmptyFrame /> : (
-        reservations.map((r: Reservation) => (
+        reservationFiltered.map((r: Reservation) => (
           <div key={r.id} className="flex relative w-full border-b rounded-lg  p-4 mt-4" onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
             <div className="w-2/4">
               <div className="flex items-center">
@@ -112,8 +145,8 @@ const IconDeposited = () => (
   <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd" d="M1.41675 8.5013C1.41675 4.60547 4.60425 1.41797 8.50008 1.41797C12.3959 1.41797 15.5834 4.60547 15.5834 8.5013C15.5834 12.3971 12.3959 15.5846 8.50008 15.5846C4.60425 15.5846 1.41675 12.3971 1.41675 8.5013ZM2.83341 8.5013C2.83341 11.6251 5.37633 14.168 8.50008 14.168C11.6238 14.168 14.1667 11.6251 14.1667 8.5013C14.1667 5.37755 11.6238 2.83464 8.50008 2.83464C5.37633 2.83464 2.83341 5.37755 2.83341 8.5013ZM12.0417 10.6263V12.043H4.95841V10.6263H12.0417ZM5.95008 6.5888L7.29591 7.93463L11.0501 4.18047L12.0417 5.17213L7.29591 9.91797L4.95841 7.58047L5.95008 6.5888Z" fill="#6FC28B" />
   </svg>
-
 )
+
 
 const EmptyFrame = () => (
   <div>

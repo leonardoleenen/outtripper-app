@@ -43,6 +43,7 @@ export default () => {
 
   if (!contacts) return <Loading />
 
+
   if (contactIndex) {
     contactFiltered = contacts.filter((c:Contact) => contactIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)
   }
@@ -77,7 +78,7 @@ export default () => {
       ))}
 
 
-      <div className="buttonAdd absolute h-16 w-16 bg-teal-500 shadow-2xl right-0 bottom-0 rounded-full mb-8 mr-8 flex items-center">
+      <div className="buttonAdd absolute h-16 w-16 bg-teal-500 shadow-2xl right-0 bottom-0 rounded-full mb-8 mr-8 flex items-center" onClick={() => router.push('/new_contact')}>
         <IconAdd />
       </div>
       <style>

@@ -205,7 +205,7 @@ export default () => {
 
         <div className="pl-4  py-4 border-b flex-cols">
           <div className="text-base font-semibold text-gray-600 w-full">Terms and Conditions</div>
-          <div className="">
+          <div className="mr-4">
             <span className="font-thin text-base italic text-gray-700">{reservation.termsAndConditionsLiteral}</span>
           </div>
         </div>

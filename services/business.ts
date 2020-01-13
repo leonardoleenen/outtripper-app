@@ -20,7 +20,7 @@ interface Services {
   getAvailabilityByMonthAndYear(programId:string, month: number, year: number) : Promise<Array<AvailableDate>>
   getContacts() : Promise<Array<Contact>>
   generateUniversalId(user: User): string
-  saveContact(contact: Contact, user: User) : void
+  saveContact(contact: Contact) : Promise<Contact>
   getNotifications() : Promise<Array<SystemNotification>>
   getInvitation(id: string): Promise<Invitation>
   login(uid:string, cn:string, email:string, photoAvatar?:string) : Promise<TokenOuttripper>
@@ -40,15 +40,6 @@ interface Services {
 
 
 class BusinessService implements Services {
-  saveContact(contact: Contact, user: User): void {
-    const contactToSave = contact
-    contactToSave.owner = user.organization
-    contactToSave.collectionKind = 'contact'
-    contactToSave.id = this.generateUniversalId(user)
-    this.da.saveContact(contactToSave)
-  }
-
-
   outtripperServer = axios
 
   da: DataAccessService = dataAccessService
@@ -373,11 +364,15 @@ class BusinessService implements Services {
   }
 
   buildTerminsAndConditions = (installmentsList: Array<Installment>) : string => {
-    const literal = `${installmentsList} payments,${installmentsList.map((i: Installment) => (
+    const literal = `${installmentsList.length} payments, ${installmentsList.map((i: Installment) => (
       `${formatter.format(i.amount)} due on ${moment(i.dueDate).format('MMM, DD YYYY')}`
     )).join(', ')}`
 
     return literal
+  }
+
+  saveContact(contact: Contact): Promise<Contact> {
+    return this.getToken().then(async (token:TokenOuttripper) => this.da.saveContact(token.organizationId, contact))
   }
 }
 

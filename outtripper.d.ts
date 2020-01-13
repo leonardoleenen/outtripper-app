@@ -122,6 +122,7 @@ type Reservation = {
   amountOfPayment? : number
   amountOfPurchase? : number
   termsAndConditionsLiteral: string
+  rawText? : string
 }
 
 type ItemInvoice = {
