@@ -10,7 +10,6 @@ import getConfig from 'next/config'
 const { publicRuntimeConfig: { FIREBASE_KEY } } = getConfig()
 
 // eslint-disable-next-line import/no-unresolved
-// const serviceAccount = require('../keys/firebase.json')
 
 // console.log(Buffer.from(FIREBASE_KEY, 'base64').toString())
 if (!firebase.apps.length) {
