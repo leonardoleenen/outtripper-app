@@ -8,8 +8,8 @@ import Loading from '../components/loading'
 import { setProgram } from '../redux/actions/reservation'
 
 
-const styleButtonSelected = 'buttonProgram h-8 w-3/6 p-4 ml-4 mt-4  bg-teal-800  flex items-center justify-center text-white'
-const styleButtonUnSelectd = 'buttonProgram h-8 w-3/6 p-4 ml-4 mt-4 border border-teal-800  flex items-center justify-center'
+const styleButtonSelected = 'buttonProgram mx-4 px-4 mt-4 w-1/2  bg-teal-800  flex items-center justify-center text-white'
+const styleButtonUnSelected = 'buttonProgram mx-4 px-4 mt-4 w-1/2  border border-teal-800  flex items-center justify-center'
 
 export default () => {
   const [availability, setAvailability] = useState<Array<AvailableDate>>(null)
@@ -92,16 +92,16 @@ export default () => {
   if (!availability) { return <Loading /> }
 
   return (
-    <div className="container">
+    <div className="container h-screen">
       <div className="flex">
 
         <div
           onClick={() => setShowProgramMenu(true)}
-          className={programSelected ? styleButtonSelected : styleButtonUnSelectd}
+          className={programSelected ? styleButtonSelected : styleButtonUnSelected}
         >
           <span>{ programSelected ? programSelected.name : 'Select a Program'}</span>
         </div>
-        <div className="h-8 w-1/3 p-4 ml-4 mt-4 border border-teal-800  flex items-center justify-center">
+        <div className={styleButtonUnSelected}>
           <span>Pax</span>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default () => {
         {`
         .container {
           display: grid;
-          grid-template-rows: 55px 75px 190% 20px;
+          grid-template-rows: 55px 75px 68% 20px;
         }
         `}
       </style>

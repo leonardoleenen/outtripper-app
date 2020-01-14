@@ -4,8 +4,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import _ from 'underscore'
+import bs, { formatter } from '../services/business'
 
-import bs from '../services/business'
+
 import Loading from '../components/loading'
 import { setAvailableDate } from '../redux/actions/reservation'
 
@@ -37,7 +38,6 @@ export default () => {
   const isDifferentMonth = (prev: AvailableDate, curr:AvailableDate) : boolean => {
     const prevMonth = new Date(prev.from).getMonth()
     const curMonth = new Date(curr.from).getMonth()
-    console.log(prevMonth, curMonth)
     return prevMonth === curMonth
   }
 
@@ -45,29 +45,34 @@ export default () => {
   if (!availability) return <Loading />
 
   return (
-    <div className="relative h-screen">
+    <div className="h-screen grid">
       <header className="flex mt-4">
         <div onClick={() => router.push('/availability')}><IconArrowLeft /></div>
-        <IconCalendar />
+        <div className="w-full" />
+        <div className="flex mr-4 items-center">
+          <IconCalendar />
+        </div>
       </header>
       <div className="text-3xl font-semibold ml-4 mt-8">{`${program.name} availability`}</div>
-      <article className="mt-8">
+      <article className="mt-8 overflow-y-auto w-full">
         {availability.map((a:AvailableDate, index: number) => (
           <div key={a.id} className="flex-cols " onClick={() => dispatch(setAvailableDate(a))}>
-            {index === 0 ? <div className="w-full">{moment(a.from).format('MMMM YYYY')}</div> : isDifferentMonth(availability[index - 1], a) ? <div className="w-full">{moment(a.from).format('MMMM YYYY')}</div> : '' }
+            {index === 0
+              ? <div className="ml-4 font-semibold mt-12">{moment(a.from).format('MMMM YYYY')}</div>
+              : !isDifferentMonth(availability[index - 1], a) ? <div className="ml-4 font-semibold mt-12 text-base">{moment(a.from).format('MMMM YYYY')}</div> : '' }
 
             <div className={`flex p-5 border-b  ${dateSelected && (dateSelected.id === a.id) ? 'bg-teal-100' : ''}`}>
               <div className="w-4/6 font-thin text-gray-700">
                 {`${moment(a.from).format('ddd DD')} to ${moment(a.to).format('ddd DD')}`}
               </div>
               <div className="w-2/6 ">
-                <div className="font-thin text-gray-700">
+                <div className="font-thin text-gray-700 flex justify-end mr-8">
                   {` ${a.freeSpots} free / `}
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 ">
                     {a.totalSpots}
                   </span>
                 </div>
-                <div className="font-thin text-xs text-indigo-700">$ todo</div>
+                <div className="font-thin text-xs text-indigo-700 flex justify-end mr-8">{formatter.format(a.price)}</div>
               </div>
             </div>
           </div>
@@ -75,20 +80,29 @@ export default () => {
       </article>
 
       {dateSelected ? (
-        <div className="absolute inset-x-0 bottom-0 bg-gray-100 flex px-4 justify-center items-center mb-4">
-          <div className="w-4/6 mt-4">
+        <div className="h-24 bg-gray-100 flex px-4 items-center mb-4">
+          <div className="w-full mt-4">
             <div className="font-semibold text-sm">{program.name}</div>
             <div className="font-thin text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
             <div className="font-thin text-sm">
-              {`${guestQuantity || '1'} Guest - ${dateSelected.price}`}
+              {`${guestQuantity || '1'} Guest - ${formatter.format(dateSelected.price)}`}
             </div>
           </div>
-          <div className="h-12 w-2/6 px-8 py-4 bg-teal-500 flex " onClick={() => router.push('/reservation/holder')}>
+          <div className="px-8 py-4 bg-teal-500 flex mr-8 " onClick={() => router.push('/reservation/holder')}>
             <span className="uppercase text-white ">next</span>
           </div>
         </div>
       )
         : ''}
+
+      <style>
+        {`
+            .grid {
+              display: grid; 
+              grid-template-rows: 48px 120px 65%;
+            }
+          `}
+      </style>
     </div>
 
   )

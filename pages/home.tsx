@@ -21,7 +21,6 @@ export default () => {
   useEffect(() => {
     const fetch = async () => {
       const reservationsList = await bs.getMyReservations()
-
       reservationIndex = lunr(function () {
         this.ref('id')
         this.field('rawText')

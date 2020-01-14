@@ -4,13 +4,17 @@ import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
 import firebase from 'firebase'
 import uuid4 from 'uuid4'
-import { firebaseKey } from '../keys'
+// import { firebaseKey } from '../keys'
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig: { FIREBASE_KEY } } = getConfig()
 
 // eslint-disable-next-line import/no-unresolved
 // const serviceAccount = require('../keys/firebase.json')
 
+// console.log(Buffer.from(FIREBASE_KEY, 'base64').toString())
 if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseKey)
+  firebase.initializeApp(JSON.parse(Buffer.from('eyJhcGlLZXkiOiJBSXphU3lCb2R6NWRNeWozYTJpUlRsOEc0MThJaEFrTTlHWkJyVkkiLCJhdXRoRG9tYWluIjoibm9yc2UtY2FycG9ydC0yNTg2MTUuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL25vcnNlLWNhcnBvcnQtMjU4NjE1LmZpcmViYXNlaW8uY29tIiwicHJvamVjdElkIjoibm9yc2UtY2FycG9ydC0yNTg2MTUiLCJzdG9yYWdlQnVja2V0Ijoibm9yc2UtY2FycG9ydC0yNTg2MTUuYXBwc3BvdC5jb20iLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjM5ODk3MTkzMTI4MSIsImFwcElkIjoiMTozOTg5NzE5MzEyODE6d2ViOjI3MmRiOWI3MmVkNmEyYWU0ZThkMzAiLCJtZWFzdXJlbWVudElkIjoiRy1CTTczUlQ5UTBEIn0', 'base64').toString()))
 }
 
 
@@ -184,7 +188,7 @@ export class DataAccessService implements DataService {
       .collection(organizationId)
       .doc('dates')
       .collection('availability')
-      .where('from', '>=', new Date(year, month, 0).getTime())
+      .where('from', '>=', new Date(year, month, 0).getTime() > new Date().getTime() ? new Date(year, month, 0).getTime() : new Date().getTime())
       .where('programId', '==', programId)
       .get()
       .then((snap) => {

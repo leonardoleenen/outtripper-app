@@ -4,7 +4,7 @@ const nextRuntimeDotenv = require('next-runtime-dotenv')
 
 const withConfig = nextRuntimeDotenv({
   public: [
-    'API_SERVER',
+    'API_SERVER', 'FIREBASE_KEY',
   ],
 })
 

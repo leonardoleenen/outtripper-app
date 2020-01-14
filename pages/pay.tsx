@@ -118,10 +118,10 @@ export default () => {
 
       <ul className="flex border-b ml-4 mr-4 mb-4">
         <li className="-mb-px mr-1" onClick={() => dispatch(setMediaPayment(PaymentMode.CREDITCARD))}>
-          <div className={`text-center rounded-none font-normal inline-block  py-2 px-4 ${mode === PaymentMode.CREDITCARD ? 'activedTabs' : ''}`}>Credit Card</div>
+          <div className={`text-center rounded-none font-normal inline-block  py-2 px-4 ${mode === PaymentMode.CREDITCARD ? 'activedTabs' : ''}`}>Pay Now</div>
         </li>
         <li className="mr-1" onClick={() => dispatch(setMediaPayment(PaymentMode.WIRETRANSFER))}>
-          <div className={`text-center rounded-none font-normal inline-block  py-2 px-4 ${mode === PaymentMode.WIRETRANSFER ? 'activedTabs' : ''}`} defaultChecked>Wire transfer</div>
+          <div className={`text-center rounded-none font-normal inline-block  py-2 px-4 ${mode === PaymentMode.WIRETRANSFER ? 'activedTabs' : ''}`} defaultChecked>Inform Payment</div>
         </li>
       </ul>
 
