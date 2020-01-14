@@ -27,5 +27,5 @@ yarn-error.log*
 .next
 package-lock.json
 .vscode
-outtripper
+/outtripper
 keys.ts
