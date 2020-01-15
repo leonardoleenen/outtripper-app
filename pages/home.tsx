@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-this-in-sfc */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
@@ -14,6 +15,7 @@ import { IconSearch } from '../statics/icons'
 
 let reservationIndex = null
 let reservationFiltered = []
+let groupedList = []
 
 export default () => {
   const [reservations, setReservations] = useState<Array<Reservation>>(null)
@@ -50,10 +52,11 @@ export default () => {
 
   if (reservationIndex) {
     reservationFiltered = reservations.filter((c:Reservation) => reservationIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)
+    groupedList = _.groupBy(reservationFiltered, (r:Reservation) => r.financialState)
   }
 
   return (
-    <div className="content relative h-screen">
+    <div className="relative h-screen">
       <header className="flex mt-4 items-center">
         <div className="ml-4"><span className="text-2xl font-semibold">My Reservations</span></div>
       </header>
@@ -67,47 +70,58 @@ export default () => {
         />
       </div>
       {reservations.length === 0 ? <EmptyFrame /> : (
-        reservationFiltered.map((r: Reservation) => (
-          <div key={r.id} className="flex relative w-full border-b rounded-lg  p-4 mt-4" onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
-            <div className="w-2/4">
-              <div className="flex items-center">
-                <div className="text-xl">{`${r.reservationHolder.lastName}, ${r.reservationHolder.firstName}`}</div>
-                {r.isOnHold ? <div className="flex  items-center justify-end h-5"><span className="font-thin text-xs rounded-lg bg-yellow-300 px-2 mx-2"> On Hold</span></div> : ''}
-              </div>
-              <div className="font-thin text-xs">Full Week program </div>
-              <div className="font-thin text-xs">{`${r.pax.length} ${r.reservationLabel}`}</div>
-              <div className="font-thin text-xs">{`#${r.id} - ${moment(r.reservedAt).format('DD MMM YYYY')}`}</div>
-
+        Object.keys(groupedList).map((name:string) => (
+          <div key={name}>
+            <div className={`${name === 'NO PAYMENTS' ? 'bg-yellow-300' : name === 'PARTIALLY PAID' ? 'bg-orange-300' : 'bg-green-300'} mt-8 p-2 flex`}>
+              <div className="w-full"><span>{name === 'NO PAYMENTS' ? 'On Hold' : name === 'PARTIALLY PAID' ? 'Partially Paid' : 'Paid'}</span></div>
+              <div className="w-24 mr-4"><span>{formatter.format(groupedList[name].map((r: Reservation) => (bs.getDuePaymentAmount(r) > 0 ? bs.getDuePaymentAmount(r) : r.amountOfPurchase)).reduce((total, v) => total += v))}</span></div>
             </div>
-            { (r.amountOfPurchase - r.amountOfPayment) > 0 ? (
-              <div className="w-2/4 flex-cols ">
-                <div className="flex justify-end text-xl"><span>{formatter.format(bs.getNextInstallmentInDueDate(r).amount)}</span></div>
-                <div className="flex justify-end">
-                  <div className="w-full flex justify-end h-5"><span className={`font-thin text-xs px-2 rounded-lg ${bs.getDiffDaysForInstallmentNextDue(r) < 0 ? 'bg-red-200' : 'bg-green-200'}`}>{bs.getDiffDaysForInstallmentNextDue(r) < 0 ? `Overdue ${bs.getDiffDaysForInstallmentNextDue(r) * -1} days` : `Due in ${bs.getDiffDaysForInstallmentNextDue(r)} days`}</span></div>
-                </div>
-                <div className="flex justify-end"><span className="font-thin text-xs">{`Installments ${bs.getNextInstallmentInDueDate(r).order} / ${r.invoicesObject[0].installments.length}`}</span></div>
-                <div className="flex justify-end">
-                  <div className="inline-block align-bottom">
-                    <span className="font-thin text-xs">Balance  </span>
-                    <span className="text-xl">{`${formatter.format(r.amountOfPurchase - r.amountOfPayment)}`}</span>
+            {groupedList[name].map((r: Reservation) => (
+              <div key={r.id} className="flex relative w-full border-b rounded-lg  p-4 " onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
+                <div className="w-2/4">
+                  <div className="flex items-center">
+                    <div className="text-xl">{`${r.reservationHolder.lastName}, ${r.reservationHolder.firstName}`}</div>
+
                   </div>
+                  <div className="font-thin text-xs">Full Week program </div>
+                  <div className="font-thin text-xs flex items-center">
+                    <div className="mr-2"><IconPeople /></div>
+                    {`${r.pax.length} ${r.reservationLabel}`}
+                  </div>
+                  <div className="font-thin text-xs">{`#${r.id} - ${moment(r.reservedAt).format('DD MMM YYYY')}`}</div>
                 </div>
+                { (r.amountOfPurchase - r.amountOfPayment) > 0 ? (
+                  <div className="w-2/4 flex-cols ">
+                    <div className="flex justify-end text-xl"><span>{formatter.format(bs.getNextInstallmentInDueDate(r).amount)}</span></div>
+                    <div className="flex justify-end">
+                      <div className="w-full flex justify-end h-5"><span className={`font-thin text-xs px-2 rounded-lg ${bs.getDiffDaysForInstallmentNextDue(r) < 0 ? 'bg-red-200' : 'bg-green-200'}`}>{bs.getDiffDaysForInstallmentNextDue(r) < 0 ? `Overdue ${bs.getDiffDaysForInstallmentNextDue(r) * -1} days` : `Due in ${bs.getDiffDaysForInstallmentNextDue(r)} days`}</span></div>
+                    </div>
+                    <div className="flex justify-end"><span className="font-thin text-xs">{`Installments ${bs.getNextInstallmentInDueDate(r).order} / ${r.invoicesObject[0].installments.length}`}</span></div>
+                    <div className="flex justify-end">
+                      <div className="inline-block align-bottom">
+                        <span className="font-thin text-xs">Balance  </span>
+                        <span className="text-xl">{`${formatter.format(r.amountOfPurchase - r.amountOfPayment)}`}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-2/4 flex-cols ">
+                    <div className="flex justify-end text-xl">
+                      <span>{formatter.format(r.amountOfPurchase)}</span>
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <div><IconDeposited /></div>
+                      <div className="ml-2"><span className="text-xl text-green-500">Deposited</span></div>
+                    </div>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="w-2/4 flex-cols ">
-                <div className="flex justify-end text-xl">
-                  <span>{formatter.format(r.amountOfPurchase)}</span>
-                </div>
-                <div className="flex items-center justify-end">
-                  <div><IconDeposited /></div>
-                  <div className="ml-2"><span className="text-xl text-green-500">Deposited</span></div>
-                </div>
-              </div>
-
-            )}
-
+            ))}
           </div>
+
+
         ))
+
       )}
       <style>
         {`

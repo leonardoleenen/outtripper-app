@@ -372,6 +372,11 @@ class BusinessService implements Services {
   saveContact(contact: Contact): Promise<Contact> {
     return this.getToken().then(async (token:TokenOuttripper) => this.da.saveContact(token.organizationId, contact))
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  getDuePaymentAmount(reservation: Reservation) : number {
+    return reservation.amountOfPurchase - reservation.amountOfPayment
+  }
 }
 
 
