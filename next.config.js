@@ -1,11 +1,10 @@
-const withSass = require('@zeit/next-sass')
+// const withSass = require('@zeit/next-sass')
+const withCSS = require('@zeit/next-css')
 const withPlugins = require('next-compose-plugins')
 const nextRuntimeDotenv = require('next-runtime-dotenv')
 
 const withConfig = nextRuntimeDotenv({
-  public: [
-    'API_SERVER', 'FIREBASE_KEY',
-  ],
+  public: [],
 })
 
 
@@ -20,8 +19,14 @@ const nextConfig = {
 }
 
 module.exports = withConfig(withPlugins([
+  [withConfig], withCSS,
+], nextConfig))
+
+/*
+module.exports = withConfig(withPlugins([
   [withConfig], withSass,
 ], nextConfig))
+*/
 
 /* exports.default = {
   env: {

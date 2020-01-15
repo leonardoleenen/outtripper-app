@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import '../statics/style/style.scss'
+import '../statics/style/style.css'
 import Link from 'next/link'
 
 const styleBox = 'ml-2 my-4 w-1/4 flex-cols'
@@ -90,7 +90,7 @@ export default () => {
 
 
   return (
-    <div className="absolute inset-x-0 bottom-0 flex">
+    <div className="inset-x-0 bottom-0 flex">
       <Link href="/home">
         <div className={styleBox}>
           <IconHome />

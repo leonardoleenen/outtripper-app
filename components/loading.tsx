@@ -9,7 +9,7 @@ export default () => (
       <p>This task maybe take a few seconds, Please wait and you will be awared</p>
     </div>
 
-    <style jsx>
+    <style>
       {
         `
 

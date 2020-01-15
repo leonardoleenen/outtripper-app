@@ -15,6 +15,10 @@ export default () => {
   const daysInHold = useSelector((state) => state.reservation.daysInHold)
   const [spinnerValue, setSpinnerValue] = useState(daysInHold || 1)
 
+  const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
+  const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
+  const program : Program = useSelector((state) => state.reservation.programSelected)
+
 
   const goNext = () => {
     router.push('/reservation/installments')
@@ -36,6 +40,11 @@ export default () => {
     // callBackFunction(finalValue)
   }
 
+  if (!guestQuantity || !dateSelected || !program) {
+    router.push('/error500')
+    return <div>Empty</div>
+  }
+
   return (
     <Page back="/reservation/guest_qty" label={label} title="How many days to the hold goes on due?">
       <div className="flex-cols">
@@ -53,7 +62,7 @@ export default () => {
         <div className="flex mt-20"><span className="m-auto font-semibold text-2xl">{moment().add(value + daysInHold, 'days').format('MMM, Do')}</span></div>
         <div className="flex"><span className="m-auto font-thin">Reservation due date</span></div>
       </div>
-      <Footer callFunction={goNext} />
+      <Footer callFunction={goNext} guestQuantity={guestQuantity} program={program} dateSelected={dateSelected} />
     </Page>
   )
 }

@@ -10,7 +10,7 @@ import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage } from '../../redux/actions/contact_calendar'
 import { setCallingFrom as setCallingPaymentPage } from '../../redux/actions/payment'
-import '../../statics/style/style.scss'
+import '../../statics/style/style.css'
 
 
 export default () => {

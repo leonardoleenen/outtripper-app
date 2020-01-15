@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { newContact } from '../redux/actions/contact_calendar'
 import { StoreData } from '../redux/store'
 import Loading from '../components/loading'
-import '../statics/style/style.scss'
+import '../statics/style/style.css'
 
 interface FormData {
   lastName: string

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import '../statics/style/style.scss'
+import '../statics/style/style.css'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import dbs from '../services/database'
@@ -70,7 +70,7 @@ export default () => {
         <input type="check" />
         I have read the terms and conditions. I agree and give my consent
       </div>
-      <style jsx>
+      <style>
         {
           `
           @import url('https://fonts.googleapis.com/css?family=Gochi+Hand&display=swap');

@@ -19,6 +19,8 @@ export default () => {
   const installments = useSelector((state) => state.reservation.installments)
   const [spinnerValue, setSpinnerValue] = useState(installments || 1)
   const [waitForCreation, setWaitForCreation] = useState(false)
+  const program : Program = useSelector((state) => state.reservation.programSelected)
+
 
   const paxes = Array(guests).fill(null)
   paxes[0] = holder
@@ -61,7 +63,7 @@ export default () => {
           </div>
         </div>
       </div>
-      <Footer callFunction={goNext} />
+      <Footer callFunction={goNext} guestQuantity={guests} program={program} dateSelected={date} />
     </Page>
   )
 }

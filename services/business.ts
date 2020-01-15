@@ -1,11 +1,9 @@
 import uuidv4 from 'uuid4'
 import axios from 'axios'
-import getConfig from 'next/config'
 import moment from 'moment'
 import voucherVodes from 'voucher-code-generator'
 import dataAccessService, { DataAccessService } from './database'
 
-const { publicRuntimeConfig: { API_SERVER } } = getConfig()
 
 export const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',

@@ -5,10 +5,11 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import lunr from 'lunr'
+import _ from 'underscore'
 import BottomNavBar from '../components/bottom_nav_bar'
 import Loading from '../components/loading'
 import bs from '../services/business'
-import '../statics/style/style.scss'
+import '../statics/style/style.css'
 import { IconSearch } from '../statics/icons'
 
 let reservationIndex = null
@@ -30,6 +31,8 @@ export default () => {
           this.add(r)
         })
       })
+
+      console.log(_.groupBy(reservationsList, (r:Reservation) => r.financialState))
 
       setReservations(reservationsList)
     }
@@ -152,7 +155,7 @@ const EmptyFrame = () => (
     <FreeIcon />
     <h1>Free Date!</h1>
     <p>We dont have any reservation for this date. Make your first reservation right now and save the date</p>
-    <style jsx>
+    <style>
       {
             `
            .content{

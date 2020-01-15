@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import { setContact } from '../redux/actions/contact_calendar'
 import Loading from '../components/loading'
 import { IconBack, IconSearch } from '../statics/icons'
-import '../statics/style/style.scss'
+import '../statics/style/style.css'
 import ItemList from '../components/contacts/item_list'
 
 

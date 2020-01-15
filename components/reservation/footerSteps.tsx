@@ -1,16 +1,22 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+
 import moment from 'moment'
 
 interface Props {
   callFunction : any
+  program : Program
+  dateSelected: AvailableDate
+  guestQuantity : number
 }
 
 export default (props: Props) => {
-  const { callFunction } = props
-  const program : Program = useSelector((state) => state.reservation.programSelected)
-  const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
-  const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
+  const {
+    callFunction, program, dateSelected, guestQuantity,
+  } = props
+  // const program : Program = useSelector((state) => state.reservation.programSelected)
+  // const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
+  // const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
+
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -21,7 +27,7 @@ export default (props: Props) => {
   return (
     <div className="absolute inset-x-0 bottom-0 h-24 bg-white flex items-center">
       <div className="text-gray-800 w-2/3 mx-4">
-        <div className="font-semibold text-black text-lg">{program.name}</div>
+        <div className="font-semibold text-black text-lg">{program ? program.name : ''}</div>
         <div className="font-base text-gray-700 text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
         <div className="flex justify-start items-center">
           <IconPeople />

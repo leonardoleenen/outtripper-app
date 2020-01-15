@@ -5,9 +5,9 @@ import PouchDBFind from 'pouchdb-find'
 import firebase from 'firebase'
 import uuid4 from 'uuid4'
 // import { firebaseKey } from '../keys'
-import getConfig from 'next/config'
+// import getConfig from 'next/config'
 
-const { publicRuntimeConfig: { FIREBASE_KEY } } = getConfig()
+// const { publicRuntimeConfig: { FIREBASE_KEY } } = getConfig()
 
 // eslint-disable-next-line import/no-unresolved
 
@@ -250,6 +250,20 @@ export class DataAccessService implements DataService {
     reservation.isOnHold = payments.length === 0 || false
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPayment = payments.length > 0 ? payments.map((p: Payment) => p.amount).reduce((total, v) => total += v) : 0
+
+    if ((reservation.amountOfPurchase - reservation.amountOfPayment) === 0) {
+      reservation.financialState = 'PAID'
+    }
+
+    if ((reservation.amountOfPurchase - reservation.amountOfPayment) > 0) {
+      reservation.financialState = 'PARTIALLY PAID'
+    }
+
+    if (reservation.amountOfPayment === 0) {
+      reservation.financialState = 'NO PAYMENTS'
+    }
+
+
     return reservation
   }
 

@@ -8,9 +8,12 @@ import { setGuestQuantity } from '../../redux/actions/reservation'
 export default () => {
   const guestQuantity : number = useSelector((state) => state.reservation.guestQuantity) || 1
   const dateSelected : AvailableDate = useSelector((state) => state.reservation.availableDate)
+  const program : Program = useSelector((state) => state.reservation.programSelected)
+  const label = useSelector((state) => state.reservation.reservationLabel)
+
   const dispatch = useDispatch()
   const router = useRouter()
-  const label = useSelector((state) => state.reservation.reservationLabel)
+
   const [spinnerValue, setSpinnerValue] = useState(guestQuantity || 1)
 
 
@@ -34,8 +37,13 @@ export default () => {
     // callBackFunction(finalValue)
   }
 
+  if (!guestQuantity || !dateSelected || !program) {
+    router.push('/error500')
+    return <div>Empty</div>
+  }
+
   return (
-    <Page back="/reservation/label" label={label} title="How many guest will be at the group?">
+    <Page back="/reservation/label" label={label || ''} title="How many guest will be at the group?">
       <div className="flex-cols">
         <div className="flex mt-16">
           <div className="flex mt-16 items-center m-auto">
@@ -48,10 +56,10 @@ export default () => {
             </div>
           </div>
         </div>
-        <div className="flex mt-20"><span className="m-auto font-semibold text-4xl">{dateSelected.freeSpots - guestQuantity }</span></div>
+        <div className="flex mt-20"><span className="m-auto font-semibold text-4xl">{ dateSelected ? dateSelected.freeSpots - guestQuantity : 1 }</span></div>
         <div className="flex"><span className="m-auto font-thin">Spots left to book for this trip</span></div>
       </div>
-      <Footer callFunction={goNext} />
+      <Footer callFunction={goNext} guestQuantity={guestQuantity} program={program} dateSelected={dateSelected} />
     </Page>
   )
 }

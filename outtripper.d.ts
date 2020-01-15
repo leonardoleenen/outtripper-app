@@ -104,6 +104,12 @@ type MonthAndYear = {
   year: number
 }
 
+type ReservationNote = {
+  id: string
+  note: string
+  date: number
+}
+
 type Reservation = {
   id : string
   reservationHolder: Contact
@@ -123,6 +129,8 @@ type Reservation = {
   amountOfPurchase? : number
   termsAndConditionsLiteral: string
   rawText? : string
+  notes? : Array<ReservationNote>
+  financialState?: string
 }
 
 type ItemInvoice = {
