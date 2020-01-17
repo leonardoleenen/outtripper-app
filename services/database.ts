@@ -20,6 +20,7 @@ if (!firebase.apps.length) {
 declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(organizationId: string): Promise<Array<Program>>
+  getProgram(organizationId: string, programId: string) : Promise<Program>
   setToken(token : TokenOuttripper) : void
   getToken() : Promise<TokenOuttripper>
   getContact(organizationId: string, id: string) : Promise<Contact>
@@ -43,6 +44,12 @@ declare interface DataService {
   createPayment(organizationId: string, payment: Payment) : void
   getMyReservations(organizationId: string) : Promise<Array<Reservation>>
   updateInvoice(organizationId: string, invoice: Invoice) : void
+  createInvitation(invite: Invitation) : Promise<Invitation>
+  getInvitations(organizationId: string) : Promise<Array<Invitation>>
+  updateInvitation(invitation: Invitation) : Promise<Invitation>
+  getRoles(): Promise<Array<Role>>
+  createUser(user: User) : Promise<User>
+  addDealAccess(user: User, organizationId: string, role: Role) : void
  }
 
 export class DataAccessService implements DataService {
@@ -164,6 +171,16 @@ export class DataAccessService implements DataService {
   }
 
 
+  getProgram(organizationId: string, programId: string): Promise<Program> {
+    return this.fb.firestore()
+      .collection(organizationId)
+      .doc('settings')
+      .collection('programs')
+      .doc(programId)
+      .get()
+      .then((doc) => doc.data() as Program)
+  }
+
   getPrograms(organizationId: string): Promise<Program[]> {
     const programs : Array<Program> = []
 
@@ -243,7 +260,8 @@ export class DataAccessService implements DataService {
       .get()
       .then((snap) => snap.docs.map((doc) => doc.data())) as Array<Payment>
 
-
+    const programId : string = invoices[0].items.filter((i: ItemInvoice) => i.kind === 'PROGRAM')[0].id
+    reservation.program = await this.getProgram(organizationId, programId)
     reservation.invoicesObject = invoices
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPurchase = invoices.map((invoice: Invoice) => invoice.items).reduce((total, v) => v).map((item: ItemInvoice) => item.price).reduce((total, v) => total += v)
@@ -429,6 +447,63 @@ export class DataAccessService implements DataService {
       .doc(id)
       .get()
       .then((doc) => doc.data() as Contact)
+  }
+
+  createInvitation(invite: Invitation): Promise<Invitation> {
+    // eslint-disable-next-line no-param-reassign
+    invite.id = uuid4()
+    return this.fb
+      .firestore()
+      .collection('invitations')
+      .doc(invite.id)
+      .set(invite)
+      .then((r) => invite)
+  }
+
+  getInvitations(organizationId: string): Promise<Invitation[]> {
+    return this.fb
+      .firestore()
+      .collection('invitations')
+      .where('organizationId', '==', organizationId)
+      .get()
+      .then((snap) => snap.docs.map((doc) => doc.data() as Invitation))
+  }
+
+  getRoles(): Promise<Role[]> {
+    return this.fb
+      .firestore()
+      .collection('roles')
+      .get()
+      .then((snap) => snap.docs.map((doc) => doc.data() as Role))
+  }
+
+  createUser(user: User) {
+    return this.fb
+      .firestore()
+      .collection('users')
+      .doc(user.uid)
+      .set(user)
+      .then(() => user)
+  }
+
+  addDealAccess(user: User, organizationId: string, role: Role): void {
+    this.fb
+      .firestore()
+      .collection('dealAccess')
+      .doc(user.uid)
+      .set({
+        organization: organizationId,
+        rol: role.id,
+      })
+  }
+
+  updateInvitation(invitation: Invitation): Promise<Invitation> {
+    return this.fb
+      .firestore()
+      .collection('invitations')
+      .doc(invitation.id)
+      .update(invitation)
+      .then(() => invitation)
   }
 
 

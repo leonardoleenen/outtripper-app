@@ -8,7 +8,7 @@ import bs, { formatter } from '../services/business'
 
 
 import Loading from '../components/loading'
-import { setAvailableDate } from '../redux/actions/reservation'
+import { setAvailableDate, cleanReservationState } from '../redux/actions/reservation'
 
 export default () => {
   const program : Program = useSelector((state) => state.reservation.programSelected)
@@ -56,7 +56,14 @@ export default () => {
       <div className="text-3xl font-semibold ml-4 mt-8">{`${program.name} availability`}</div>
       <article className="mt-8 overflow-y-auto w-full">
         {availability.map((a:AvailableDate, index: number) => (
-          <div key={a.id} className="flex-cols " onClick={() => dispatch(setAvailableDate(a))}>
+          <div
+            key={a.id}
+            className="flex-cols "
+            onClick={() => {
+              dispatch(cleanReservationState())
+              dispatch(setAvailableDate(a))
+            }}
+          >
             {index === 0
               ? <div className="ml-4 font-semibold mt-12">{moment(a.from).format('MMMM YYYY')}</div>
               : !isDifferentMonth(availability[index - 1], a) ? <div className="ml-4 font-semibold mt-12 text-base">{moment(a.from).format('MMMM YYYY')}</div> : '' }

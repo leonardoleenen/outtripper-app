@@ -1,5 +1,5 @@
 import {
-  SET_AVAILABLE_DATE, SET_RESERVATION_HOLDER, SET_GUEST_QTY, Action, SET_RESERVATION_LABEL, SET_DAYS_IN_HOLD, SET_INSTALLMENTS, SET_PROGRAM_SELECTED, SET_MONTH_AND_YEAR,
+  SET_AVAILABLE_DATE, SET_RESERVATION_HOLDER, SET_GUEST_QTY, Action, SET_RESERVATION_LABEL, SET_DAYS_IN_HOLD, SET_INSTALLMENTS, SET_PROGRAM_SELECTED, SET_MONTH_AND_YEAR, CLEAN_RESERVATION_STATE,
 } from '../reducers/reservation'
 
 
@@ -41,4 +41,8 @@ export const setProgram = (program: Program) => (dispatch) => dispatch({
 export const setMonthAndYear = (monthAndYear: MonthAndYear) => (dispatch) => dispatch({
   type: SET_MONTH_AND_YEAR,
   monthAndYear,
+})
+
+export const cleanReservationState = () => (dispatch) => dispatch({
+  type: CLEAN_RESERVATION_STATE,
 })

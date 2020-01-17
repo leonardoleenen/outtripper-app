@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import uuidv4 from 'uuid4'
 import axios from 'axios'
 import moment from 'moment'
@@ -34,6 +35,10 @@ interface Services {
   getNextInstallmentInDueDate(reservation: Reservation) : Installment
   getListPendingInstallments(reservation: Reservation) : Array<Installment>
   getDiffDaysForInstallmentNextDue(reservation :Reservation) : number
+  createInvite(email: string, roles: Array<Role>) : Promise<Invitation>
+  getInvitations(): Promise<Array<Invitation>>
+  getRoles(): Promise<Array<Role>>
+  createUser(user: User, invitation: Invitation) : Promise<TokenOuttripper>
 }
 
 
@@ -376,6 +381,54 @@ class BusinessService implements Services {
   // eslint-disable-next-line class-methods-use-this
   getDuePaymentAmount(reservation: Reservation) : number {
     return reservation.amountOfPurchase - reservation.amountOfPayment
+  }
+
+  createInvite(email: string, roles: Array<Role>): Promise<Invitation> {
+    return this.getToken().then((token: TokenOuttripper) => {
+      const invitation = {
+        emailDestination: email,
+        organizationCN: token.organizationCn,
+        organizationId: token.organizationId,
+        sendBy: token.userCn,
+        status: 'SEND',
+        roles,
+        id: null,
+      } as Invitation
+      return this.da.createInvitation(invitation)
+    })
+  }
+
+  getInvitations(): Promise<Invitation[]> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getInvitations(token.organizationId))
+  }
+
+  getRoles(): Promise<Role[]> {
+    return this.da.getRoles()
+  }
+
+  createUser(user: User, invitation: Invitation): Promise<TokenOuttripper> {
+    const promiseList = []
+
+    promiseList.push(this.da.createUser(user))
+    invitation.roles.forEach((role: Role) => {
+      promiseList.push(this.da.addDealAccess(user, invitation.organizationId, role))
+    })
+
+    invitation.status = 'ACCEPTED'
+    invitation.userCreated = user
+
+    promiseList.push(this.da.updateInvitation(invitation))
+
+    const token : TokenOuttripper = {
+      id: uuidv4(),
+      userCn: user.cn,
+      organizationCn: 'TODO',
+      organizationId: invitation.organizationId,
+      photoAvatar: user.photoAvatar,
+      rol: invitation.roles[0].id,
+    }
+
+    return Promise.all(promiseList).then(() => token)
   }
 }
 

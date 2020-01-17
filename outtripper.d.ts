@@ -21,16 +21,17 @@ type TokenOuttripper = {
   collectionKind?: string
 }
 
+type Role ={
+  id: string
+  name: string
+}
+
 type User = {
-  _id?: string,
   uid: string
   cn: string
   email: string
   photoAvatar: string
-  rol : 'AGENCY' | 'LODGE' | 'CONSUMER'
-  accessToken: string
-  organization: Organization
-  collectionKind? : string
+
 }
 
 type LoggedUser = {
@@ -87,16 +88,6 @@ type SystemNotification = {
   to: User | Organization,
   hasReaded: boolean
   collectionKind? : string
-}
-
-type Invitation = {
-  invitationSendBy: string
-  invitationTo: string
-  status: string
-  memberOf: string
-  organizationName: string
-  rol: string
-  bindToUserId?: string
 }
 
 type MonthAndYear = {
@@ -173,4 +164,16 @@ type CreditCard = {
 type WireTransfer = {
   bank: string
   reference : string
+}
+
+type Invitation = {
+  id : string
+  sendBy: string
+  cn?: string
+  status : 'SEND' | 'CANCELLED' | 'ACCEPTED'
+  emailDestination: string
+  organizationId: string
+  organizationCN : string
+  roles: Array<Role>
+  userCreated? : User
 }

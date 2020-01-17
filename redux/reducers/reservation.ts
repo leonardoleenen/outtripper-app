@@ -6,6 +6,7 @@ export const SET_DAYS_IN_HOLD = 'SET_DAYS_IN_HOLD'
 export const SET_INSTALLMENTS = 'SET_INSTALLMENTS'
 export const SET_PROGRAM_SELECTED = 'SET_PROGRAM_SELECTED'
 export const SET_MONTH_AND_YEAR = 'SET_MONTH_AND_YEAR'
+export const CLEAN_RESERVATION_STATE = 'CLEAN_RESERVATION_STATE'
 
 export interface State {
   availableDate: AvailableDate
@@ -44,6 +45,11 @@ export const initialState: State = {
 
 export const reservationReducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
+    case CLEAN_RESERVATION_STATE:
+      return {
+        ...initialState,
+        programSelected: state.programSelected,
+      }
     case SET_GUEST_QTY:
       return { ...state, guestQuantity: action.guestQuantity }
     case SET_RESERVATION_HOLDER:

@@ -73,8 +73,11 @@ export default () => {
         Object.keys(groupedList).map((name:string) => (
           <div key={name}>
             <div className={`${name === 'NO PAYMENTS' ? 'bg-yellow-300' : name === 'PARTIALLY PAID' ? 'bg-orange-300' : 'bg-green-300'} mt-8 p-2 flex`}>
-              <div className="w-full"><span>{name === 'NO PAYMENTS' ? 'On Hold' : name === 'PARTIALLY PAID' ? 'Partially Paid' : 'Paid'}</span></div>
-              <div className="w-24 mr-4"><span>{formatter.format(groupedList[name].map((r: Reservation) => (bs.getDuePaymentAmount(r) > 0 ? bs.getDuePaymentAmount(r) : r.amountOfPurchase)).reduce((total, v) => total += v))}</span></div>
+              <div className="w-full">
+                <span>{name === 'NO PAYMENTS' ? 'On Hold: ' : name === 'PARTIALLY PAID' ? 'Partially Paid: ' : 'Paid: '}</span>
+                <span>{formatter.format(groupedList[name].map((r: Reservation) => (bs.getDuePaymentAmount(r) > 0 ? bs.getDuePaymentAmount(r) : r.amountOfPurchase)).reduce((total, v) => total += v))}</span>
+              </div>
+              <div className="w-24 mr-4">{name === 'PAID' ? 'Total' : 'Balance'}</div>
             </div>
             {groupedList[name].map((r: Reservation) => (
               <div key={r.id} className="flex relative w-full border-b rounded-lg  p-4 " onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
@@ -83,7 +86,7 @@ export default () => {
                     <div className="text-xl">{`${r.reservationHolder.lastName}, ${r.reservationHolder.firstName}`}</div>
 
                   </div>
-                  <div className="font-thin text-xs">Full Week program </div>
+                  <div className="font-thin text-xs">{`${r.program.name} ${moment(r.serviceFrom).format('MMM DDD YYYY')} to ${moment(r.serviceTo).format('MMM DDD YYYY')} `}</div>
                   <div className="font-thin text-xs flex items-center">
                     <div className="mr-2"><IconPeople /></div>
                     {`${r.pax.length} ${r.reservationLabel}`}
