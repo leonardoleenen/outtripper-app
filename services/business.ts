@@ -391,6 +391,7 @@ class BusinessService implements Services {
         organizationId: token.organizationId,
         sendBy: token.userCn,
         status: 'SEND',
+        createdOn: new Date().getTime(),
         roles,
         id: null,
       } as Invitation

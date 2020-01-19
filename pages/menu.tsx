@@ -65,9 +65,9 @@ export default () => {
   return (
     <div className="bg-gradient p-8">
 
-      <Avatar user={token.userCn} message={token.rol} photoAvatar={token.photoAvatar} />
+      <Avatar user={token.userCn} message={`${token.organizationCn} - ${token.rol}`} photoAvatar={token.photoAvatar} />
       <Row title="Programs Management" func={TODOFunction} />
-      <Row title="Notifications" func={TODOFunction} />
+      <Row title="My team" func={() => router.push('/myteam')} />
       <Row title="Account Settings" func={TODOFunction} />
       <Row title="Bookings" func={TODOFunction} />
       <Row title="Help Center" func={TODOFunction} />

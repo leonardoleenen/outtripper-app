@@ -170,10 +170,12 @@ type Invitation = {
   id : string
   sendBy: string
   cn?: string
-  status : 'SEND' | 'CANCELLED' | 'ACCEPTED'
+  status : 'SEND' | 'CANCELLED' | 'ACCEPTED' | 'REVOKED'
   emailDestination: string
   organizationId: string
   organizationCN : string
   roles: Array<Role>
   userCreated? : User
+  createdOn: number
+  approbedOn? : number
 }

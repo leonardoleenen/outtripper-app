@@ -1,9 +1,11 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, useEffect } from 'react'
 import useForm from 'react-hook-form'
+import moment from 'moment'
 import bs from '../services/business'
 import Loading from '../components/loading'
-
+import BottomBar from '../components/bottom_nav_bar'
+import AddButton from '../components/add_button'
 
 interface FormData {
   email: string
@@ -65,14 +67,30 @@ export default () => {
   if (showNewInvite) { return <NewInvite /> }
 
   return (
-    <div>
-      <header>My Team</header>
-      <ul>
-        {inviteList.map((i: Invitation) => (
-          <li key={i.id}>{i.emailDestination}</li>
-        ))}
-      </ul>
-      <button type="button" onClick={() => setShowNewInvite(true)}> New Invite</button>
+    <div className="m-4">
+      <header className="flex mt-4">
+        <div><span className="text-2xl font-semibold text-gray-700">{'<'}</span></div>
+        <div className="mx-4"><span className="text-2xl font-semibold text-gray-700">My Team</span></div>
+      </header>
+      <article className="my-4">
+        <ul>
+          {inviteList.map((i: Invitation) => (
+            <li key={i.id} className="flex-cols items-center py-5 border-b">
+              <div className="">{i.status === 'SEND' || i.status === 'CANCELLED' ? i.emailDestination : i.userCreated.cn}</div>
+              <div><span className="text-xs font-thin">{`Created At TODO, by${moment(i.createdOn).format('DDD-MM-YYYY')}`}</span></div>
+              {i.status === 'ACCEPTED' ? <div className="text-xs font-thin">{`Accepted on ${moment(i.approbedOn).format('DDD-MM-YYYY')}`}</div> : ''}
+              <div className="flex justify-end ">
+                <div className="w-18 px-2">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-teal-500 text-white">Re Send</div> : ''}</div>
+                <div className="w-18">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white">Cancel</div> : <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white"> Revoke</div>}</div>
+              </div>
+              <div />
+            </li>
+          ))}
+        </ul>
+      </article>
+      <AddButton function={() => setShowNewInvite(true)} />
+      <BottomBar />
+
     </div>
   )
 }
