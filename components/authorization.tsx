@@ -11,10 +11,15 @@ export default (props: Props) => {
   useEffect(() => {
     const fetch = async () => {
       const token = await bs.getToken()
-      const privateElements = document.querySelectorAll('div[data-role-allowed]')
+      const privateElements = document.querySelectorAll('div[data-organization-kind]')
       privateElements.forEach((e: HTMLDivElement) => {
-        const rolesAllowed = (e.getAttribute('data-role-allowed')).split(',')
-        e.style.display = rolesAllowed.includes(token.rol) ? 'block' : 'none'
+        const organizationKindsAllowed = e.getAttribute('data-organization-kind').split(',')
+        if (organizationKindsAllowed.includes('*') || organizationKindsAllowed.includes(token.organizationKind)) {
+          const rolesAllowed = (e.getAttribute('data-role-allowed')).split(',')
+          e.style.display = rolesAllowed.includes(token.rol) ? 'block' : 'none'
+        } else {
+          e.style.display = 'none'
+        }
       })
     }
 

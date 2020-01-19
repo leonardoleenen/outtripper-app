@@ -83,7 +83,7 @@ export default () => {
                 {i.status === 'ACCEPTED' ? <div className="text-xs font-thin">{`Accepted on ${moment(i.approbedOn).format('DDD-MM-YYYY')}`}</div> : ''}
                 <div className="flex justify-end ">
                   <div className="w-18 px-2">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-teal-500 text-white">Re Send</div> : ''}</div>
-                  <div className="w-18">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white">Cancel</div> : <div data-role-allowed={['OWNER']} className="ml-2 w-18 p-2 rounded bg-red-500 text-white"> Revoke</div>}</div>
+                  <div className="w-18">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white">Cancel</div> : <div data-organization-kind="*" data-role-allowed={['COOWNER']} className="ml-2 w-18 p-2 rounded bg-red-500 text-white"> Revoke</div>}</div>
                 </div>
                 <div />
               </li>
