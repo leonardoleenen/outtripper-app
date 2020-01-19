@@ -111,10 +111,12 @@ export default () => {
         <IconCalendar />
         <div className="flex justify-center"><span className={activePage === 'occupation' ? `${styleText} text-blue-700` : styleText}>Occupation</span></div>
       </div>
-      <div className={styleBox}>
-        <MenuHorizontal />
-        <div className="flex justify-center"><span className={activePage === 'menu' ? `${styleText} text-blue-700` : styleText}>More</span></div>
-      </div>
+      <Link href="/menu">
+        <div className={styleBox}>
+          <MenuHorizontal />
+          <div className="flex justify-center"><span className={activePage === 'menu' ? `${styleText} text-blue-700` : styleText}>More</span></div>
+        </div>
+      </Link>
     </div>
   )
 }
