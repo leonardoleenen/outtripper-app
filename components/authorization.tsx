@@ -19,7 +19,7 @@ export default (props: Props) => {
     }
 
     fetch()
-  }, [])
+  })
 
 
   return <div>{children}</div>

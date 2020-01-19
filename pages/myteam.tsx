@@ -82,8 +82,8 @@ export default () => {
                 <div><span className="text-xs font-thin">{`Created At TODO, by${moment(i.createdOn).format('DDD-MM-YYYY')}`}</span></div>
                 {i.status === 'ACCEPTED' ? <div className="text-xs font-thin">{`Accepted on ${moment(i.approbedOn).format('DDD-MM-YYYY')}`}</div> : ''}
                 <div className="flex justify-end ">
-                  <div className="w-18 px-2">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-teal-500 text-white" data-role-allowed={['OWNER']}>Re Send</div> : ''}</div>
-                  <div className="w-18">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white">Cancel</div> : <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white"> Revoke</div>}</div>
+                  <div className="w-18 px-2">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-teal-500 text-white">Re Send</div> : ''}</div>
+                  <div className="w-18">{i.status === 'SEND' ? <div className="ml-2 w-18 p-2 rounded bg-red-500 text-white">Cancel</div> : <div data-role-allowed={['OWNER']} className="ml-2 w-18 p-2 rounded bg-red-500 text-white"> Revoke</div>}</div>
                 </div>
                 <div />
               </li>
