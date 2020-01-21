@@ -4,6 +4,7 @@ import Loading from '../../../components/loading'
 import bs from '../../../services/business'
 import '../../../statics/style/customer.css'
 import Page from './page'
+import moment from 'moment'
 
 enum ACTIVE_TAB {
   CONTACT = 'CONTACT',
@@ -17,8 +18,8 @@ enum ACTIVE_TAB {
 export default () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [reservation, setReservation] = useState(null)
-  const [activeTab, setActiveTab] = useState(ACTIVE_TAB.CONTACT)
+  const [reservation, setReservation] = useState<Reservation>(null)
+  const [activeTab, setActiveTab] = useState(ACTIVE_TAB.PRETRIP)
   const { accessToken } = router.query
   const [organization, setOrganization] = useState<Organization>(null)
 
@@ -66,7 +67,33 @@ export default () => {
   )
 
   const PreTrip = () => (
-    <div>Pre Trip</div>
+    <div className="p-4">
+      <div className="text-2xl font-bold py-4">What you need to know before your trip</div>
+      <div>
+        <div className="text-xl font-semibold mt-4">Whats included?</div>
+        {reservation.program.serviceCoverage.included.map((text: string, index: number) => (
+          <div key={`prog${index.toString()}`} className="flex items-center">
+            <div><IconIncluded /></div>
+            <div className="ml-4 py-2 font-thin text-sm">{text}</div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <div className="text-xl font-semibold mt-4">Whats not included?</div>
+        {reservation.program.serviceCoverage.notIncluded.map((text: string, index: number) => (
+          <div key={`prog${index.toString()}`} className="flex items-center">
+            <div><IconNotIncluded /></div>
+            <div className="ml-4 py-2 font-thin text-sm">{text}</div>
+          </div>
+        ))}
+      </div>
+      {reservation.program.preTripInfo.map((info:ProgramContentText, index: number) => (
+        <div key={`info${index.toString()}`}>
+          <div className="text-xl font-semibold mt-4">{info.title}</div>
+          <div className="text-sm font-thin mt-2 text-justify antialiased">{info.text}</div>
+        </div>
+      ))}
+    </div>
   )
 
   const CheckList = () => (
@@ -115,7 +142,18 @@ export default () => {
     <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fillRule="evenodd" clipRule="evenodd" d="M5.83333 4.375H10.9375C11.7396 4.375 12.3958 5.03125 12.3958 5.83333C12.3958 7.65625 12.6875 9.40625 13.2271 11.0396C13.3875 11.55 13.2708 12.1188 12.8625 12.5271L9.65417 15.7354C11.7542 19.8625 15.1375 23.2313 19.2646 25.3458L22.4729 22.1375C22.7646 21.8604 23.1292 21.7146 23.5083 21.7146C23.6542 21.7146 23.8146 21.7292 23.9604 21.7875C25.5938 22.3271 27.3583 22.6188 29.1667 22.6188C29.9688 22.6188 30.625 23.275 30.625 24.0771V29.1667C30.625 29.9688 29.9688 30.625 29.1667 30.625C15.4729 30.625 4.375 19.5271 4.375 5.83333C4.375 5.03125 5.03125 4.375 5.83333 4.375ZM9.53751 7.29167C9.62501 8.58958 9.84376 9.85833 10.1938 11.0687L8.44376 12.8188C7.84585 11.0687 7.46668 9.21667 7.33543 7.29167H9.53751ZM23.9167 24.8208C25.1563 25.1708 26.425 25.3896 27.7083 25.4771V27.65C25.7833 27.5188 23.9313 27.1396 22.1667 26.5563L23.9167 24.8208Z" fill={activeTab === ACTIVE_TAB.CONTACT ? '#4299e1' : 'white'} />
     </svg>
+  )
 
+  const IconIncluded = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7.32917 13.2291L3.85417 9.75414L2.67084 10.9291L7.32917 15.5875L17.3292 5.58748L16.1542 4.41248L7.32917 13.2291Z" fill="#04A590" />
+    </svg>
+  )
+
+  const IconNotIncluded = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.8333 5.34169L14.6583 4.16669L9.99999 8.82502L5.34166 4.16669L4.16666 5.34169L8.82499 10L4.16666 14.6584L5.34166 15.8334L9.99999 11.175L14.6583 15.8334L15.8333 14.6584L11.175 10L15.8333 5.34169Z" fill="black" fillOpacity="0.54" />
+    </svg>
   )
 
   const IconCreditCard = () => (
@@ -173,11 +211,13 @@ export default () => {
       <div data-component="header">
         <div data-component="carrousell" />
         <div data-component="info">
-          <div data-component="title">Jurassic Lake Lodge</div>
-          <div data-component="subtitle"> Full Week Program</div>
+          <div data-component="title">{organization.cn}</div>
+          <div data-component="subtitle">
+            {reservation.program.name}
+          </div>
           <div className="flex">
-            <div className="w-2/4 font-thin text-sm">From tal a cual</div>
-            <div className="w-2/4 font-thin text-sm"> 7 Nights / 6 days </div>
+            <div className="w-2/4 font-thin text-xs">{`From ${moment(reservation.serviceFrom).format('MMM DD, YYYY')} to ${moment(reservation.serviceTo).format('MMM DD, YYYY')}`}</div>
+            <div className="w-2/4 font-thin text-xs">{`${reservation.program.bedNights} nights / ${reservation.program.serviceDaysQuantity} service days`}</div>
           </div>
         </div>
         <div

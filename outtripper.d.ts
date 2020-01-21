@@ -9,6 +9,7 @@ type OrganizationContactInfo ={
   text: string
 }
 
+
 type Organization = {
   id: string
   cn: string
@@ -58,6 +59,15 @@ type Destination = {
   cn: string,
 }
 
+type ProgramContentText = {
+  title: string
+  text: string
+}
+
+type ProgramServiceCoverage = {
+  included: Array<string>
+  notIncluded: Array<string>
+}
 
 type Program = {
   id: string
@@ -69,6 +79,8 @@ type Program = {
   reserveSpotForEachBooking: number
   startingDay: Array<string>
   serviceDaysQuantity: number
+  serviceCoverage: ProgramServiceCoverage
+  preTripInfo : Array<ProgramContentText>
 }
 
 
