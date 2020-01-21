@@ -268,6 +268,7 @@ export class DataAccessService implements DataService {
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPurchase = invoices.map((invoice: Invoice) => invoice.items).reduce((total, v) => v).map((item: ItemInvoice) => item.price).reduce((total, v) => total += v)
     reservation.isOnHold = payments.length === 0 || false
+    reservation.payments = payments
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPayment = payments.length > 0 ? payments.map((p: Payment) => p.amount).reduce((total, v) => total += v) : 0
 

@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Loading from '../../../components/loading'
-import bs from '../../../services/business'
-import '../../../statics/style/customer.css'
-import Page from './page'
+import { useDispatch } from 'react-redux'
 import moment from 'moment'
+import Head from 'next/head'
+import uuid4 from 'uuid4'
+import Loading from '../../../components/loading'
+import bs, { formatter } from '../../../services/business'
+import { setCallingFrom as setCallingPaymentPage } from '../../../redux/actions/payment'
+import ItineraryCardGroundTrasnfer from '../../../components/itinerary/ground_transfer_card'
+import ItineraryCardLodgeActivitie from '../../../components/itinerary/lodge_activitie'
+
+import '../../../statics/style/customer.css'
+
+import Page from './page'
 
 enum ACTIVE_TAB {
   CONTACT = 'CONTACT',
@@ -19,9 +27,12 @@ export default () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [reservation, setReservation] = useState<Reservation>(null)
-  const [activeTab, setActiveTab] = useState(ACTIVE_TAB.PRETRIP)
+  const [activeTab, setActiveTab] = useState(ACTIVE_TAB.CONTACT)
   const { accessToken } = router.query
+  const dispatch = useDispatch()
   const [organization, setOrganization] = useState<Organization>(null)
+  const [itinerayGuestSelected, setItineraryGuestSelected] = useState<Contact>(null)
+
 
   const getContactInfoIcon = (kind: string) => {
     switch (kind) {
@@ -55,15 +66,156 @@ export default () => {
   )
 
   const Payments = () => (
-    <div>Payments</div>
+    <div className="flex-cols">
+      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
+      <div className=" carrusel py-4 flex border-b pl-4">
+        {reservation.pax.map((p:Contact, index:number) => (
+          <div
+            key={uuid4()}
+            className="flex-cols justify-center avatarBox"
+          >
+            <div className="avatar rounded-full" />
+            <div className="text-xs font-semibold text-xs">
+              {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
+
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="p-4">
+        <div className="uppercase font-semibold text-gray-600 mb-2">Invoice Items</div>
+        <div>
+          {reservation.invoicesObject.map((invoice: Invoice) => (
+            invoice.items.map((item: ItemInvoice, index: number) => (
+              <div key={invoice.id + index.toString()} className="flex text-sm">
+                <div className="w-full text-gray-700 uppercase">{item.description}</div>
+                <div className="text-teal-700 font-semibold">{formatter.format(item.price)}</div>
+              </div>
+            ))
+          ))}
+
+        </div>
+      </div>
+      <div className="p-4 flex border-t">
+        <div className="w-full uppercase text-gray-600 font-semibold">Discount</div>
+        <div className="text-teal-700 font-semibold">0,00%</div>
+      </div>
+
+      <div className="p-4 flex border-t">
+        <div className="w-full uppercase text-gray-600 font-semibold">Total</div>
+        <div className="text-teal-700 font-semibold text-xl">{formatter.format(reservation.amountOfPurchase)}</div>
+      </div>
+
+      <div className="p-4 flex-cols border-t mb-8">
+        <div className="w-full uppercase text-gray-600 font-semibold">Payments</div>
+        {reservation.payments.map((p: Payment) => (
+          <div className="flex text-sm" key={p.id}>
+            <div>{moment(p.date).format('DD/MM/YYYY')}</div>
+            <div className="w-full ml-4">{p.kind}</div>
+            <div>{formatter.format(p.amount)}</div>
+          </div>
+        ))}
+
+      </div>
+
+      <div className="p-4 flex border-t">
+        <div className="w-full uppercase text-gray-600 font-semibold">Balance</div>
+        <div className="text-teal-700 font-semibold text-xl">{formatter.format(reservation.amountOfPurchase - reservation.amountOfPayment)}</div>
+      </div>
+
+      {(reservation.amountOfPurchase - reservation.amountOfPayment) !== 0 ? (
+        <div className="bg-gray-200 p-4 text-sm flex items-center">
+          <div className="w-3/4">
+            <div><span className="text-base font-semibold">{reservation.program.name}</span></div>
+            <div><span>{`${moment(reservation.serviceFrom).format('MMM Do YYYY')} to ${moment(reservation.serviceTo).format('MMM Do YYYY')} `}</span></div>
+            <div>{`${reservation.pax.length} pax`}</div>
+          </div>
+          <div
+            onClick={() => {
+              dispatch(setCallingPaymentPage(`/consumer/reservation?accessToken=${accessToken}`))
+              router.push(`/pay?invoiceId=${reservation.invoices[0]}`)
+            }}
+            className="p-2 bg-teal-500 text-white uppercase"
+          >
+            Pay Now
+          </div>
+        </div>
+      ) : ''}
+
+
+      <style>
+        {`
+        
+          .avatar {
+            background:url('/img/people_avatar.png');
+            background-repeat: no-repeat;
+            height: 60px;
+          }
+
+          .avatarBox {
+            width: 90px;
+          }
+        `}
+      </style>
+
+    </div>
   )
 
   const Members = () => (
-    <div>Members</div>
+    <div className="flex-cols">Members</div>
   )
 
+  const getItineraryCard = (service: ItineraryGroundTransfer | ItineraryActivities) => {
+    switch (service.kind) {
+      case 'GROUNDTRANSFER':
+        return <ItineraryCardGroundTrasnfer from={(service as ItineraryGroundTransfer).from} to={(service as ItineraryGroundTransfer).to} />
+      case 'LODGEACTIVITIE':
+        return <ItineraryCardLodgeActivitie text={(service as ItineraryActivities).text} />
+      default:
+        return ''
+    }
+  }
+
   const Itinerary = () => (
-    <div>Itinerary</div>
+    <div className="flex-cols mb-16">
+      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
+      <div className=" carrusel py-4 flex border-b pl-4">
+        {reservation.pax.map((p:Contact, index:number) => (
+          <div
+            onClick={() => setItineraryGuestSelected(p)}
+            key={uuid4()}
+            className="flex-cols justify-center avatarBox"
+          >
+            <div className="avatar rounded-full" />
+            <div className="text-xs font-semibold text-xs">
+              {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
+
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {reservation.program.defaultItinerary.map((i) => (
+        <div key={uuid4} className="mt-4">
+          <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
+          {getItineraryCard(i.service)}
+        </div>
+      ))}
+      <style>
+        {`
+        
+          .avatar {
+            background:url('/img/people_avatar.png');
+            background-repeat: no-repeat;
+            height: 60px;
+          }
+
+          .avatarBox {
+            width: 90px;
+          }
+        `}
+      </style>
+    </div>
   )
 
   const PreTrip = () => (
@@ -208,6 +360,7 @@ export default () => {
 
   return (
     <Page>
+
       <div data-component="header">
         <div data-component="carrousell" />
         <div data-component="info">
@@ -231,10 +384,6 @@ export default () => {
           <div data-component={activeTab === ACTIVE_TAB.PAYMENTS ? 'icon-selected' : 'icon'} onClick={() => setActiveTab(ACTIVE_TAB.PAYMENTS)}>
             <IconCreditCard />
             <span>Payments</span>
-          </div>
-          <div data-component={activeTab === ACTIVE_TAB.MEMBERS ? 'icon-selected' : 'icon'} onClick={() => setActiveTab(ACTIVE_TAB.MEMBERS)}>
-            <IconMember />
-            <span>Members</span>
           </div>
           <div data-component={activeTab === ACTIVE_TAB.ITINERARY ? 'icon-selected' : 'icon'} onClick={() => setActiveTab(ACTIVE_TAB.ITINERARY)}>
             <IconItineray />

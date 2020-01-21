@@ -81,6 +81,10 @@ type Program = {
   serviceDaysQuantity: number
   serviceCoverage: ProgramServiceCoverage
   preTripInfo : Array<ProgramContentText>
+  defaultItinerary : Array<{
+    day: number,
+    service : ItineraryActivities | ItineraryGroundTransfer
+  }>
 }
 
 
@@ -147,6 +151,7 @@ type Reservation = {
   rawText? : string
   notes? : Array<ReservationNote>
   financialState?: string
+  payments?: Array<Payment>
 }
 
 type ItemInvoice = {
@@ -210,4 +215,22 @@ type ReservationToken = {
   organizationId: string
   organizationCN: string
   reservationId: string
+}
+
+type ItineraryGroundTransfer = {
+  kind: string,
+  from: string,
+  to: string,
+  driver? : User
+}
+
+type ItineraryActivities = {
+  text: string
+  kind: string
+}
+
+type Itinerary = {
+  serviceFrom : number,
+  serviceTo: number,
+  service : Array<ItineraryActivities |ItineraryGroundTransfer >
 }
