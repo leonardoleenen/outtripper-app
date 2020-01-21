@@ -8,7 +8,8 @@
     }
   },
   "scripts": {
-    "tailwind:css": "tailwind build statics/style/style.src.scss -c  statics/style/tailwind.js -o statics/style/style.css",
+    "tailwind:main": "tailwind build statics/style/style.src.scss -c  statics/style/tailwind.js -o statics/style/style.css",
+    "tailwind:customer": "tailwind build statics/style/customerapp.src.scss -c  statics/style/tailwind.js -o statics/style/customer.css",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap');
+
+* {
+  font-family: Open Sans;
+}
+
+
+div[data-component="header"] {
+  @apply bg-black text-white
+}
+
+
+div[data-component="header-toolbar"] {
+  @apply bg-black flex p-2 text-sm
+}
+
+div[data-component="header"] div[data-component="info"]  {
+  @apply text-white
+}
+
+div[data-component="header-toolbar"] div[data-component="icon"] {
+  @apply mx-2 text-white font-thin
+}
+
+div[data-component="header-toolbar"] div[data-component="icon-selected"] {
+  @apply mx-2  text-blue-500 font-semibold
+}
+
+
+div[data-component="header"] div[data-component="info"]  {
+  @apply p-4
+}
+
+div[data-component="header"] div[data-component="info"] div[data-component="title"] {
+  @apply text-base
+}
+
+div[data-component="header"] div[data-component="info"] div[data-component="subtitle"] {
+  @apply text-sm font-thin
+}

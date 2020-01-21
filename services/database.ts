@@ -21,7 +21,7 @@ declare interface DataService {
   getDestinations(): Promise<Array<Destination>>
   getPrograms(organizationId: string): Promise<Array<Program>>
   getProgram(organizationId: string, programId: string) : Promise<Program>
-  setToken(token : TokenOuttripper) : void
+  setToken(token : TokenOuttripper) : Promise<TokenOuttripper>
   getToken() : Promise<TokenOuttripper>
   getContact(organizationId: string, id: string) : Promise<Contact>
   getContacts(organizationId: string) : Promise<Array<Contact>>
@@ -50,6 +50,8 @@ declare interface DataService {
   getRoles(): Promise<Array<Role>>
   createUser(user: User) : Promise<User>
   addDealAccess(user: User, organizationId: string, role: Role) : void
+  getReservationAccessToken(id: string) : Promise<ReservationToken>
+  getOrganization(organizationId: string) : Promise<Organization>
  }
 
 export class DataAccessService implements DataService {
@@ -76,8 +78,8 @@ export class DataAccessService implements DataService {
 
   remote: any
 
-  setToken(token: TokenOuttripper): void {
-    this.db.post({
+  setToken(token: TokenOuttripper): Promise<TokenOuttripper> {
+    return this.db.post({
       ...token,
       collectionKind: 'token',
     })
@@ -504,6 +506,24 @@ export class DataAccessService implements DataService {
       .doc(invitation.id)
       .update(invitation)
       .then(() => invitation)
+  }
+
+  getReservationAccessToken(id: string): Promise<ReservationToken> {
+    return this.fb
+      .firestore()
+      .collection('reservationsAccessTokens')
+      .doc(id)
+      .get()
+      .then((doc) => doc.data() as ReservationToken)
+  }
+
+  getOrganization(organizationId: string): Promise<Organization> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('info')
+      .get()
+      .then((doc) => doc.data() as Organization)
   }
 
 

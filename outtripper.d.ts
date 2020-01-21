@@ -4,10 +4,23 @@ declare module '*.json' {
 }
 
 
+type OrganizationContactInfo ={
+  kind: string
+  text: string
+}
+
 type Organization = {
   id: string
   cn: string
   type: 'AGENCY' | 'LODGE'
+  brief: string
+  claim: string
+  location: string
+  photoCover: Array<string>
+  contactInfo : Array<OrganizationContactInfo>
+  chatbotUserName: string
+  chatbotUserTitle: string
+  chatbotAvatar: string
 }
 
 type TokenOuttripper = {
@@ -178,4 +191,11 @@ type Invitation = {
   userCreated? : User
   createdOn: number
   approbedOn? : number
+}
+
+type ReservationToken = {
+  id: string
+  organizationId: string
+  organizationCN: string
+  reservationId: string
 }

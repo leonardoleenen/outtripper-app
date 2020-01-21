@@ -39,6 +39,9 @@ interface Services {
   getInvitations(): Promise<Array<Invitation>>
   getRoles(): Promise<Array<Role>>
   createUser(user: User, invitation: Invitation) : Promise<TokenOuttripper>
+  getReservationAccessToken(id: string) : Promise<ReservationToken>
+  createConsumerToken(reservationAccessToken: ReservationToken) : TokenOuttripper
+  getOrganization() : Promise<Organization>
 }
 
 
@@ -430,6 +433,28 @@ class BusinessService implements Services {
     }
 
     return Promise.all(promiseList).then(() => token)
+  }
+
+  getReservationAccessToken(id: string): Promise<ReservationToken> {
+    return this.da.getReservationAccessToken(id)
+  }
+
+  createConsumerToken(reservationAccessToken: ReservationToken): TokenOuttripper {
+    const token : TokenOuttripper = {
+      organizationId: reservationAccessToken.organizationId,
+      organizationCn: reservationAccessToken.organizationCN,
+      id: uuidv4(),
+      userCn: 'Consumer',
+      rol: 'CONSUMER',
+      organizationKind: 'LODGE',
+    }
+
+    this.da.setToken(token)
+    return token
+  }
+
+  getOrganization(): Promise<Organization> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getOrganization(token.organizationId))
   }
 }
 
