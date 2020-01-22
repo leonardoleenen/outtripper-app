@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable dot-notation */
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
@@ -52,16 +54,6 @@ export default () => {
           <div className="py-2 ml-4 font-thin">{c.text}</div>
         </div>
       ))}
-
-      <div className="text-2xl font-bold py-4 mt-8">Or chat with Us</div>
-      <div className="mt-4">
-        <div className="rounded-full flex justify-center"><img className="h-20 w-20 rounded-full shadow" src={organization.chatbotAvatar} alt="chatbot" /></div>
-
-        <div className="flex justify-center font-semibold text-lg"><span>{organization.chatbotUserName}</span></div>
-        <div className="flex justify-center font-thin text-sm mb-8"><span>{organization.chatbotUserTitle}</span></div>
-
-      </div>
-
     </div>
   )
 
@@ -299,6 +291,27 @@ export default () => {
       setReservation(r)
       setIsLoading(false)
     }
+
+
+    const loadChatBot = (d, m) => {
+      const kommunicateSettings = {
+        appId: '234f23f54af5dd66ae99133e54725f67c',
+        popupWidget: true,
+        automaticChatOpenOnNavigation: true,
+      }
+      const s = document.createElement('script')
+      s.type = 'text/javascript'
+      s.async = true
+      s.src = 'https://widget.kommunicate.io/v2/kommunicate.app'
+      const h = document.getElementsByTagName('head')[0]; h.appendChild(s)
+      window['kommunicate'] = m
+      // eslint-disable-next-line no-underscore-dangle
+      m._globals = kommunicateSettings
+    }
+
+    loadChatBot(document, window['kommunicate'] || {})
+
+
     fetch()
   }, [])
 

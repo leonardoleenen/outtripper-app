@@ -3,6 +3,12 @@ declare module '*.json' {
   export default value
 }
 
+declare global {
+  interface Window {
+    /** documentation on foo */
+    kommunicate: any;
+  }
+}
 
 type OrganizationContactInfo ={
   kind: string
@@ -153,6 +159,7 @@ type Reservation = {
   notes? : Array<ReservationNote>
   financialState?: string
   payments?: Array<Payment>
+  reservationAccessToken ? : ReservationToken
 }
 
 type ItemInvoice = {

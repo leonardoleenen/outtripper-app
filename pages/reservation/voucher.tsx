@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import uuid4 from 'uuid4'
@@ -21,6 +21,9 @@ export default () => {
   const [payments, setPayments] = useState<Array<Payment>>(null)
   const [amountOfPayments, setAmountOfPayments] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
+  const voucherURLRef = useRef(null)
+  const [voucherURL, setVoucherURL] = useState(null)
   const dispatch = useDispatch()
   const paxToAdd : Contact = useSelector((state) => state.contactCalendar.contactSelected)
   const router = useRouter()
@@ -47,6 +50,7 @@ export default () => {
         return
       }
       setReservation(r)
+      setVoucherURL(`${window.location.protocol}//${window.location.host}/consumer/reservation?accessToken=${r.reservationAccessToken.id}`)
     }
     fetch()
   }, [])
@@ -70,8 +74,45 @@ export default () => {
     router.push('/contact_list')
   }
 
+  const copyToClipboard = (e) => {
+    voucherURLRef.current.select()
+    document.execCommand('copy')
+    setShowMenu(false)
+  }
+
+  const Menu = () => (
+    <div className="relative h-screen bg-gray-500">
+      <div className="absolute bg-white flex-cols inset-x-0 bottom-0 rounded-t-lg">
+        <div className="flex justify-center" onClick={() => setShowMenu(false)}>
+          <div className="h-2 w-24 bg-gray-300 m-3 rounded-lg" />
+        </div>
+        <div className="p-4 border-b">
+          <div className="text-blue-500" onClick={copyToClipboard}>Generate reservation voucher link</div>
+          <textarea className="absolute" value={voucherURL} ref={voucherURLRef} />
+        </div>
+        <div className="p-4 border-b">
+          <div className="text-red-500">Remove / Cancel reservation</div>
+        </div>
+        <div className="flex justify-center" onClick={() => setShowMenu(false)}>
+          <div className="h-8 w-24 bg-gray-300 m-3 rounded-full flex justify-center items-center">
+            <span>Cancel</span>
+          </div>
+        </div>
+      </div>
+      <style>
+        {`
+        textarea {
+          top: -1000px;
+        }
+        `}
+      </style>
+    </div>
+  )
+
 
   if (!invoice || !reservation || isProcessing) return <Loading />
+
+  if (showMenu) return <Menu />
 
 
   return (
@@ -82,7 +123,7 @@ export default () => {
             <div className="h-8 w-8"><IconArrowLeft /></div>
           </Link>
           <div className="font-thin w-full ml-4">{reservation.reservationLabel}</div>
-          <div className="h-8 w-8 mr-2"><IconMenu /></div>
+          <div className="h-8 w-8 mr-2" onClick={() => setShowMenu(true)}><IconMenu /></div>
         </div>
         <div className="text-white border-b flex  ">
           <div
