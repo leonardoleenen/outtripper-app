@@ -55,13 +55,10 @@ export default () => {
 
 
   if (!invitation) return <Loading />
-
-
-  console.log(invitation)
   return (
     <div>
       <p>
-        {` Hi ${invitation.invitationTo}, ${invitation.invitationSendBy} send to you a invitation to participate in ${invitation.organizationName} as ${invitation.rol}.
+        {` Hi ${invitation.emailDestination}, ${invitation.sendBy} send to you a invitation to participate in ${invitation.organizationCN} as ${invitation.roles.map((r: Role) => r.name).join(', ')}.
         If you want accept this invition, we need that you can register using some of this social networks. 
 
         We don't store your data, only use Auth method of Social Networks to acreditate you identity. 
