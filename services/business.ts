@@ -268,6 +268,7 @@ class BusinessService implements Services {
         organizationCN: token.organizationCn,
       }
       this.da.createReservationAccessToken(reservationToken)
+      reservation.reservationAccessToken = reservationToken
       return reservation
     })
   }

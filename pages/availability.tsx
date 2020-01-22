@@ -99,7 +99,7 @@ export default () => {
           onClick={() => setShowProgramMenu(true)}
           className={programSelected ? styleButtonSelected : styleButtonUnSelected}
         >
-          <span>{ programSelected ? programSelected.name : 'Select a Program'}</span>
+          <span>{ programSelected ? programSelected.name : 'Program'}</span>
         </div>
         <div className={styleButtonUnSelected}>
           <span>Pax</span>
