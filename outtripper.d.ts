@@ -85,6 +85,7 @@ type Program = {
     day: number,
     service : ItineraryActivities | ItineraryGroundTransfer
   }>
+  gear : Array<Gear>
 }
 
 
@@ -233,4 +234,12 @@ type Itinerary = {
   serviceFrom : number,
   serviceTo: number,
   service : Array<ItineraryActivities |ItineraryGroundTransfer >
+}
+
+type Gear = {
+  id: string
+  title: string
+  description: string
+  photo: Array<string>
+  youtubeVideo: Array<string>
 }

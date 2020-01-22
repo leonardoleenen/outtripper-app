@@ -183,7 +183,7 @@ export default () => {
         {reservation.pax.map((p:Contact, index:number) => (
           <div
             onClick={() => setItineraryGuestSelected(p)}
-            key={uuid4()}
+            key={`itinpax${index.toString()}`}
             className="flex-cols justify-center avatarBox"
           >
             <div className="avatar rounded-full" />
@@ -195,8 +195,8 @@ export default () => {
         ))}
       </div>
 
-      {reservation.program.defaultItinerary.map((i) => (
-        <div key={uuid4} className="mt-4">
+      {reservation.program.defaultItinerary.map((i, indexItinerary: number) => (
+        <div key={`iti${indexItinerary.toString()}`} className="mt-4">
           <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
           {getItineraryCard(i.service)}
         </div>
@@ -249,7 +249,22 @@ export default () => {
   )
 
   const CheckList = () => (
-    <div>CheckList</div>
+    <div className="p-4">
+      <div className="text-2xl font-bold py-4">Recommended tackle and gear for your trip</div>
+      {reservation.program.gear.map((gear:Gear, index: number) => (
+        <div key={`info${index.toString()}`}>
+          <div className="text-xl font-semibold mt-8">{gear.title}</div>
+          <div className="text-sm font-thin mt-2 text-justify antialiased">{gear.description}</div>
+          <div className="flex mt-8x">
+            {gear.photo.map((url:string) => (
+              <div key={url} className="h-32 w-32 mt-4">
+                <img src={url} alt="img" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 
   const renderActiveTab = () => {
