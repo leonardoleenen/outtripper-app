@@ -21,15 +21,3 @@ const nextConfig = {
 module.exports = withConfig(withPlugins([
   [withConfig], withCSS,
 ], nextConfig))
-
-/*
-module.exports = withConfig(withPlugins([
-  [withConfig], withSass,
-], nextConfig))
-*/
-
-/* exports.default = {
-  env: {
-    API_SERVER: process.env.API_SERVER,
-  },
-} */

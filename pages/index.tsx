@@ -107,7 +107,6 @@ export default () => {
             margin:auto;
             margin-top:30px;
           }
-
           .terms{
             font-family: Open Sans;
             font-style: normal;
@@ -127,7 +126,6 @@ export default () => {
             margin-right: 7px;
             background: transparent;
           }
-
           `
         }
 

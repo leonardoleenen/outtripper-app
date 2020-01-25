@@ -12,6 +12,19 @@ export const formatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
 })
 
+
+export enum ITINERARY_EVENT {
+  CHARTERFLIGHT = 'CHARTERFLIGHT',
+  GROUNDTRANSFER ='GROUNDTRANSFER',
+  COMERCIALFLIGHT = 'COMERCIALFLIGHT',
+  RESTAURANT = 'RESTAURANT',
+  GENERAL_ACTIVITIE ='GENERAL_ACTIVITIE',
+  LODGE_ACTIVITIE = 'LODGE_ACTIVITIE',
+  RENTAL_CAR = 'RENTAL_CAR',
+  ATTRACTION= 'ATTRACTION',
+  HOTEL = 'HOTEL'
+}
+
 interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms() : Promise<Array<Program>>

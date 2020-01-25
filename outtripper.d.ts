@@ -160,6 +160,11 @@ type Reservation = {
   financialState?: string
   payments?: Array<Payment>
   reservationAccessToken ? : ReservationToken
+  customItineraries ? : Array<{
+    contactId: string,
+    day: number,
+    service : ItineraryGroundTransfer | ItineraryActivities
+  }>
 }
 
 type ItemInvoice = {

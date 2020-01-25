@@ -10,11 +10,13 @@ import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage } from '../../redux/actions/contact_calendar'
 import { setCallingFrom as setCallingPaymentPage } from '../../redux/actions/payment'
+import ItinerayList from '../../components/reservation/itinerary_list'
+
 import '../../statics/style/style.css'
 
 
 export default () => {
-  const [tabSelected, setTabSelected] = useState('INVOICE')
+  const [tabSelected, setTabSelected] = useState('GUEST')
   const [reservation, setReservation] = useState<Reservation>(null)
   const [invoice, setInvoice] = useState<Invoice>(null)
   const [program, setProgram] = useState<Program>(null)
@@ -109,6 +111,98 @@ export default () => {
     </div>
   )
 
+  const ComponentInvoice = () => (
+    <div>
+      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
+      <div className=" carrusel py-4 flex border-b pl-4">
+        {reservation.pax.map((p:Contact, index:number) => (
+          <div
+            onClick={() => {
+              if (!p) {
+                callContactListForSetPax(index)
+              }
+            }}
+            key={uuid4()}
+            className="flex-cols justify-center avatarBox"
+          >
+            <div className="avatar rounded-full" />
+            <div className="text-xs font-semibold text-xs">
+              {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
+
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="pl-4  py-4 border-b flex-cols">
+        <div className="flex w-full">
+          <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
+          <div
+            className="h-8 w-8 mr-4"
+            onClick={() => {
+              dispatch(setCallingPaymentPage(`/reservation/voucher?id=${reservation.id}`))
+              router.push(`/pay?invoiceId=${invoice.id}`)
+            }}
+          >
+            <IconAddCircle />
+
+          </div>
+        </div>
+        <div>
+          {payments.map((p: Payment) => (
+            <div key={p.id} className="flex text-xs my-2">
+              <div className="w-24"><span>{moment(p.date).format('YYYY-MM-DD')}</span></div>
+              <div className="w-4/6"><span>{p.kind}</span></div>
+              <div className="w-24 mr-4"><span>{`$ ${p.amount.toFixed(2)}`}</span></div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+      <div className="pl-4  py-4 border-b flex items-center">
+        <div className="text-base font-semibold text-gray-600 w-4/6">{invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM')[0].description}</div>
+        <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end"><span>{formatter.format(invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v))}</span></div>
+      </div>
+      <div className="pl-4  py-4 border-b flex">
+        <div className="text-base font-semibold text-gray-600 w-full">Group Extra</div>
+        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+      </div>
+      <div className="pl-4  py-4 border-b flex">
+        <div className="text-base font-semibold text-gray-600 w-full">Discount</div>
+        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+      </div>
+      <div className="pl-4  py-4 border-b flex items-center">
+
+        <div className="text-base font-semibold text-gray-600 w-4/6">Balance</div>
+        <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end">
+          <span className="">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments)}</span>
+        </div>
+      </div>
+
+      <div className="pl-4  py-4 border-b flex-cols">
+        <div className="text-base font-semibold text-gray-600 w-full">Terms and Conditions</div>
+        <div className="mr-4">
+          <span className="font-thin text-base italic text-gray-700">{reservation.termsAndConditionsLiteral}</span>
+        </div>
+      </div>
+
+      {reservation.status === 0 ? (
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gray-200 flex items-center">
+          <div className="text-gray-800 w-2/3 mx-4">
+            <div className="font-semibold text-black text-sm">{program.name}</div>
+            <div className="font-base text-gray-700 text-sm">{`${moment(reservation.serviceFrom).format('MMM Do')} to ${moment(reservation.serviceTo).format('MMM Do')}`}</div>
+            <div className="flex justify-start">
+              <IconPeople />
+              <span className="w-11/12 ml-4 text-xs">{`${reservation.pax.length} Guest - $ ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i).toFixed(2)}`}</span>
+            </div>
+          </div>
+          <div className="bg-teal-600 p-4 h-12 rounded uppercase text-white font-thin text-sm flex items-center w-1/3 mr-4" onClick={send}>
+            <span>Send</span>
+          </div>
+        </div>
+      ) : ''}
+    </div>
+  )
+
 
   if (!invoice || !reservation || isProcessing) return <Loading />
 
@@ -174,100 +268,9 @@ export default () => {
             </div>
           ) : ''}
       </header>
+
       <article className="relative">
-        <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
-        <div className=" carrusel py-4 flex border-b pl-4">
-
-
-          {reservation.pax.map((p:Contact, index:number) => (
-            <div
-              onClick={() => {
-                if (!p) {
-                  callContactListForSetPax(index)
-                }
-              }}
-              key={uuid4()}
-              className="flex-cols justify-center avatarBox"
-            >
-              <div className="avatar rounded-full" />
-              <div className="text-xs font-semibold text-xs">
-                {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
-
-              </div>
-            </div>
-          ))}
-
-
-        </div>
-        <div className="pl-4  py-4 border-b flex-cols">
-          <div className="flex w-full">
-            <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
-            <div
-              className="h-8 w-8 mr-4"
-              onClick={() => {
-                dispatch(setCallingPaymentPage(`/reservation/voucher?id=${reservation.id}`))
-                router.push(`/pay?invoiceId=${invoice.id}`)
-              }}
-            >
-              <IconAddCircle />
-
-            </div>
-          </div>
-          <div>
-            {payments.map((p: Payment) => (
-              <div key={p.id} className="flex text-xs my-2">
-                <div className="w-24"><span>{moment(p.date).format('YYYY-MM-DD')}</span></div>
-                <div className="w-4/6"><span>{p.kind}</span></div>
-                <div className="w-24 mr-4"><span>{`$ ${p.amount.toFixed(2)}`}</span></div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-        <div className="pl-4  py-4 border-b flex items-center">
-          <div className="text-base font-semibold text-gray-600 w-4/6">{invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM')[0].description}</div>
-          <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end"><span>{formatter.format(invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v))}</span></div>
-        </div>
-        <div className="pl-4  py-4 border-b flex">
-          <div className="text-base font-semibold text-gray-600 w-full">Group Extra</div>
-          <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
-        </div>
-        <div className="pl-4  py-4 border-b flex">
-          <div className="text-base font-semibold text-gray-600 w-full">Discount</div>
-          <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
-        </div>
-        <div className="pl-4  py-4 border-b flex items-center">
-
-          <div className="text-base font-semibold text-gray-600 w-4/6">Balance</div>
-          <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end">
-            <span className="">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments)}</span>
-          </div>
-        </div>
-
-        <div className="pl-4  py-4 border-b flex-cols">
-          <div className="text-base font-semibold text-gray-600 w-full">Terms and Conditions</div>
-          <div className="mr-4">
-            <span className="font-thin text-base italic text-gray-700">{reservation.termsAndConditionsLiteral}</span>
-          </div>
-        </div>
-
-        {reservation.status === 0 ? (
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gray-200 flex items-center">
-            <div className="text-gray-800 w-2/3 mx-4">
-              <div className="font-semibold text-black text-sm">{program.name}</div>
-              <div className="font-base text-gray-700 text-sm">{`${moment(reservation.serviceFrom).format('MMM Do')} to ${moment(reservation.serviceTo).format('MMM Do')}`}</div>
-              <div className="flex justify-start">
-                <IconPeople />
-                <span className="w-11/12 ml-4 text-xs">{`${reservation.pax.length} Guest - $ ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i).toFixed(2)}`}</span>
-              </div>
-            </div>
-            <div className="bg-teal-600 p-4 h-12 rounded uppercase text-white font-thin text-sm flex items-center w-1/3 mr-4" onClick={send}>
-              <span>Send</span>
-            </div>
-          </div>
-        ) : ''}
-
-
+        {tabSelected === 'INVOICE' ? <ComponentInvoice /> : <ItinerayList reservation={reservation} /> }
       </article>
 
 
