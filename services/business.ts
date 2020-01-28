@@ -55,6 +55,7 @@ interface Services {
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   createConsumerToken(reservationAccessToken: ReservationToken) : Promise<TokenOuttripper>
   getOrganization() : Promise<Organization>
+  setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation>
 }
 
 
@@ -475,6 +476,15 @@ class BusinessService implements Services {
 
   getOrganization(): Promise<Organization> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getOrganization(token.organizationId))
+  }
+
+  setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getReservation(token.organizationId, reservationId)
+      .then((r: Reservation) => {
+        r.customItineraries.push({ contactId: pax.id, day: day > 0 ? r.program.serviceDaysQuantity + day : day, service })
+        this.da.updateReservation(token.organizationId, r)
+        return r
+      }))
   }
 }
 

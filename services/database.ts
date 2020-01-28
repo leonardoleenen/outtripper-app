@@ -54,6 +54,9 @@ declare interface DataService {
   getReservationAccessTokenByReservationId(id: string) : Promise<ReservationToken>
   createReservationAccessToken(reservationToken: ReservationToken) : Promise<ReservationToken>
   getOrganization(organizationId: string) : Promise<Organization>
+
+  updateReservation(organizationId : string, reservation: Reservation) : Promise<Reservation>
+
  }
 
 export class DataAccessService implements DataService {
@@ -349,16 +352,14 @@ export class DataAccessService implements DataService {
         paxs[index] = pax
         reservationFetched.pax = paxs
 
-        this.fb
+        return this.fb
           .firestore()
           .collection(organizationId)
           .doc('dates')
           .collection('reservations')
           .doc(reservationId)
           .update({ pax: paxs })
-
-
-        return reservationFetched
+          .then(() => this.getReservation(organizationId, reservationId))
       })
   }
 
@@ -548,6 +549,16 @@ export class DataAccessService implements DataService {
       .then((snap) => snap.docs.map((doc) => doc.data() as ReservationToken)[0])
   }
 
+  updateReservation(organizationId: string, reservation: Reservation): Promise<Reservation> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('dates')
+      .collection('reservations')
+      .doc(reservation.id)
+      .update(reservation)
+      .then(() => reservation)
+  }
 
   constructor() {
     PouchDB.plugin(PouchDBFind)

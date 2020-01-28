@@ -10,13 +10,14 @@ import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage } from '../../redux/actions/contact_calendar'
 import { setCallingFrom as setCallingPaymentPage } from '../../redux/actions/payment'
+import { setReservation as setReservationRedux } from '../../redux/actions/reservation'
 import ItinerayList from '../../components/reservation/itinerary_list'
 
 import '../../statics/style/style.css'
 
 
 export default () => {
-  const [tabSelected, setTabSelected] = useState('GUEST')
+  const [tabSelected, setTabSelected] = useState('INVOICE')
   const [reservation, setReservation] = useState<Reservation>(null)
   const [invoice, setInvoice] = useState<Invoice>(null)
   const [program, setProgram] = useState<Program>(null)
@@ -35,7 +36,7 @@ export default () => {
   useEffect(() => {
     const fetch = async () => {
       const invoiceList : Array<Invoice> = []
-      const r : Reservation = await bs.getReservation(id as string)
+      let r : Reservation = await bs.getReservation(id as string)
       r.invoices.forEach(async (i: string) => {
         invoiceList.push(await bs.getInvoice(i))
         setInvoice(invoiceList[0])
@@ -48,10 +49,10 @@ export default () => {
       setAmountOfPayments(paymentList.length > 0 ? paymentList.map((p : Payment) => p.amount).reduce((total, v) => total += v) : 0)
       setProgram(programs.filter((p:Program) => p.id === invoiceList[0].items.filter((i : ItemInvoice) => i.kind === 'PROGRAM')[0].id)[0])
       if (paxIndex) {
-        setReservation(await bs.setPax(r, paxToAdd, parseInt(paxIndex as string, 10)))
-        return
+        r = await bs.setPax(r, paxToAdd, parseInt(paxIndex as string, 10))
       }
       setReservation(r)
+      dispatch(setReservationRedux(r))
       setVoucherURL(`${window.location.protocol}//${window.location.host}/consumer/reservation?accessToken=${r.reservationAccessToken.id}`)
     }
     fetch()

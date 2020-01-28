@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { ITINERARY_EVENT } from '../../services/business'
 
 export default () => {
@@ -15,10 +16,12 @@ export default () => {
           {eventSelected === ITINERARY_EVENT.CHARTERFLIGHT ? <Spinner /> : <IconCharterFlight />}
           <div className="flex justify-center"><span>Charter Flight</span></div>
         </div>
-        <div onClick={() => setEventSelected(ITINERARY_EVENT.GROUNDTRANSFER)} className="p-4 border-b mr-4">
-          {eventSelected === ITINERARY_EVENT.GROUNDTRANSFER ? <Spinner /> : <IconGroundTransfer />}
-          <div className="flex justify-center"><span>Ground Transfer</span></div>
-        </div>
+        <Link href="/itinerary/events/ground_transfer">
+          <div onClick={() => setEventSelected(ITINERARY_EVENT.GROUNDTRANSFER)} className="p-4 border-b mr-4">
+            {eventSelected === ITINERARY_EVENT.GROUNDTRANSFER ? <Spinner /> : <IconGroundTransfer />}
+            <div className="flex justify-center"><span>Ground Transfer</span></div>
+          </div>
+        </Link>
         <div onClick={() => setEventSelected(ITINERARY_EVENT.COMERCIALFLIGHT)} className="p-4  border-r border-white border-b ml-4">
           {eventSelected === ITINERARY_EVENT.COMERCIALFLIGHT ? <Spinner /> : <IconComercialFlight />}
           <div className="flex justify-center"><span>Comercial Flight</span></div>

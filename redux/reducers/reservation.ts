@@ -7,6 +7,7 @@ export const SET_INSTALLMENTS = 'SET_INSTALLMENTS'
 export const SET_PROGRAM_SELECTED = 'SET_PROGRAM_SELECTED'
 export const SET_MONTH_AND_YEAR = 'SET_MONTH_AND_YEAR'
 export const CLEAN_RESERVATION_STATE = 'CLEAN_RESERVATION_STATE'
+export const SET_RESERVATION = 'SET_RESERVATION'
 
 export interface State {
   availableDate: AvailableDate
@@ -17,6 +18,7 @@ export interface State {
   installments: number
   programSelected: Program
   monthAndYearSelected: MonthAndYear
+  reservationSelected: Reservation
 }
 
 export interface Action {
@@ -29,6 +31,7 @@ export interface Action {
   installments: number
   program: Program
   monthAndYear: MonthAndYear
+  reservationSelected: Reservation
 }
 
 export const initialState: State = {
@@ -40,6 +43,7 @@ export const initialState: State = {
   installments: 1,
   programSelected: null,
   monthAndYearSelected: null,
+  reservationSelected: null,
 }
 
 
@@ -66,6 +70,8 @@ export const reservationReducer = (state: State = initialState, action: Action) 
       return { ...state, programSelected: action.program }
     case SET_MONTH_AND_YEAR:
       return { ...state, monthAndYearSelected: action.monthAndYear }
+    case SET_RESERVATION:
+      return { ...state, reservationSelected: action.reservationSelected }
     default:
       return { ...state }
   }

@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import moment from 'moment'
+import Link from 'next/link'
+import { useDispatch } from 'react-redux'
 import ItineraryCardLodgeActivitie from '../itinerary/lodge_activitie'
 import ItineraryCardGroundTrasnfer from '../itinerary/ground_transfer_card'
 import AddButton from '../add_button'
+import { setContact } from '../../redux/actions/contact_calendar'
+
 
 interface Props {
   reservation: Reservation
 }
 export default (props: Props) => {
   const { reservation } = props
+  const dispatch = useDispatch()
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
 
   const getItineraryCard = (service: ItineraryGroundTransfer | ItineraryActivities) => {
@@ -43,7 +48,10 @@ export default (props: Props) => {
       <div className=" carrusel py-4 flex border-b pl-4">
         {reservation.pax.map((p:Contact, index:number) => (
           <div
-            onClick={() => setSelectedPax(p)}
+            onClick={() => {
+              setSelectedPax(p)
+              dispatch(setContact(p))
+            }}
             key={`itinpax${index.toString()}`}
             className="flex-cols justify-center avatarBox"
           >
@@ -59,7 +67,9 @@ export default (props: Props) => {
       {selectedPax ? (
         <div>
           <div className="px-4 pt-4 font-semibold text-xl">{`Custom itinerary for ${selectedPax.lastName} ${selectedPax.firstName}`}</div>
-          <div className="px-4 pt-4 font-thin text-blue-500"> Add new event </div>
+          <Link href="/itinerary/event_selector">
+            <div className="px-4 pt-4 font-thin text-blue-500"> Add new event </div>
+          </Link>
           {getCustomItinerary(selectedPax).map((i, indexItinerary: number) => (
             <div key={`iti${indexItinerary.toString()}`} className="mt-4">
               <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
