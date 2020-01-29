@@ -270,6 +270,7 @@ class BusinessService implements Services {
         status: 0,
         reservedBy: token.id,
         termsAndConditionsLiteral: this.buildTerminsAndConditions(installmentsList),
+        customItineraries: [],
       }
 
       this.da.createReservation(token.organizationId, reservation)

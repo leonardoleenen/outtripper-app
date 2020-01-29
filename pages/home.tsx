@@ -34,8 +34,6 @@ export default () => {
         })
       })
 
-      console.log(_.groupBy(reservationsList, (r:Reservation) => r.financialState))
-
       setReservations(reservationsList)
     }
     fetch()
@@ -71,8 +69,8 @@ export default () => {
       </div>
       {reservations.length === 0 ? <EmptyFrame /> : (
         Object.keys(groupedList).map((name:string) => (
-          <div key={name}>
-            <div className={`${name === 'NO PAYMENTS' ? 'bg-yellow-300' : name === 'PARTIALLY PAID' ? 'bg-orange-300' : 'bg-green-300'} mt-8 p-2 flex`}>
+          <div key={name} className="bg-gray-200 font-semibold">
+            <div className={`${name === 'NO PAYMENTS' ? 'bg-yellow-300' : name === 'PARTIALLY PAID' ? 'bg-orange-300' : 'bg-green-300'} shadow mx-4 rounded-lg mt-8 p-2 flex`}>
               <div className="w-full">
                 <span>{name === 'NO PAYMENTS' ? 'On Hold: ' : name === 'PARTIALLY PAID' ? 'Partially Paid: ' : 'Paid: '}</span>
                 <span>{formatter.format(groupedList[name].map((r: Reservation) => (bs.getDuePaymentAmount(r) > 0 ? bs.getDuePaymentAmount(r) : r.amountOfPurchase)).reduce((total, v) => total += v))}</span>
@@ -80,44 +78,70 @@ export default () => {
               <div className="w-24 mr-4">{name === 'PAID' ? 'Total' : 'Balance'}</div>
             </div>
             {groupedList[name].map((r: Reservation) => (
-              <div key={r.id} className="flex relative w-full border-b rounded-lg  p-4 " onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
-                <div className="w-2/4">
-                  <div className="flex items-center">
-                    <div className="text-xl">{`${r.reservationHolder.lastName}, ${r.reservationHolder.firstName}`}</div>
-
-                  </div>
-                  <div className="font-thin text-xs">{`${r.program.name} ${moment(r.serviceFrom).format('MMM DDD YYYY')} to ${moment(r.serviceTo).format('MMM DDD YYYY')} `}</div>
-                  <div className="font-thin text-xs flex items-center">
-                    <div className="mr-2"><IconPeople /></div>
-                    {`${r.pax.length} ${r.reservationLabel}`}
-                  </div>
-                  <div className="font-thin text-xs">{`#${r.id} - ${moment(r.reservedAt).format('DD MMM YYYY')}`}</div>
-                </div>
-                { (r.amountOfPurchase - r.amountOfPayment) > 0 ? (
-                  <div className="w-2/4 flex-cols ">
-                    <div className="flex justify-end text-xl"><span>{formatter.format(bs.getNextInstallmentInDueDate(r).amount)}</span></div>
-                    <div className="flex justify-end">
-                      <div className="w-full flex justify-end h-5"><span className={`font-thin text-xs px-2 rounded-lg ${bs.getDiffDaysForInstallmentNextDue(r) < 0 ? 'bg-red-200' : 'bg-green-200'}`}>{bs.getDiffDaysForInstallmentNextDue(r) < 0 ? `Overdue ${bs.getDiffDaysForInstallmentNextDue(r) * -1} days` : `Due in ${bs.getDiffDaysForInstallmentNextDue(r)} days`}</span></div>
+              <div key={r.id} className="border-b rounded-lg  m-4 bg-white shadow" onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
+                <div className="flex p-4">
+                  <div className="w-full">
+                    <div className="flex items-center">
+                      <div className="text-xl font-bold">{`${r.reservationHolder.lastName}, ${r.reservationHolder.firstName}`}</div>
                     </div>
-                    <div className="flex justify-end"><span className="font-thin text-xs">{`Installments ${bs.getNextInstallmentInDueDate(r).order} / ${r.invoicesObject[0].installments.length}`}</span></div>
-                    <div className="flex justify-end">
-                      <div className="inline-block align-bottom">
-                        <span className="font-thin text-xs">Balance  </span>
-                        <span className="text-xl">{`${formatter.format(r.amountOfPurchase - r.amountOfPayment)}`}</span>
+                    <div className="flex items-center py-2">
+                      <div><IconProgram /></div>
+                      <div className="mx-2 font-thin text-xs">{`${r.program.name}`}</div>
+                    </div>
+                    <div className="flex items-center py-1">
+                      <div>
+                        <IconCalendar />
+                      </div>
+                      <div className="mx-2 font-thin text-xs">{` ${moment(r.serviceFrom).format('MMM DDD YYYY')} to ${moment(r.serviceTo).format('MMM DDD YYYY')} `}</div>
+                    </div>
+                    <div className="flex items-center py-1">
+                      <div><IconPeople /></div>
+                      <div className="mx-2 font-thin text-xs">{`${r.pax.length}`}</div>
+                    </div>
+                    <div className="flex items-center py-1">
+                      <div>
+                        <IconInfo />
+                      </div>
+                      <div className="mx-2 font-thin text-xs">{`#${r.id} - ${moment(r.reservedAt).format('DD MMM YYYY')}`}</div>
+                    </div>
+                  </div>
+
+                  { (r.amountOfPurchase - r.amountOfPayment) > 0 ? (
+                    <div className="flex-cols ">
+                      <div className="flex justify-end text-xl"><span className="font-bold">{formatter.format(bs.getNextInstallmentInDueDate(r).amount)}</span></div>
+                      <div className="flex justify-end">
+                        <div className="w-full flex justify-end h-5"><span className={`font-thin text-xs px-2 rounded-lg shadow ${bs.getDiffDaysForInstallmentNextDue(r) < 0 ? 'bg-red-200' : 'bg-green-200'}`}>{bs.getDiffDaysForInstallmentNextDue(r) < 0 ? `Overdue ${bs.getDiffDaysForInstallmentNextDue(r) * -1} days` : `Due in ${bs.getDiffDaysForInstallmentNextDue(r)} days`}</span></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-cols ">
+                      <div className="flex justify-end text-xl">
+                        <span>{formatter.format(r.amountOfPurchase)}</span>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <div><IconDeposited /></div>
+                        <div className="ml-2"><span className="text-base text-teal-700">Deposited</span></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                { (r.amountOfPurchase - r.amountOfPayment) > 0 ? (
+                  <div className="flex mx-4 py-2 border-t">
+                    <div className="w-full flex items-center">
+                      <span className="font-thin text-xs">{`Installments ${bs.getNextInstallmentInDueDate(r).order} / ${r.invoicesObject[0].installments.length}`}</span>
+                    </div>
+                    <div>
+                      <div className="flex justify-end">
+                        <span className="font-thin text-xs">Balance</span>
+                      </div>
+                      <div className="flex justify-end">
+                        <span className="text-xl font-thin">{formatter.format(r.amountOfPurchase - r.amountOfPayment)}</span>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="w-2/4 flex-cols ">
-                    <div className="flex justify-end text-xl">
-                      <span>{formatter.format(r.amountOfPurchase)}</span>
-                    </div>
-                    <div className="flex items-center justify-end">
-                      <div><IconDeposited /></div>
-                      <div className="ml-2"><span className="text-xl text-green-500">Deposited</span></div>
-                    </div>
-                  </div>
-                )}
+                ) : ''}
+
               </div>
             ))}
           </div>
@@ -154,19 +178,38 @@ const FreeIcon = () => (
   </svg>
 )
 
-const IconPeople = () => (
-  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.625 7.5C6.83125 7.5 7.8125 6.51875 7.8125 5.3125C7.8125 4.10625 6.83125 3.125 5.625 3.125C4.41875 3.125 3.4375 4.10625 3.4375 5.3125C3.4375 6.51875 4.41875 7.5 5.625 7.5ZM1.25 10.7812C1.25 9.325 4.1625 8.59375 5.625 8.59375C7.0875 8.59375 10 9.325 10 10.7812V11.875H1.25V10.7812ZM5.62497 9.84375C4.50622 9.84375 3.23747 10.2625 2.71247 10.625H8.53747C8.01247 10.2625 6.74372 9.84375 5.62497 9.84375ZM6.5625 5.3125C6.5625 4.79375 6.14375 4.375 5.625 4.375C5.10625 4.375 4.6875 4.79375 4.6875 5.3125C4.6875 5.83125 5.10625 6.25 5.625 6.25C6.14375 6.25 6.5625 5.83125 6.5625 5.3125ZM10.025 8.63178C10.75 9.15678 11.25 9.85678 11.25 10.7818V11.8755H13.75V10.7818C13.75 9.51928 11.5625 8.80053 10.025 8.63178ZM11.5625 5.3125C11.5625 6.51875 10.5813 7.5 9.375 7.5C9.0375 7.5 8.725 7.41875 8.4375 7.28125C8.83125 6.725 9.0625 6.04375 9.0625 5.3125C9.0625 4.58125 8.83125 3.9 8.4375 3.34375C8.725 3.20625 9.0375 3.125 9.375 3.125C10.5813 3.125 11.5625 4.10625 11.5625 5.3125Z" fill="black" fillOpacity="0.54" />
-  </svg>
-)
 
 const IconDeposited = () => (
   <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M1.41675 8.5013C1.41675 4.60547 4.60425 1.41797 8.50008 1.41797C12.3959 1.41797 15.5834 4.60547 15.5834 8.5013C15.5834 12.3971 12.3959 15.5846 8.50008 15.5846C4.60425 15.5846 1.41675 12.3971 1.41675 8.5013ZM2.83341 8.5013C2.83341 11.6251 5.37633 14.168 8.50008 14.168C11.6238 14.168 14.1667 11.6251 14.1667 8.5013C14.1667 5.37755 11.6238 2.83464 8.50008 2.83464C5.37633 2.83464 2.83341 5.37755 2.83341 8.5013ZM12.0417 10.6263V12.043H4.95841V10.6263H12.0417ZM5.95008 6.5888L7.29591 7.93463L11.0501 4.18047L12.0417 5.17213L7.29591 9.91797L4.95841 7.58047L5.95008 6.5888Z" fill="#6FC28B" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M1.41675 8.5013C1.41675 4.60547 4.60425 1.41797 8.50008 1.41797C12.3959 1.41797 15.5834 4.60547 15.5834 8.5013C15.5834 12.3971 12.3959 15.5846 8.50008 15.5846C4.60425 15.5846 1.41675 12.3971 1.41675 8.5013ZM2.83341 8.5013C2.83341 11.6251 5.37633 14.168 8.50008 14.168C11.6238 14.168 14.1667 11.6251 14.1667 8.5013C14.1667 5.37755 11.6238 2.83464 8.50008 2.83464C5.37633 2.83464 2.83341 5.37755 2.83341 8.5013ZM12.0417 10.6263V12.043H4.95841V10.6263H12.0417ZM5.95008 6.5888L7.29591 7.93463L11.0501 4.18047L12.0417 5.17213L7.29591 9.91797L4.95841 7.58047L5.95008 6.5888Z" fill="#2c7a7b" />
   </svg>
 )
 
+const IconProgram = () => (
+  <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.91895 6.01172L5.35156 6.02148C5.42969 6.02148 5.45898 6.05078 5.45898 6.12891L5.46875 9.56152C5.46875 10.2012 5.65918 10.7285 6.21094 10.7285C6.6748 10.7285 6.93848 10.3037 7.16309 9.82031L10.835 1.8418C10.9473 1.60254 11.0107 1.38281 11.0107 1.19238C11.0107 0.782227 10.6934 0.469727 10.2881 0.469727C10.0977 0.469727 9.87793 0.533203 9.63379 0.645508L1.66016 4.3125C1.19141 4.52734 0.74707 4.7959 0.74707 5.26465C0.74707 5.81152 1.25977 6.01172 1.91895 6.01172Z" fill="#333333" />
+  </svg>
 
+)
+
+const IconCalendar = () => (
+  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.91016 10.0986H8.67773C9.7666 10.0986 10.3428 9.51758 10.3428 8.44336V2.51562C10.3428 1.44141 9.7666 0.865234 8.67773 0.865234H1.91016C0.826172 0.865234 0.245117 1.44141 0.245117 2.51562V8.44336C0.245117 9.52246 0.826172 10.0986 1.91016 10.0986ZM1.95898 8.98047C1.56836 8.98047 1.36328 8.78516 1.36328 8.37988V3.96582C1.36328 3.55566 1.56836 3.36523 1.95898 3.36523H8.62891C9.01465 3.36523 9.22461 3.55566 9.22461 3.96582V8.37988C9.22461 8.78516 9.01465 8.98047 8.62891 8.98047H1.95898ZM4.36621 4.99609H4.64941C4.83008 4.99609 4.88867 4.94238 4.88867 4.7666V4.47852C4.88867 4.30273 4.83008 4.24902 4.64941 4.24902H4.36621C4.18555 4.24902 4.12695 4.30273 4.12695 4.47852V4.7666C4.12695 4.94238 4.18555 4.99609 4.36621 4.99609ZM5.93848 4.99609H6.22656C6.40234 4.99609 6.46094 4.94238 6.46094 4.7666V4.47852C6.46094 4.30273 6.40234 4.24902 6.22656 4.24902H5.93848C5.7627 4.24902 5.69922 4.30273 5.69922 4.47852V4.7666C5.69922 4.94238 5.7627 4.99609 5.93848 4.99609ZM7.51074 4.99609H7.79883C7.97461 4.99609 8.0332 4.94238 8.0332 4.7666V4.47852C8.0332 4.30273 7.97461 4.24902 7.79883 4.24902H7.51074C7.33496 4.24902 7.27637 4.30273 7.27637 4.47852V4.7666C7.27637 4.94238 7.33496 4.99609 7.51074 4.99609ZM2.78906 6.54395H3.07715C3.25293 6.54395 3.31641 6.49023 3.31641 6.31445V6.02637C3.31641 5.85059 3.25293 5.79688 3.07715 5.79688H2.78906C2.61328 5.79688 2.55469 5.85059 2.55469 6.02637V6.31445C2.55469 6.49023 2.61328 6.54395 2.78906 6.54395ZM4.36621 6.54395H4.64941C4.83008 6.54395 4.88867 6.49023 4.88867 6.31445V6.02637C4.88867 5.85059 4.83008 5.79688 4.64941 5.79688H4.36621C4.18555 5.79688 4.12695 5.85059 4.12695 6.02637V6.31445C4.12695 6.49023 4.18555 6.54395 4.36621 6.54395ZM5.93848 6.54395H6.22656C6.40234 6.54395 6.46094 6.49023 6.46094 6.31445V6.02637C6.46094 5.85059 6.40234 5.79688 6.22656 5.79688H5.93848C5.7627 5.79688 5.69922 5.85059 5.69922 6.02637V6.31445C5.69922 6.49023 5.7627 6.54395 5.93848 6.54395ZM7.51074 6.54395H7.79883C7.97461 6.54395 8.0332 6.49023 8.0332 6.31445V6.02637C8.0332 5.85059 7.97461 5.79688 7.79883 5.79688H7.51074C7.33496 5.79688 7.27637 5.85059 7.27637 6.02637V6.31445C7.27637 6.49023 7.33496 6.54395 7.51074 6.54395ZM2.78906 8.09668H3.07715C3.25293 8.09668 3.31641 8.03809 3.31641 7.8623V7.5791C3.31641 7.40332 3.25293 7.34473 3.07715 7.34473H2.78906C2.61328 7.34473 2.55469 7.40332 2.55469 7.5791V7.8623C2.55469 8.03809 2.61328 8.09668 2.78906 8.09668ZM4.36621 8.09668H4.64941C4.83008 8.09668 4.88867 8.03809 4.88867 7.8623V7.5791C4.88867 7.40332 4.83008 7.34473 4.64941 7.34473H4.36621C4.18555 7.34473 4.12695 7.40332 4.12695 7.5791V7.8623C4.12695 8.03809 4.18555 8.09668 4.36621 8.09668ZM5.93848 8.09668H6.22656C6.40234 8.09668 6.46094 8.03809 6.46094 7.8623V7.5791C6.46094 7.40332 6.40234 7.34473 6.22656 7.34473H5.93848C5.7627 7.34473 5.69922 7.40332 5.69922 7.5791V7.8623C5.69922 8.03809 5.7627 8.09668 5.93848 8.09668Z" fill="#333333" />
+  </svg>
+)
+
+const IconPeople = () => (
+  <svg width="14" height="9" viewBox="0 0 14 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9.51758 4.43555C10.6016 4.43555 11.5 3.47852 11.5 2.25293C11.5 1.06152 10.5918 0.124023 9.51758 0.124023C8.43848 0.124023 7.53027 1.07129 7.53027 2.25781C7.53516 3.47852 8.43359 4.43555 9.51758 4.43555ZM3.85352 4.54297C4.7959 4.54297 5.57715 3.70801 5.57715 2.64355C5.57715 1.60352 4.78613 0.792969 3.85352 0.792969C2.91602 0.792969 2.12012 1.61816 2.125 2.64844C2.125 3.70801 2.90625 4.54297 3.85352 4.54297ZM1.18262 8.99609H4.80566C4.27344 8.24414 4.7959 6.77441 5.93848 5.86621C5.40625 5.5293 4.70801 5.28027 3.84863 5.28027C1.68555 5.28027 0.245117 6.87207 0.245117 8.17578C0.245117 8.69336 0.494141 8.99609 1.18262 8.99609ZM6.49023 8.99609H12.54C13.3701 8.99609 13.6533 8.72754 13.6533 8.26367C13.6533 7.01367 12.0469 5.29492 9.5127 5.29492C6.9834 5.29492 5.37207 7.01367 5.37207 8.26367C5.37207 8.72754 5.65527 8.99609 6.49023 8.99609Z" fill="#333333" />
+  </svg>
+)
+
+const IconInfo = () => (
+  <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5.97656 10.582C8.77441 10.582 11.0791 8.27734 11.0791 5.47949C11.0791 2.68164 8.76953 0.37207 5.97656 0.37207C3.17871 0.37207 0.874023 2.68164 0.874023 5.47949C0.874023 8.27734 3.17871 10.582 5.97656 10.582ZM5.87402 6.45605C5.5127 6.45605 5.31738 6.2998 5.31738 5.9873V5.93848C5.31738 5.51367 5.57129 5.25 5.93262 5.00586C6.35742 4.71289 6.57227 4.54688 6.57227 4.25391C6.57227 3.95117 6.33789 3.74609 5.98145 3.74609C5.70801 3.74609 5.50781 3.87793 5.35156 4.1123C5.20508 4.27832 5.11719 4.42969 4.80957 4.42969C4.52148 4.42969 4.32129 4.24902 4.32129 3.98535C4.32129 3.8877 4.34082 3.7998 4.375 3.70703C4.53613 3.21387 5.16113 2.83301 6.03516 2.83301C6.98242 2.83301 7.75391 3.3457 7.75391 4.19531C7.75391 4.77148 7.45605 5.05957 6.94336 5.39648C6.63086 5.60156 6.43555 5.77246 6.40625 6.0166C6.40625 6.03613 6.40137 6.05566 6.40137 6.07031C6.3623 6.29004 6.17676 6.45605 5.87402 6.45605ZM5.89844 7.99902C5.53711 7.99902 5.26367 7.76953 5.26367 7.42285C5.26367 7.07617 5.53711 6.84668 5.89844 6.84668C6.25488 6.84668 6.52832 7.07617 6.52832 7.42285C6.52832 7.76953 6.25488 7.99902 5.89844 7.99902Z" fill="#333333" />
+  </svg>
+
+)
 const EmptyFrame = () => (
   <div>
     <FreeIcon />
