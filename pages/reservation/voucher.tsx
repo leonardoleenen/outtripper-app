@@ -114,7 +114,7 @@ export default () => {
 
   const ComponentInvoice = () => (
     <div>
-      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
+      <div className="font-semibold text-base text-gray-800 pt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
       <div className=" carrusel py-4 flex border-b pl-4">
         {reservation.pax.map((p:Contact, index:number) => (
           <div
@@ -126,7 +126,11 @@ export default () => {
             key={uuid4()}
             className="flex-cols justify-center avatarBox"
           >
-            <div className="avatar rounded-full" />
+            <div className="h-16 w-16 bg-teal-800 rounded-full flex items-center justify-center ">
+              <div>
+                <IconSinglePeople />
+              </div>
+            </div>
             <div className="text-xs font-semibold text-xs">
               {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
 
@@ -134,9 +138,33 @@ export default () => {
           </div>
         ))}
       </div>
-      <div className="pl-4  py-4 border-b flex-cols">
-        <div className="flex w-full">
-          <div className="text-base font-semibold text-gray-600 w-full">Payments</div>
+
+      <div className="m-4 bg-white rounded-lg shadow flex items-center">
+        <div className="px-2 py-4 text-base font-semibold text-gray-800 w-full">{`${reservation.pax.length} X ${invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM')[0].description}`}</div>
+        <div className="mr-4 text-base font-semibold text-gray-800 flex justify-end"><span>{formatter.format(invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v))}</span></div>
+      </div>
+
+      <div className="m-4 bg-white rounded-lg shadow flex items-center">
+        <div className="px-2 py-4 text-base font-semibold text-gray-800 w-full">Extra</div>
+        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+      </div>
+
+      <div className="m-4 bg-white rounded-lg shadow flex items-center">
+        <div className="px-2 py-4 text-base font-semibold text-gray-800 w-full">Discount</div>
+        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
+      </div>
+
+      <div className="m-4 bg-white rounded-lg shadow flex items-center">
+        <div className="px-2 py-4 text-base font-semibold text-gray-800 w-full">Balance</div>
+        <div className="mr-4 text-base font-semibold text-gray-800 flex justify-end">
+          <span className="">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments)}</span>
+        </div>
+      </div>
+
+
+      <div className="bg-white m-4 border-b flex-cols rounded-lg shadow">
+        <div className="flex w-full pl-2 pt-2">
+          <div className="text-base font-semibold text-gray-800 w-full">Payments</div>
           <div
             className="h-8 w-8 mr-4"
             onClick={() => {
@@ -148,41 +176,27 @@ export default () => {
 
           </div>
         </div>
-        <div>
+        <div className="ml-2">
           {payments.map((p: Payment) => (
             <div key={p.id} className="flex text-xs my-2">
               <div className="w-24"><span>{moment(p.date).format('YYYY-MM-DD')}</span></div>
               <div className="w-4/6"><span>{p.kind}</span></div>
-              <div className="w-24 mr-4"><span>{`$ ${p.amount.toFixed(2)}`}</span></div>
+              <div className="w-24 mr-4"><span>{`${formatter.format(p.amount)}`}</span></div>
             </div>
           ))}
         </div>
 
-      </div>
-      <div className="pl-4  py-4 border-b flex items-center">
-        <div className="text-base font-semibold text-gray-600 w-4/6">{invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM')[0].description}</div>
-        <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end"><span>{formatter.format(invoice.items.filter((item:ItemInvoice) => item.kind === 'PROGRAM').map((i: ItemInvoice) => i.price).reduce((total, v) => total += v))}</span></div>
-      </div>
-      <div className="pl-4  py-4 border-b flex">
-        <div className="text-base font-semibold text-gray-600 w-full">Group Extra</div>
-        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
-      </div>
-      <div className="pl-4  py-4 border-b flex">
-        <div className="text-base font-semibold text-gray-600 w-full">Discount</div>
-        <div className="h-8 w-8 mr-4"><IconAddCircle /></div>
-      </div>
-      <div className="pl-4  py-4 border-b flex items-center">
-
-        <div className="text-base font-semibold text-gray-600 w-4/6">Balance</div>
-        <div className="mr-4 text-base font-semibold text-teal-700 flex justify-end">
-          <span className="">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments)}</span>
+        <div className="p-2 border-t flex font-thin text-sm">
+          <div className="w-full"><span>Total</span></div>
+          <div className="mr-4"><span>{formatter.format(reservation.amountOfPayment)}</span></div>
         </div>
+
       </div>
 
-      <div className="pl-4  py-4 border-b flex-cols">
-        <div className="text-base font-semibold text-gray-600 w-full">Terms and Conditions</div>
-        <div className="mr-4">
-          <span className="font-thin text-base italic text-gray-700">{reservation.termsAndConditionsLiteral}</span>
+      <div className="m-4 bg-white rounded-lg shadow pl-4 flex-cols">
+        <div className="pt-2 text-base font-semibold text-gray-800 w-full">Terms and Conditions</div>
+        <div className="mr-4 pb-2">
+          <span className="font-thin text-base italic text-gray-800">{reservation.termsAndConditionsLiteral}</span>
         </div>
       </div>
 
@@ -212,7 +226,7 @@ export default () => {
 
   return (
     <div className="h-screen ">
-      <header className="bg-teal-700">
+      <header className="bg-teal-800">
         <div className="text-white flex p-2 pt-8">
           <Link href="/availability">
             <div className="h-8 w-8"><IconArrowLeft /></div>
@@ -223,38 +237,46 @@ export default () => {
         <div className="text-white border-b flex  ">
           <div
             onClick={() => setTabSelected('INVOICE')}
-            className={`${tabSelected === 'INVOICE' ? 'text-orange-500 font-semibold ' : 'text-gray-500'} text-xl mx-12 py-4 w-3/6 flex justify-center`}
+            className={`${tabSelected === 'INVOICE' ? 'text-white font-semibold ' : 'text-gray-500'} text-xl mx-12 py-4 w-3/6 flex justify-center`}
           >
             <span>Invoice</span>
           </div>
           <div
             onClick={() => setTabSelected('GUESTS')}
-            className={`${tabSelected === 'GUESTS' ? 'text-orange-500 font-semibold ' : 'text-gray-500'} text-xl mx-12 py-4 w-3/6 flex justify-center`}
+            className={`${tabSelected === 'GUESTS' ? 'text-white font-semibold ' : 'text-gray-500'} text-xl mx-12 py-4 w-3/6 flex justify-center`}
           >
             <span>Guests</span>
           </div>
         </div>
         <div className="text-white p-4 flex justify-center">
-          <div>
-            <span className="text-4xl font-semibold">{formatter.format(invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i))}</span>
-            <span className="font-thin ml-5">Total group</span>
+          <div className="flex-cols">
+            <div className="font-thin ml-5 flex justify-center"><span>Total group</span></div>
+            <div className="text-4xl font-semibold"><span>{formatter.format(reservation.amountOfPurchase)}</span></div>
           </div>
         </div>
         <div className="text-white flex pb-4">
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${reservation.status >= 1 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2 flex items-center ${reservation.status >= 1 ? 'bg-teal-200' : ''}`}>
+              <IconChecked />
+            </div>
             <div className="font-thin text-xs ml-2">Send</div>
           </div>
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${reservation.status >= 2 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2 flex items-center  ${reservation.status >= 2 ? 'bg-teal-200' : ''}`}>
+              <IconChecked />
+            </div>
             <div className="font-thin text-xs ml-2">Visualized</div>
           </div>
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${payments && payments.length > 0 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2 flex items-center  ${payments && payments.length > 0 ? 'bg-teal-200' : ''}`}>
+              <IconChecked />
+            </div>
             <div className="font-thin text-xs ml-2">Partially Paid</div>
           </div>
           <div className="w-1/4 flex items-center ">
-            <div className={`rounded-full border w-4 h-4 ml-2 ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments <= 0 ? 'bg-teal-100' : ''}`} />
+            <div className={`rounded-full border w-4 h-4 ml-2  flex items-center  ${invoice.items.map((item: ItemInvoice) => item.price).reduce((total, i) => total += i) - amountOfPayments <= 0 ? 'bg-teal-200' : ''}`}>
+              <IconChecked />
+            </div>
             <div className="font-thin text-xs ml-2">Full Paid</div>
           </div>
         </div>
@@ -270,7 +292,7 @@ export default () => {
           ) : ''}
       </header>
 
-      <article className="relative">
+      <article className="relative bg-gray-100">
         {tabSelected === 'INVOICE' ? <ComponentInvoice /> : <ItinerayList reservation={reservation} /> }
       </article>
 
@@ -332,4 +354,16 @@ const IconProgram = () => (
     <path fillRule="evenodd" clipRule="evenodd" d="M21 11C17.13 11 14 14.13 14 18C14 23.25 21 31 21 31C21 31 28 23.25 28 18C28 14.13 24.87 11 21 11ZM16 18C16 15.24 18.24 13 21 13C23.76 13 26 15.24 26 18C26 20.88 23.12 25.19 21 27.88C18.92 25.21 16 20.85 16 18ZM18.5 18C18.5 16.6193 19.6193 15.5 21 15.5C21.8932 15.5 22.7185 15.9765 23.1651 16.75C23.6116 17.5235 23.6116 18.4765 23.1651 19.25C22.7185 20.0235 21.8932 20.5 21 20.5C19.6193 20.5 18.5 19.3807 18.5 18Z" fill="black" fillOpacity="0.54" />
   </svg>
 
+)
+
+const IconChecked = () => (
+  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2.79604 7.67383C2.976 7.67383 3.1183 7.59431 3.21875 7.43945L7.17383 1.21177C7.24916 1.0904 7.27846 0.998326 7.27846 0.902065C7.27846 0.671875 7.12779 0.521206 6.8976 0.521206C6.73019 0.521206 6.63811 0.575614 6.53767 0.734654L2.7793 6.72377L0.828962 4.17076C0.72433 4.02427 0.619699 3.96568 0.469029 3.96568C0.230469 3.96568 0.0672433 4.12891 0.0672433 4.3591C0.0672433 4.45536 0.109096 4.56417 0.188616 4.66462L2.36077 7.43108C2.48633 7.59431 2.61607 7.67383 2.79604 7.67383Z" fill="#306771" />
+  </svg>
+)
+
+const IconSinglePeople = () => (
+  <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10.8624 10.4872C13.4512 10.4872 15.6086 8.20163 15.6086 5.27464C15.6086 2.42929 13.4396 0.190315 10.8624 0.190315C8.29693 0.190315 6.11627 2.45261 6.12793 5.28631C6.12793 8.20163 8.27361 10.4872 10.8624 10.4872ZM3.64407 21.3789H18.0808C20.0749 21.3789 20.7512 20.7375 20.7512 19.6297C20.7512 16.6444 16.903 12.5396 10.8624 12.5396C4.8102 12.5396 0.973633 16.6444 0.973633 19.6297C0.973633 20.7375 1.64999 21.3789 3.64407 21.3789Z" fill="#A1C3C3" />
+  </svg>
 )

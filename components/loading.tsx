@@ -14,7 +14,7 @@ export default () => (
         `
 
          .bg-gradient{
-            background: linear-gradient(179.96deg, #F56565 2.18%, #E53E3E 27.54%, #C53030 52.38%, #9B2C2C 98.95%);
+            background: linear-gradient(270deg, #306771 0%, #549594 100%);
             height:100vh;
             color:#fff;
             text-align:center;
