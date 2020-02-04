@@ -1,86 +1,47 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
-import bs from '../services/business'
-import Loading from '../components/loading'
+import NavBar from '../components/bottom_nav_bar'
 
-interface Row {
-  title: string
-  func: any
-}
-
-interface Avatar {
-  user: string
-  message: string
-  photoAvatar: string
-}
-
-const Row = (props: Row) => {
-  const { title, func } = props
-  return (
-    <div className=" ml-4 mt-4  mr-4" onClick={func}>
-      <p className="text-white font-light">{title}</p>
-    </div>
-  )
-}
-const Avatar = (props: Avatar) => {
-  const {
-    user, message, photoAvatar,
-  } = props
-  return (
-    <div className="content m-auto pb-8 ">
-      <img src={photoAvatar} alt="" className="rounded-full w-24 m-auto" />
-
-      <div className="flex flex-col ml-2 mr-4 text-center text-white">
-        <h6 className="text-white font-semibold mt-4">{user}</h6>
-        <p className="text-xs">{message}</p>
-
-      </div>
-
-
-    </div>
-  )
+interface PropRows {
+  label : string
+  goTo: string
 }
 
 
 export default () => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [token, setToken] = useState<TokenOuttripper>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const fetch = async () => {
-      setToken(await bs.getToken())
-      setIsLoading(false)
-    }
-
-    fetch()
-  }, [])
-
-  const TODOFunction = () => {
-    console.log('this feature must be developed')
+  const Row = (props: PropRows) => {
+    const { label, goTo } = props
+    return (
+      <div className="flex items-center border-b" onClick={() => router.push(`/${goTo}`)}>
+        <div className="py-4 w-full">{label}</div>
+        <div className="pr-4">
+          <IconArrowRight />
+        </div>
+      </div>
+    )
   }
 
-  if (isLoading) return <Loading />
-
   return (
-    <div className="bg-gradient p-8">
+    <div className="px-4 ">
+      <header className="flex justify-center">
+        <div className="pt-4 font-semibold">Menu</div>
+      </header>
+      <article className="pt-8 h-screen">
+        <Row label="My Team" goTo="myteam" />
+        <Row label="My Reservations" goTo="home" />
 
-      <Avatar user={token.userCn} message={`${token.organizationCn} - ${token.rol}`} photoAvatar={token.photoAvatar} />
-      <Row title="Programs Management" func={TODOFunction} />
-      <Row title="My team" func={() => router.push('/myteam')} />
-      <Row title="Account Settings" func={TODOFunction} />
-      <Row title="Bookings" func={TODOFunction} />
-      <Row title="Help Center" func={TODOFunction} />
-      <Row title="Payment" func={TODOFunction} />
-      <Row title="Contacts" func={TODOFunction} />
-      <Row title="Profile" func={TODOFunction} />
-      <Row title="Invoices" func={TODOFunction} />
-      <Row title="New Quick Program" func={TODOFunction} />
-      <Row title="MarketPlace" func={TODOFunction} />
-      <Row title="Questionnaire setup" func={TODOFunction} />
-      <Row title="Notifications Setup" func={TODOFunction} />
-      <Row title="Become Premium" func={TODOFunction} />
-      <Row title="Exit" func={() => router.push('/home')} />
+      </article>
+      <NavBar />
     </div>
   )
 }
+
+
+const IconArrowRight = () => (
+  <svg width="7" height="11" viewBox="0 0 7 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.68359 0.472656C1.60742 0.396484 1.50781 0.349609 1.39648 0.349609C1.16797 0.349609 0.992188 0.525391 0.992188 0.753906C0.992188 0.865234 1.0332 0.970703 1.10352 1.04102L5.50977 5.23633L1.10352 9.41992C1.0332 9.49609 0.992188 9.60742 0.992188 9.71289C0.992188 9.94141 1.16797 10.1172 1.39648 10.1172C1.50781 10.1172 1.60156 10.0703 1.68359 9.99414L6.35938 5.55273C6.44727 5.46484 6.50586 5.35352 6.50586 5.23047C6.50586 5.10742 6.45313 5.00781 6.35938 4.91406L1.68359 0.472656Z" fill="black" />
+  </svg>
+
+)
