@@ -85,35 +85,16 @@ export class DataAccessService implements DataService {
 
   // eslint-disable-next-line class-methods-use-this
   setToken(token: TokenOuttripper): Promise<TokenOuttripper> {
-    /*
-    return this.db.post({
-      ...token,
-      collectionKind: 'token',
-    })
-    */
-    if (localStorage) {
-      // debugger
-      // localStorage.setItem('token', Buffer.from(JSON.stringify(token), 'base64').toString())
-      localStorage.setItem('token', btoa(JSON.stringify(token)))
+    if (sessionStorage) {
+      sessionStorage.setItem('token', btoa(JSON.stringify(token)))
       return new Promise((res) => res(token))
     }
-
     return null
   }
 
   // eslint-disable-next-line class-methods-use-this
   getToken(): Promise<TokenOuttripper> {
-    /*
-    return this.db.find({
-      selector: {
-        collectionKind: 'token',
-
-      },
-    }).then((result) => result.docs[0])
-*/
-
-    // return this.db.collection({ name: 'token' }).findOne().then((doc) => doc as TokenOuttripper)
-    return localStorage ? new Promise((res) => res(JSON.parse(atob(localStorage.getItem('token'))) as TokenOuttripper)) : null
+    return sessionStorage ? new Promise((res) => res(JSON.parse(atob(sessionStorage.getItem('token'))) as TokenOuttripper)) : null
   }
 
   getInvitation(id: string): Promise<Invitation> {
