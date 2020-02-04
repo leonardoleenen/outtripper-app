@@ -8,6 +8,7 @@ const withConfig = nextRuntimeDotenv({
 })
 
 
+/*
 const nextConfig = {
   webpack: (config) => {
     // Fixes npm packages that depend on `fs` module.
@@ -21,3 +22,8 @@ const nextConfig = {
 module.exports = withConfig(withPlugins([
   [withConfig], withCSS,
 ], nextConfig))
+*/
+
+module.exports = withConfig(withPlugins([
+  [withConfig], withCSS,
+]))

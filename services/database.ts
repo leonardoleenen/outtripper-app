@@ -1,7 +1,7 @@
 /* eslint-disable no-return-assign */
 
-import PouchDB from 'pouchdb'
-import PouchDBFind from 'pouchdb-find'
+// import RxDB from 'rxdb'
+// import idb from 'pouchdb-adapter-idb'
 import firebase from 'firebase'
 import uuid4 from 'uuid4'
 // import { firebaseKey } from '../keys'
@@ -83,20 +83,37 @@ export class DataAccessService implements DataService {
 
   remote: any
 
+  // eslint-disable-next-line class-methods-use-this
   setToken(token: TokenOuttripper): Promise<TokenOuttripper> {
+    /*
     return this.db.post({
       ...token,
       collectionKind: 'token',
     })
+    */
+    if (localStorage) {
+      // debugger
+      // localStorage.setItem('token', Buffer.from(JSON.stringify(token), 'base64').toString())
+      localStorage.setItem('token', btoa(JSON.stringify(token)))
+      return new Promise((res) => res(token))
+    }
+
+    return null
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getToken(): Promise<TokenOuttripper> {
+    /*
     return this.db.find({
       selector: {
         collectionKind: 'token',
 
       },
     }).then((result) => result.docs[0])
+*/
+
+    // return this.db.collection({ name: 'token' }).findOne().then((doc) => doc as TokenOuttripper)
+    return localStorage ? new Promise((res) => res(JSON.parse(atob(localStorage.getItem('token'))) as TokenOuttripper)) : null
   }
 
   getInvitation(id: string): Promise<Invitation> {
@@ -107,30 +124,17 @@ export class DataAccessService implements DataService {
       .then((doc) => doc.data() as Invitation)
   }
 
-  addNotification(notification: SystemNotification): void {
-    this.db.find({
-      selector: {
-        collectionKind: 'notification',
-        id: notification.id,
-      },
-    }).then((result) => {
-      if (result.docs.length === 0) { this.db.post(notification) }
-    })
+
+  // eslint-disable-next-line class-methods-use-this
+  addNotification(_notification: SystemNotification): void {
+    return null
   }
 
-  saveNotification(notification: SystemNotification): void {
-    this.db.find({
-      selector: {
-        collectionKind: 'notification',
-        id: notification.id,
-      },
-    }).then((result) => {
-      this.db.put({
-        ...result.docs[0],
-        ...notification,
-      })
-    })
+  // eslint-disable-next-line class-methods-use-this
+  saveNotification(_notification: SystemNotification): void {
+    return null
   }
+
 
   notificationListener = () : void => {
     this.fb.firestore()
@@ -155,13 +159,11 @@ export class DataAccessService implements DataService {
   }
 
 
+  // eslint-disable-next-line class-methods-use-this
   getNotifications(): Promise<SystemNotification[]> {
-    return this.db.find({
-      selector: {
-        collectionKind: 'notification',
-      },
-    }).then((result) => result.docs)
+    return null
   }
+
 
   saveContact(organizationId: string, contact: Contact): Promise<Contact> {
     const newContact : Contact = {
@@ -401,12 +403,9 @@ export class DataAccessService implements DataService {
   }
 
 
+  // eslint-disable-next-line class-methods-use-this
   getDestinations(): Promise<Array<Destination>> {
-    return this.db.find({
-      selector: {
-        collectionKind: 'destinationCatalogItem',
-      },
-    }).then((result) => result.docs)
+    return null
   }
 
   createPayment(organizationId: string, payment: Payment): void {
@@ -559,19 +558,13 @@ export class DataAccessService implements DataService {
       .update(reservation)
       .then(() => reservation)
   }
-
-  constructor() {
-    PouchDB.plugin(PouchDBFind)
-    this.db = new PouchDB('outtripper')
-    // this.remote = new PouchDB('http://35.221.43.54:5984/outtripper')
-    // this.db.sync(this.remote, {
-    //   live: true,
-    // })
-  }
 }
 
 
 const listeners = new DataAccessService()
 listeners.notificationListener()
 
-export default new DataAccessService()
+const dbConnector : DataAccessService = new DataAccessService()
+
+
+export default dbConnector

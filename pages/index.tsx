@@ -17,6 +17,7 @@ export default () => {
     dbs.fb.auth().signInWithRedirect(provider)
   }
 
+
   useEffect(() => {
     dbs.fb.auth().getRedirectResult().then((result) => {
       const { user } = result
