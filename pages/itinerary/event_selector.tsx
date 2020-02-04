@@ -1,14 +1,18 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 import { ITINERARY_EVENT } from '../../services/business'
 
 export default () => {
   const [eventSelected, setEventSelected] = useState()
+  const reservation : Reservation = useSelector((state) => state.reservation.reservationSelected)
+  const router = useRouter()
 
   return (
     <div className="main h-screen ">
       <header className="p-4 flex items-center">
-        <div><IconBack /></div>
+        <div onClick={() => router.push(`/reservation/voucher?id=${reservation.id}`)}><IconBack /></div>
         <div className="ml-4 font-thin text-xl"><span>Select an item to add</span></div>
       </header>
       <article className="font-thin">

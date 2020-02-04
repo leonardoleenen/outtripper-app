@@ -33,8 +33,11 @@ export default () => {
 
   return (
     <div>
-      <header className="p-4">
-        <span className="text-2xl font-semibold">Ground Transfer</span>
+      <header className="p-4 bg-teal-700 flex items-center">
+        <div onClick={() => router.push('/itinerary/event_selector')}>
+          <IconLeft />
+        </div>
+        <span className="text-base font-semibold text-white ml-4">Ground Transfer</span>
       </header>
       <div className="font-semibold ml-4">{moment(reservation.serviceFrom).add(days > 0 ? days + reservation.program.serviceDaysQuantity : days, 'days').format('LLL')}</div>
       <Card from={from} to={to} />
@@ -80,3 +83,9 @@ export default () => {
     </div>
   )
 }
+
+const IconLeft = () => (
+  <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6.33496 12.3947C6.51953 12.5724 6.73828 12.6681 6.99805 12.6681C7.52441 12.6681 7.95508 12.2443 7.95508 11.7179C7.95508 11.4581 7.8457 11.212 7.6543 11.0275L3.00586 6.50208L7.6543 1.99036C7.8457 1.79895 7.95508 1.55286 7.95508 1.29993C7.95508 0.77356 7.52441 0.349731 6.99805 0.349731C6.73145 0.349731 6.5127 0.438599 6.33496 0.616333L1.0918 5.74329C0.859375 5.96887 0.743164 6.21497 0.743164 6.50891C0.743164 6.79602 0.852539 7.04211 1.0918 7.27454L6.33496 12.3947Z" fill="#F7FAFC" />
+  </svg>
+)

@@ -16,7 +16,6 @@ export default (props: Props) => {
   const dispatch = useDispatch()
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
 
-
   interface PropsIconSinglePeople {
     isSelected: boolean
   }
@@ -71,7 +70,7 @@ export default (props: Props) => {
           <div className="px-4 pt-4 flex justify-center"><div className="text-base text-gray-500 text-xl ">Custom itinerary for</div></div>
           <div className="mb-4 flex justify-center"><div className="font-semibold text-xl ">{`${selectedPax.lastName} ${selectedPax.firstName}`}</div></div>
           <Link href="/itinerary/event_selector">
-            <div className="p-4 border w-40 font-semibold text-white rounded-lg bg-teal-500 m-auto ">
+            <div className="p-4 border w-40 font-semibold text-white rounded-lg bg-teal-700 m-auto ">
               <div>Add new event</div>
             </div>
           </Link>
