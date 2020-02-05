@@ -39,7 +39,7 @@ export default () => {
         </div>
         <span className="text-base font-semibold text-white ml-4">Ground Transfer</span>
       </header>
-      <div className="font-semibold ml-4">{moment(reservation.serviceFrom).add(days > 0 ? days + reservation.program.serviceDaysQuantity : days, 'days').format('LLL')}</div>
+      <div className="font-semibold ml-4 mt-4">{moment(reservation.serviceFrom).add(days > 0 ? days + reservation.program.serviceDaysQuantity : days, 'days').format('LLL')}</div>
       <Card from={from} to={to} />
       <form className="p-4">
         <fieldset className="mt-4 text-teal-500">

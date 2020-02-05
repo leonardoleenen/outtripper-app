@@ -11,36 +11,46 @@ interface Props {
   year: number,
   value: Array<any>
   defaultFunction : any
+  // programs: Array<Program>
+  monthsAvailable: Array<number>
 }
 
 
 export default (props:Props) => {
-  const { year, value } = props
+  const { year, value, monthsAvailable } = props
   const dispatch = useDispatch()
   const router = useRouter()
 
 
-  const setColor = (day: any) : string => {
-    if (!day) { return 'red-700' }
+  const setColor = (day: any, month: number) : string => {
+    if (!day) {
+      if (monthsAvailable.filter((v) => v === (month)).length === 0) {
+        return 'gray-300'
+      } return 'red-400'
+    }
 
+    // console.log(day.availability.map((m) => m).reduce((t, v) => t))
+
+    // if (monthsAvailable.filter((v) => v === (new Date(day.availability[0].from).getMonth() + 1)).length === 0) return 'gray-300'
 
     // eslint-disable-next-line no-return-assign
     const qty : number = day.availability.map((m) => m.freeSpots).reduce((t : number, v : number) => t += v)
 
-    if (qty === 10) { return 'green-500' }
+    if (qty === 12) { return 'green-300' }
 
 
-    if (qty >= 8) return 'yellow-400'
-    return 'orange-500'
+    return 'yellow-300'
   }
 
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto bg-gray-100">
       <div className="flex  m-2 justify-center">
         <div className="w-full max-w-md grid">
           {value.map((m: { month: number; year: number; days: any[] }, idxMonth: { toString: () => any }) => (
             <div
+              className="bg-white p-2"
+              style={{ boxShadow: '1px 1px 7px rgba(216, 216, 216, 0.5)', borderRadius: '9px' }}
               key={idxMonth.toString() + uuid4()}
               onClick={() => {
                 if (props.defaultFunction) {
@@ -51,12 +61,12 @@ export default (props:Props) => {
                 }
               }}
             >
-              <div className="my-4 text-gray-700">{moment(new Date(year, m.month, 0)).format('MMMM')}</div>
+              <div className="ml-4 my-4 text-black font-semibold">{moment(new Date(year, m.month, 0)).format('MMMM')}</div>
               <div className="gridDays">
 
 
                 {Array(moment(`${year}-${m.month}`, 'YYYY-MM-DD').day() !== 0 ? moment(`${year}-${m.month}`, 'YYYY-MM-DD').day() : 0).fill('').map((empty, idxEmpty) => (<div key={m.month.toString() + idxEmpty.toString()} className="h-auto w-auto">{empty}</div>))}
-                {m.days.map((d: any, idxDays: number) => (<div key={(idxDays + 100).toString() + uuid4()} className={`bg-${setColor(d)} h-5 w-5 rounded`} />))}
+                {m.days.map((d: any, idxDays: number) => (<div key={(idxDays + 100).toString() + uuid4()} className={`bg-${setColor(d, m.month)} h-5 w-5`} />))}
               </div>
             </div>
           ))}

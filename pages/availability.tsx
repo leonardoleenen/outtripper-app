@@ -31,14 +31,29 @@ export default () => {
       av.filter((d1) => d1.days.filter((d2) => d2 !== undefined).length > 0).map((w) => w.days.map((h) => (h !== undefined ? preResult.push(h) : null)))
       // eslint-disable-next-line no-return-assign
       preResult.map((r) => r.availability.map((t) => t.programId)).map((f) => grouped[f] = f)
-      console.log(preResult)
+
       // console.log(Object.keys(grouped))
       setAllPrograms(ap)
       // console.log(ap)
       setAvailability(av)
+
+      // eslint-disable-next-line dot-notation
+      window['programs'] = ap
     }
     fetch()
   }, [])
+
+  const getMonthsAvailable = () : Array<number> => {
+    const uniq = (a : Array<number>) => [...new Set(a)]
+    const months : Array<number> = []
+    allPrograms.forEach((p) => {
+      p.monthAvailable.forEach((v) => {
+        months.push(v)
+      })
+    })
+
+    return uniq(months)
+  }
 
   const openMenuProgram = () => {
     setShowProgramMenu(true)
@@ -92,9 +107,8 @@ export default () => {
   if (!availability) { return <Loading /> }
 
   return (
-    <div className="container h-screen">
+    <div className="container h-screen bg-gray-100">
       <div className="flex">
-
         <div
           onClick={() => setShowProgramMenu(true)}
           className={programSelected ? styleButtonSelected : styleButtonUnSelected}
@@ -107,13 +121,19 @@ export default () => {
       </div>
 
 
-      <div className="flex items-center w-full mt-8">
+      <div className="flex items-center w-full mt-8 mb-4">
         <div className="h-22 w-22 m-auto"><IconArrowLeft /></div>
-        <div className="text-4xl font-bold text-gray-800 m-auto">{new Date().getFullYear()}</div>
+        <div className="text-2xl font-bold text-gray-800 m-auto">{new Date().getFullYear()}</div>
         <div className="h-22 w-22 m-auto"><IconArrowRight /></div>
       </div>
 
-      <Calendar year={new Date().getFullYear()} value={availability} defaultFunction={!programSelected ? openMenuProgram : null} />
+      <Calendar
+        year={new Date().getFullYear()}
+        value={availability}
+        monthsAvailable={getMonthsAvailable()}
+        defaultFunction={!programSelected ? openMenuProgram : null}
+      />
+
       <BottomNavBar />
       <style>
         {`

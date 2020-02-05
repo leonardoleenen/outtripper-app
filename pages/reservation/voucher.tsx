@@ -89,16 +89,22 @@ export default () => {
         <div className="flex justify-center" onClick={() => setShowMenu(false)}>
           <div className="h-2 w-24 bg-gray-300 m-3 rounded-lg" />
         </div>
-        <div className="p-4 border-b">
-          <div className="text-blue-500" onClick={copyToClipboard}>Generate reservation voucher link</div>
+        <div className="p-4 border-b flex items-center">
+          <div className="text-blue-500 font-semibold w-full" onClick={copyToClipboard}>Generate reservation voucher link</div>
+          <div className="mr-4">
+            <IconArrowMenu />
+          </div>
           <textarea className="absolute" value={voucherURL} ref={voucherURLRef} />
         </div>
-        <div className="p-4 border-b">
-          <div className="text-red-500">Remove / Cancel reservation</div>
+        <div className="p-4 border-b flex items-center">
+          <div className="text-red-500 font-semibold w-full">Remove / Cancel reservation</div>
+          <div className="mr-4">
+            <IconArrowMenu />
+          </div>
         </div>
         <div className="flex justify-center" onClick={() => setShowMenu(false)}>
-          <div className="h-8 w-24 bg-gray-300 m-3 rounded-full flex justify-center items-center">
-            <span>Cancel</span>
+          <div className="h-12 w-32 bg-gray-300 m-3 rounded-lg flex justify-center items-center my-8">
+            <span className="font-semibold">Cancel</span>
           </div>
         </div>
       </div>
@@ -366,4 +372,11 @@ const IconSinglePeople = () => (
   <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M10.8624 10.4872C13.4512 10.4872 15.6086 8.20163 15.6086 5.27464C15.6086 2.42929 13.4396 0.190315 10.8624 0.190315C8.29693 0.190315 6.11627 2.45261 6.12793 5.28631C6.12793 8.20163 8.27361 10.4872 10.8624 10.4872ZM3.64407 21.3789H18.0808C20.0749 21.3789 20.7512 20.7375 20.7512 19.6297C20.7512 16.6444 16.903 12.5396 10.8624 12.5396C4.8102 12.5396 0.973633 16.6444 0.973633 19.6297C0.973633 20.7375 1.64999 21.3789 3.64407 21.3789Z" fill="#A1C3C3" />
   </svg>
+)
+
+const IconArrowMenu = () => (
+  <svg width="7" height="11" viewBox="0 0 7 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.68359 0.472656C1.60742 0.396484 1.50781 0.349609 1.39648 0.349609C1.16797 0.349609 0.992188 0.525391 0.992188 0.753906C0.992188 0.865234 1.0332 0.970703 1.10352 1.04102L5.50977 5.23633L1.10352 9.41992C1.0332 9.49609 0.992188 9.60742 0.992188 9.71289C0.992188 9.94141 1.16797 10.1172 1.39648 10.1172C1.50781 10.1172 1.60156 10.0703 1.68359 9.99414L6.35938 5.55273C6.44727 5.46484 6.50586 5.35352 6.50586 5.23047C6.50586 5.10742 6.45313 5.00781 6.35938 4.91406L1.68359 0.472656Z" fill="black" />
+  </svg>
+
 )

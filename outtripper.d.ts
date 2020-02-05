@@ -80,7 +80,7 @@ type Program = {
   bedNights: number
   kind: string
   minimunForBooking: number
-  monthAvailable: Array<string>
+  monthAvailable: Array<number>
   name: string
   reserveSpotForEachBooking: number
   startingDay: Array<string>
