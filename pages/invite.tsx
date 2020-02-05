@@ -19,11 +19,11 @@ export default () => {
   useEffect(() => {
     const fetch = async () => {
       const inv = await bs.getInvitation(id as string)
-      setInvite(inv)
       if (!inv) {
         router.push('/no_invite')
         return
       }
+      setInvite(inv)
 
       if (inv !== null && inv.status !== 'SEND') {
         router.push('/no_invite')
