@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import useForm from 'react-hook-form'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux'
+import uuid4 from 'uuid4'
 import { newContact } from '../redux/actions/contact_calendar'
 import { StoreData } from '../redux/store'
 import Loading from '../components/loading'
@@ -24,7 +26,7 @@ export default () => {
     setIsLoading(true)
     dispatch(newContact({
       ...data,
-      id: data.email || null,
+      id: uuid4(),
     }))
     router.push(callingPage)
   }
@@ -35,7 +37,10 @@ export default () => {
   return (
     <div className="mx-4">
       <div className="flex items-center mt-8">
-        <div><IconArrowLeft /></div>
+        <Link href="/contact_list">
+          <div><IconArrowLeft /></div>
+        </Link>
+
         <div className="ml-4"><h1 className="text-2xl font-semibold"> New Contact</h1></div>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="flex-cols mt-8">

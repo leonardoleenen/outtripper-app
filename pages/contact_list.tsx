@@ -9,7 +9,7 @@ import Loading from '../components/loading'
 import { IconBack, IconSearch } from '../statics/icons'
 import '../statics/style/style.css'
 import ItemList from '../components/contacts/item_list'
-
+import NotificationBell from '../components/notification_bell'
 
 import bs from '../services/business'
 
@@ -50,53 +50,44 @@ export default () => {
 
   return (
     <div className="flex-cols relative">
-      <div className="flex mt-8  items-center">
-        <div className="h-8 w-8 mx-4"><IconBack /></div>
-        <h1 className="font-bold text-2xl m-auto w-2/3">Contacts</h1>
-      </div>
-      <div className="flex ml-4 mt-4 h-8">
+      <header className="flex mt-8  items-center">
+        <div className="h-8 w-8 mx-4 flex items-center"><IconBack /></div>
+        <h1 className="font-semibold text-xl m-auto w-2/3">Contacts</h1>
+        <div className="h-8 w-8 flex items-center"><NotificationBell /></div>
+        <div className="h-8 w-8 flex items-center" onClick={() => router.push('/new_contact')}><IconAdd /></div>
+      </header>
+      <div className="flex ml-4 mt-4 h-8 mr-4 ">
         <div className=" bg-gray-200 flex items-center pl-4 rounded-l "><IconSearch /></div>
         <input
           value={textToSearch}
           onChange={(e) => setTextToSearch(e.target.value)}
-          className=" bg-gray-200 w-2/3 pl-4 rounded-r text-gray-800 focus:outline-none"
+          className=" bg-gray-200 w-full pl-4 rounded-r text-gray-800 focus:outline-none"
           placeholder="Search"
         />
       </div>
 
-      {contactFiltered.map((c: Contact, index:number) => (
-        <div
-          key={c.email}
-          onClick={() => {
-            dispatch(setContact(c))
-            router.push(goTo)
-          }}
-        >
-          {index === 0 || contactFiltered[index - 1].lastName.substring(0, 1).toUpperCase() !== c.lastName.substring(0, 1).toUpperCase() ? <div className="h-8 ml-4 text-2xl font-bold mt-4">{c.lastName.substring(0, 1).toUpperCase()}</div> : ''}
-          <ItemList cn={`${c.lastName} ${c.firstName}`} subText="5 trips" avatar={null} key={c.id} email={c.email} />
-        </div>
-      ))}
-
-
-      <div className="buttonAdd absolute h-16 w-16 bg-teal-500 shadow-2xl right-0 bottom-0 rounded-full mb-8 mr-8 flex items-center" onClick={() => router.push('/new_contact')}>
-        <IconAdd />
+      <div className="bg-gray-200">
+        {contactFiltered.map((c: Contact, index:number) => (
+          <div
+            key={c.email}
+            onClick={() => {
+              dispatch(setContact(c))
+              router.push(goTo)
+            }}
+          >
+            {index === 0 || contactFiltered[index - 1].lastName.substring(0, 1).toUpperCase() !== c.lastName.substring(0, 1).toUpperCase() ? <div className="h-8 ml-4 text-2xl font-bold mt-4">{c.lastName.substring(0, 1).toUpperCase()}</div> : ''}
+            <ItemList cn={`${c.lastName} ${c.firstName}`} subText="5 trips" avatar={null} key={c.id} email={c.email} />
+          </div>
+        ))}
       </div>
-      <style>
-        {
-          `
-          .buttonAdd {
-            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
-          }
-          `
-        }
-      </style>
+
+
     </div>
   )
 }
 
 const IconAdd = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M19 11H13V5H11V11H5V13H11V19H13V13H19V11Z" fill="white" />
+  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.36035 14.9668C7.68555 14.9668 7.95801 14.7031 7.95801 14.3779V8.26953H13.8906C14.207 8.26953 14.4795 7.99707 14.4795 7.67188C14.4795 7.34668 14.207 7.07422 13.8906 7.07422H7.95801V0.957031C7.95801 0.631836 7.68555 0.368164 7.36035 0.368164C7.03516 0.368164 6.7627 0.631836 6.7627 0.957031V7.07422H0.838867C0.513672 7.07422 0.241211 7.34668 0.241211 7.67188C0.241211 7.99707 0.513672 8.26953 0.838867 8.26953H6.7627V14.3779C6.7627 14.7031 7.03516 14.9668 7.36035 14.9668Z" fill="#1A202C" />
   </svg>
-
 )

@@ -120,7 +120,7 @@ class BusinessService implements Services {
     // eslint-disable-next-line no-param-reassign
     const mergedResult = emptyAvailability
 
-    return this.getToken().then((token: TokenOuttripper) => this.da.getAvailability(token.organizationId).then((result : Array<AvailableDate>) => {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getAvailability(token.organizationId, emptyAvailability[0].year).then((result : Array<AvailableDate>) => {
       let month = 0
       let day = 0
       result.forEach((v) => {

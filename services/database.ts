@@ -30,7 +30,7 @@ declare interface DataService {
   addNotification(notification : SystemNotification) : void
   saveNotification(notification: SystemNotification): void
   getAvailableDates(organizationId: string, programId: string, month: number, year: number)
-  getAvailability(organizationId: string) : Promise<Array<AvailableDate>>
+  getAvailability(organizationId: string, year: number) : Promise<Array<AvailableDate>>
   getInvitation(id: string): Promise<Invitation>
   getReservation(organizationId: string, id: string) : Promise<Reservation>
   getInvoice(organizationId: string, id: string) :Promise<Invoice>
@@ -60,7 +60,7 @@ declare interface DataService {
  }
 
 export class DataAccessService implements DataService {
-  getAvailability(organizationId: string): Promise<AvailableDate[]> {
+  getAvailability(organizationId: string, year: number): Promise<AvailableDate[]> {
     const dates : Array<AvailableDate> = []
     return this.fb
       .firestore()
@@ -70,7 +70,7 @@ export class DataAccessService implements DataService {
       .get()
       .then((snap) => {
         snap.docs.forEach((doc) => {
-          dates.push(doc.data() as AvailableDate)
+          if (doc.data().from >= new Date(year, 0, 1).getTime()) { dates.push(doc.data() as AvailableDate) }
         })
 
         return dates

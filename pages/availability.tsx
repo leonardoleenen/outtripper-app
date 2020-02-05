@@ -6,10 +6,11 @@ import BottomNavBar from '../components/bottom_nav_bar'
 import bs from '../services/business'
 import Loading from '../components/loading'
 import { setProgram } from '../redux/actions/reservation'
+import NotificationBell from '../components/notification_bell'
 
 
-const styleButtonSelected = 'buttonProgram mx-4 px-4 mt-4 w-1/2  bg-teal-800  flex items-center justify-center text-white'
-const styleButtonUnSelected = 'buttonProgram mx-4 px-4 mt-4 w-1/2  border border-teal-800  flex items-center justify-center'
+const styleButtonSelected = 'buttonProgram mx-4 p-2 rounded-full mt-4 w-1/2  bg-teal-800  flex items-center justify-center text-white'
+const styleButtonUnSelected = 'buttonProgram mx-4 p-2 rounded-full mt-4 w-1/2  border border-teal-800  flex items-center justify-center'
 
 export default () => {
   const [availability, setAvailability] = useState<Array<AvailableDate>>(null)
@@ -18,6 +19,7 @@ export default () => {
   const programSelected = useSelector((state) => state.reservation.programSelected)
   const [allPrograms, setAllPrograms] = useState<Array<Program>>([])
   const [paxSelected, setPaxSelected] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
   const [showProgramMenu, setShowProgramMenu] = useState(false)
   const dispatch = useDispatch()
 
@@ -55,6 +57,15 @@ export default () => {
     return uniq(months)
   }
 
+  const changeYear = (_year: number) => {
+    setIsLoading(true)
+    bs.getAvailability(_year).then((result) => {
+      setYear(_year)
+      setAvailability(result)
+      setIsLoading(false)
+    })
+  }
+
   const openMenuProgram = () => {
     setShowProgramMenu(true)
   }
@@ -73,7 +84,7 @@ export default () => {
               setShowProgramMenu(false)
             }}
             key="Clear Selection"
-            className="p-4 text-base text-indigo-500 border-b"
+            className="p-4 text-base text-black font-semibold border-b"
           >
               Clear Selection
           </div>
@@ -85,12 +96,12 @@ export default () => {
                 dispatch(setProgram(program))
               }}
               key={program.id}
-              className="p-4 text-base text-indigo-500 border-b"
+              className="p-4 text-base text-black font-semibold border-b"
             >
               {`${program.name} ${program.bedNights} Nights / ${program.serviceDaysQuantity} fishing days`}
             </div>
           ))}
-          <div className="flex justify-center"><span className="p-2 m-4 rounded-full bg-gray-300 w-20 flex justify-center" onClick={() => setShowProgramMenu(false)}>Cancel</span></div>
+          <div className="flex justify-center"><span className="px-8 py-4 m-4 rounded-full bg-gray-300 flex justify-center" onClick={() => setShowProgramMenu(false)}>Cancel</span></div>
         </div>
         <style>
           {`
@@ -104,10 +115,15 @@ export default () => {
     )
   }
 
-  if (!availability) { return <Loading /> }
+  if (!availability || isLoading) { return <Loading /> }
 
   return (
     <div className="container h-screen bg-gray-100">
+      <header className="flex p-4 pt-8 bg-white">
+        <div className="w-full flex items-center"><div className="text-2xl font-semibold">Availability</div></div>
+        <div className="h-8 w-8 flex items-center"><NotificationBell /></div>
+        <div className="h-8 w-8 flex items-center"><IconVertMenu /></div>
+      </header>
       <div className="flex">
         <div
           onClick={() => setShowProgramMenu(true)}
@@ -122,9 +138,9 @@ export default () => {
 
 
       <div className="flex items-center w-full mt-8 mb-4">
-        <div className="h-22 w-22 m-auto"><IconArrowLeft /></div>
-        <div className="text-2xl font-bold text-gray-800 m-auto">{new Date().getFullYear()}</div>
-        <div className="h-22 w-22 m-auto"><IconArrowRight /></div>
+        <div className="h-22 w-22 m-auto" onClick={() => changeYear(year - 1)}><IconArrowLeft /></div>
+        <div className="text-2xl font-bold text-gray-800 m-auto">{year}</div>
+        <div className="h-22 w-22 m-auto" onClick={() => changeYear(year + 1)}><IconArrowRight /></div>
       </div>
 
       <Calendar
@@ -135,14 +151,7 @@ export default () => {
       />
 
       <BottomNavBar />
-      <style>
-        {`
-        .container {
-          display: grid;
-          grid-template-rows: 55px 75px 68% 20px;
-        }
-        `}
-      </style>
+
     </div>
   )
 }
@@ -180,4 +189,10 @@ const IconArrowLeft = () => (
     </g>
   </svg>
 
+)
+
+const IconVertMenu = () => (
+  <svg width="5" height="16" viewBox="0 0 5 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2.36719 12.125C1.39062 12.125 0.632812 12.8828 0.632812 13.8672C0.632812 14.8203 1.40625 15.6016 2.36719 15.6016C3.30469 15.6016 4.10156 14.8203 4.10156 13.8672C4.10156 12.9219 3.30469 12.125 2.36719 12.125ZM2.36719 6.27344C1.39062 6.27344 0.632812 7.03125 0.632812 8.00781C0.632812 8.96094 1.40625 9.73438 2.36719 9.73438C3.30469 9.73438 4.10156 8.96094 4.10156 8.00781C4.10156 7.0625 3.30469 6.27344 2.36719 6.27344ZM2.36719 0.40625C1.39062 0.40625 0.632813 1.16406 0.632813 2.14062C0.632813 3.10156 1.40625 3.88281 2.36719 3.88281C3.30469 3.88281 4.10156 3.10156 4.10156 2.14063C4.10156 1.20313 3.30469 0.40625 2.36719 0.40625Z" fill="#1A202C" />
+  </svg>
 )

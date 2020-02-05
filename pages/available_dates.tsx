@@ -46,15 +46,14 @@ export default () => {
 
   return (
     <div className="h-screen grid">
-      <header className="flex mt-4">
-        <div onClick={() => router.push('/availability')}><IconArrowLeft /></div>
-        <div className="w-full" />
-        <div className="flex mr-4 items-center">
-          <IconCalendar />
+      <header className="flex p-4 pt-8">
+        <div className="h-8 w-8" onClick={() => router.push('/availability')}><IconArrowLeft /></div>
+        <div className="w-full">
+          <div className="font-semibold text-base">{`${program.name} availability`}</div>
         </div>
       </header>
-      <div className="text-3xl font-semibold ml-4 mt-8">{`${program.name} availability`}</div>
-      <article className="mt-8 overflow-y-auto w-full">
+
+      <article className="mt-4 overflow-y-auto w-full bg-gray-100">
         {availability.map((a:AvailableDate, index: number) => (
           <div
             key={a.id}
@@ -68,18 +67,18 @@ export default () => {
               ? <div className="ml-4 font-semibold mt-12">{moment(a.from).format('MMMM YYYY')}</div>
               : !isDifferentMonth(availability[index - 1], a) ? <div className="ml-4 font-semibold mt-12 text-base">{moment(a.from).format('MMMM YYYY')}</div> : '' }
 
-            <div className={`flex p-5 border-b  ${dateSelected && (dateSelected.id === a.id) ? 'bg-teal-100' : ''}`}>
-              <div className="w-4/6 font-thin text-gray-700">
+            <div className={`flex m-5 bg-white rounded shadow ${dateSelected && (dateSelected.id === a.id) ? 'bg-teal-100' : ''}`}>
+              <div className="ml-4 my-4 w-4/6 font-thin text-gray-700">
                 {`${moment(a.from).format('ddd DD')} to ${moment(a.to).format('ddd DD')}`}
               </div>
               <div className="w-2/6 ">
-                <div className="font-thin text-gray-700 flex justify-end mr-8">
+                <div className="text-base font-semibold text-black flex justify-end mr-8 mt-4">
                   {` ${a.freeSpots} free / `}
                   <span className="text-xs text-gray-500 ">
                     {a.totalSpots}
                   </span>
                 </div>
-                <div className="font-thin text-xs text-indigo-700 flex justify-end mr-8">{formatter.format(a.price)}</div>
+                <div className="text-xs text-teal-700 flex justify-end mr-8 mb-4">{formatter.format(a.price)}</div>
               </div>
             </div>
           </div>
@@ -87,7 +86,7 @@ export default () => {
       </article>
 
       {dateSelected ? (
-        <div className="h-24 bg-gray-100 flex px-4 items-center mb-4">
+        <div className="h-24 bg-white flex px-4 items-center mb-4">
           <div className="w-full mt-4">
             <div className="font-semibold text-sm">{program.name}</div>
             <div className="font-thin text-sm">{`${moment(dateSelected.from).format('MMM D')} to ${moment(dateSelected.to).format('MMM D')}`}</div>
@@ -95,21 +94,12 @@ export default () => {
               {`${guestQuantity || '1'} Guest - ${formatter.format(dateSelected.price)}`}
             </div>
           </div>
-          <div className="px-8 py-4 bg-teal-500 flex mr-8 " onClick={() => router.push('/reservation/holder')}>
+          <div className="px-8 py-4 bg-teal-500 flex mr-8 rounded-lg " onClick={() => router.push('/reservation/holder')}>
             <span className="uppercase text-white ">next</span>
           </div>
         </div>
       )
         : ''}
-
-      <style>
-        {`
-            .grid {
-              display: grid; 
-              grid-template-rows: 48px 120px 65%;
-            }
-          `}
-      </style>
     </div>
 
   )

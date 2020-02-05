@@ -12,7 +12,7 @@ export default () => {
   const [isPartyMember, setIsPartyMemeber] = useState(true)
   const holder : Contact = useSelector((state) => state.contactCalendar.contactSelected)
   return (
-    <Page back={null} label="" title="Reserve this program to">
+    <Page back="/availability" label="" title="Reserve this program to">
       {!holder
         ? (
           <div
