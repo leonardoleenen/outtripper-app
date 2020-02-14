@@ -33,6 +33,7 @@ type Organization = {
 type TokenOuttripper = {
   id: string
   userCn: string
+  userId: string
   organizationId?: string
   organizationCn?: string
   organizationKind? : string
@@ -114,6 +115,7 @@ type Contact = {
   owner?: Organization
   collectionKind?:string
   rawText?: string
+  travellerId?: string
 }
 
 type SystemNotification = {
@@ -159,12 +161,12 @@ type Reservation = {
   notes? : Array<ReservationNote>
   financialState?: string
   payments?: Array<Payment>
-  reservationAccessToken ? : ReservationToken
   customItineraries ? : Array<{
     contactId: string,
     day: number,
     service : ItineraryGroundTransfer | ItineraryActivities
   }>
+  paymentCommitments: Array<PaymentCommitment>
 }
 
 type ItemInvoice = {
@@ -193,7 +195,14 @@ type Payment = {
   kind: string
   amount: number,
   paymentDate: number,
-  reference: string
+  reference: string,
+  customer?: Contact
+}
+
+type PaymentCommitment = {
+  pax: Contact,
+  amount: number,
+  payments: Array<Payment>
 }
 
 type CreditCard = {
@@ -228,6 +237,9 @@ type ReservationToken = {
   organizationId: string
   organizationCN: string
   reservationId: string
+  contactId: string
+  travellerId? : string
+  paymentCommitmentKind? : string
 }
 
 type ItineraryGroundTransfer = {
@@ -254,4 +266,9 @@ type Gear = {
   description: string
   photo: Array<string>
   youtubeVideo: Array<string>
+}
+
+type DealAccess = {
+  organization: string
+  rol: string
 }

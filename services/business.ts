@@ -25,6 +25,11 @@ export enum ITINERARY_EVENT {
   HOTEL = 'HOTEL'
 }
 
+export enum PAYMENT_COMMITMENT_KIND {
+  NO_SLIP='NO_SPLIT',
+  SPLIT='SPLIT'
+}
+
 interface Services {
   getDestinations(): Promise<Array<Destination>>
   getPrograms() : Promise<Array<Program>>
@@ -37,13 +42,14 @@ interface Services {
   getInvitation(id: string): Promise<Invitation>
   login(uid:string, cn:string, email:string, photoAvatar?:string) : Promise<TokenOuttripper>
   getToken() : Promise<TokenOuttripper>
+  setToken(token: TokenOuttripper) : void
   getReservation(reservationId: string) : Promise<Reservation>
   getInvoice(invoiceId: string) : Promise<Invoice>
   createReservation(reservationHolder: Contact, daysInHold:number, pax: Array<Contact>, reservationLabel: string, date: AvailableDate, installments: number) : Promise<Reservation>
   sendReservationToParticipants(reservation: Reservation) : Promise<Reservation>
   updateAvailableDate(date:AvailableDate, reservation: Reservation) : void
   getPaymentsByInvoiceId(invoiceId: string) : Promise<Array<Payment>>
-  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string) : Promise<Payment>
+  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string, customer: Contact) : Promise<Payment>
   getMyReservations() : Promise<Array<Reservation>>
   getNextInstallmentInDueDate(reservation: Reservation) : Installment
   getListPendingInstallments(reservation: Reservation) : Array<Installment>
@@ -52,9 +58,14 @@ interface Services {
   getInvitations(): Promise<Array<Invitation>>
   getRoles(): Promise<Array<Role>>
   createUser(user: User, invitation: Invitation) : Promise<TokenOuttripper>
+  createReservationAccessToken(id: string, reservationId: string, contact: Contact) : Promise<ReservationToken>
+  setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken>
   getReservationAccessToken(id: string) : Promise<ReservationToken>
+  getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
+  bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string) : Promise<ReservationToken>
   createConsumerToken(reservationAccessToken: ReservationToken) : Promise<TokenOuttripper>
   getOrganization() : Promise<Organization>
+  getOrganizationById(id: string): Promise<Organization>
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation>
 }
 
@@ -66,7 +77,7 @@ class BusinessService implements Services {
 
   // tokenToB64 = (token: any) : string => `Basic ${btoa(JSON.stringify(token))}`
 
-  login(uid: string, cn: string, email: string, photoAvatar?: string): Promise<TokenOuttripper> {
+  login2(uid: string, cn: string, email: string, photoAvatar?: string): Promise<TokenOuttripper> {
     return this.outtripperServer.post('https://us-central1-norse-carport-258615.cloudfunctions.net/login', {
       uid, cn, email,
     }).then((result) => {
@@ -79,9 +90,53 @@ class BusinessService implements Services {
     })
   }
 
+  login(uid: string, cn: string, email: string, photoAvatar?: string): Promise<TokenOuttripper> {
+    return this.da.getUser(uid).then((user: User) => {
+      if (!user) {
+        const token: TokenOuttripper = { // We return a consumer organization agnostic
+          id: uuidv4(),
+          userCn: cn,
+          photoAvatar,
+          email,
+          userId: uid,
+          organizationKind: null,
+          organizationId: null,
+          organizationCn: null,
+          rol: 'CONSUMER',
+        } as TokenOuttripper
+
+        this.da.setToken(token)
+        return token
+      }
+
+      return this.da.getDealAccess(user).then((deal: DealAccess) => (
+        this.da.getOrganization(deal.organization).then((organization: Organization) => {
+          const token: TokenOuttripper = { // We return a consumer organization agnostic
+            id: uuidv4(),
+            userCn: cn,
+            photoAvatar,
+            email,
+            userId: uid,
+            organizationId: deal.organization,
+            organizationCn: organization.cn,
+            organizationKind: organization.type,
+            rol: deal.rol,
+          } as TokenOuttripper
+          this.da.setToken(token)
+          return token
+        })))
+    })
+  }
+
+
   getToken(): Promise<TokenOuttripper> {
     return this.da.getToken()
   }
+
+  setToken(token: TokenOuttripper): void {
+    this.da.setToken(token)
+  }
+
 
   getInvitation(id: string): Promise<Invitation> {
     return this.da.getInvitation(id)
@@ -271,19 +326,16 @@ class BusinessService implements Services {
         reservedBy: token.id,
         termsAndConditionsLiteral: this.buildTerminsAndConditions(installmentsList),
         customItineraries: [],
+        paymentCommitments: [{
+          pax: pax[0],
+          // eslint-disable-next-line no-return-assign
+          amount: itemsArray.map((i: ItemInvoice) => i.price).reduce((t, v) => t += v),
+        } as PaymentCommitment],
       }
 
       this.da.createReservation(token.organizationId, reservation)
       this.updateAvailableDate(date, reservation)
 
-      const reservationToken : ReservationToken = {
-        id: uuidv4(),
-        reservationId: reservation.id,
-        organizationId: token.organizationId,
-        organizationCN: token.organizationCn,
-      }
-      this.da.createReservationAccessToken(reservationToken)
-      reservation.reservationAccessToken = reservationToken
       return reservation
     })
   }
@@ -315,7 +367,7 @@ class BusinessService implements Services {
     return this.getToken().then((token: TokenOuttripper) => this.da.getPaymentsByInvoiceId(token.organizationId, invoiceId))
   }
 
-  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string): Promise<Payment> {
+  setAPayment(invoiceId: string, amount: number, kind: string, paymentDate: number, paymentReference: string, customer: Contact): Promise<Payment> {
     const paymentId : string = voucherVodes.generate({
       length: 8,
       count: 1,
@@ -330,6 +382,7 @@ class BusinessService implements Services {
         kind,
         paymentDate: paymentDate || new Date().getTime(),
         reference: paymentReference || '',
+        customer,
       }
       this.da.createPayment(token.organizationId, payment)
 
@@ -449,6 +502,7 @@ class BusinessService implements Services {
     const token : TokenOuttripper = {
       id: uuidv4(),
       userCn: user.cn,
+      userId: user.uid,
       organizationCn: 'TODO',
       organizationId: invitation.organizationId,
       photoAvatar: user.photoAvatar,
@@ -458,15 +512,40 @@ class BusinessService implements Services {
     return Promise.all(promiseList).then(() => token)
   }
 
+  createReservationAccessToken(id: string, reservationId: string, contact: Contact): Promise<ReservationToken> {
+    return this.getToken().then((token: TokenOuttripper) => {
+      const rat : ReservationToken = {
+        contactId: contact.id,
+        id: uuidv4(),
+        organizationCN: token.organizationCn,
+        organizationId: token.organizationId,
+        reservationId,
+        travellerId: contact.travellerId || null,
+      }
+      return this.da.createReservationAccessToken(rat)
+    })
+  }
+
   getReservationAccessToken(id: string): Promise<ReservationToken> {
     return this.da.getReservationAccessToken(id)
   }
 
+  getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact): Promise<ReservationToken> {
+    return this.da.getReservationAccessTokenByReservationIdAndContact(reservationId, contact)
+  }
+
+  bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string): Promise<ReservationToken> {
+    reservationAccess.travellerId = travellerId
+    return this.da.updateReservationAccessToken(reservationAccess)
+  }
+
   createConsumerToken(reservationAccessToken: ReservationToken): Promise<TokenOuttripper> {
+    // TODO: Review this method
     const token : TokenOuttripper = {
       organizationId: reservationAccessToken.organizationId,
       organizationCn: reservationAccessToken.organizationCN,
       id: uuidv4(),
+      userId: null,
       userCn: 'Consumer',
       rol: 'CONSUMER',
       organizationKind: 'LODGE',
@@ -477,6 +556,19 @@ class BusinessService implements Services {
 
   getOrganization(): Promise<Organization> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getOrganization(token.organizationId))
+  }
+
+  getOrganizationById(id: string): Promise<Organization> {
+    return this.da.getOrganization(id)
+  }
+
+  updateReservation(reservation: Reservation) : Promise<Reservation> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.updateReservation(token.organizationId, reservation))
+  }
+
+  setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken> {
+    reservationAccessToken.paymentCommitmentKind = kind
+    return this.getToken().then((token: TokenOuttripper) => this.da.updateReservationAccessToken(reservationAccessToken))
   }
 
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation> {

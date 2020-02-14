@@ -18,6 +18,9 @@ if (!firebase.apps.length) {
 
 
 declare interface DataService {
+  getUser(userId: string) : Promise<User>
+  getDealAccess(user: User) : Promise<DealAccess>
+  // getDestination(id: string) : Promise<Destination>
   getDestinations(): Promise<Array<Destination>>
   getPrograms(organizationId: string): Promise<Array<Program>>
   getProgram(organizationId: string, programId: string) : Promise<Program>
@@ -52,14 +55,31 @@ declare interface DataService {
   addDealAccess(user: User, organizationId: string, role: Role) : void
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationId(id: string) : Promise<ReservationToken>
+  getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
   createReservationAccessToken(reservationToken: ReservationToken) : Promise<ReservationToken>
   getOrganization(organizationId: string) : Promise<Organization>
-
   updateReservation(organizationId : string, reservation: Reservation) : Promise<Reservation>
-
  }
 
 export class DataAccessService implements DataService {
+  getUser(userId: string): Promise<User> {
+    return this.fb
+      .firestore()
+      .collection('users')
+      .doc(userId)
+      .get()
+      .then((doc) => doc.data() as User)
+  }
+
+  getDealAccess(user: User): Promise<DealAccess> {
+    return this.fb
+      .firestore()
+      .collection('dealAccess')
+      .doc(user.uid)
+      .get()
+      .then((doc) => doc.data() as DealAccess)
+  }
+
   getAvailability(organizationId: string, year: number): Promise<AvailableDate[]> {
     const dates : Array<AvailableDate> = []
     return this.fb
@@ -94,7 +114,7 @@ export class DataAccessService implements DataService {
 
   // eslint-disable-next-line class-methods-use-this
   getToken(): Promise<TokenOuttripper> {
-    return sessionStorage ? new Promise((res) => res(JSON.parse(atob(sessionStorage.getItem('token'))) as TokenOuttripper)) : null
+    return sessionStorage && sessionStorage.getItem('token') ? new Promise((res) => res(JSON.parse(atob(sessionStorage.getItem('token'))) as TokenOuttripper)) : null
   }
 
   getInvitation(id: string): Promise<Invitation> {
@@ -259,7 +279,7 @@ export class DataAccessService implements DataService {
     reservation.payments = payments
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPayment = payments.length > 0 ? payments.map((p: Payment) => p.amount).reduce((total, v) => total += v) : 0
-    reservation.reservationAccessToken = await this.getReservationAccessTokenByReservationId(reservation.id)
+    // reservation.reservationAccessToken = await this.getReservationAccessTokenByReservationId(reservation.id)
     if ((reservation.amountOfPurchase - reservation.amountOfPayment) === 0) {
       reservation.financialState = 'PAID'
     }
@@ -509,6 +529,25 @@ export class DataAccessService implements DataService {
       .doc(id)
       .get()
       .then((doc) => doc.data() as ReservationToken)
+  }
+
+  getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact): Promise<ReservationToken> {
+    return this.fb
+      .firestore()
+      .collection('reservationsAccessTokens')
+      .where('reservationId', '==', reservationId)
+      .where('contactId', '==', contact.id)
+      .get()
+      .then((doc) => doc.docs.map((d) => d.data() as ReservationToken)[0])
+  }
+
+  updateReservationAccessToken(reservationToken: ReservationToken): Promise<ReservationToken> {
+    return this.fb
+      .firestore()
+      .collection('reservationsAccessTokens')
+      .doc(reservationToken.id)
+      .update(reservationToken)
+      .then(() => reservationToken)
   }
 
   getOrganization(organizationId: string): Promise<Organization> {

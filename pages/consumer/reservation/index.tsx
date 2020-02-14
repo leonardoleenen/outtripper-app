@@ -11,7 +11,8 @@ import bs, { formatter } from '../../../services/business'
 import { setCallingFrom as setCallingPaymentPage } from '../../../redux/actions/payment'
 import ItineraryCardGroundTrasnfer from '../../../components/itinerary/ground_transfer_card'
 import ItineraryCardLodgeActivitie from '../../../components/itinerary/lodge_activitie'
-
+import ItinerayList from '../../../components/reservation/itinerary_list'
+import { setMyTripReservation, setMyTripGroupLeader, setMyTripReservationToken } from '../../../redux/actions/mytrip'
 import '../../../statics/style/customer.css'
 
 import Page from './page'
@@ -80,7 +81,7 @@ export default () => {
           {reservation.invoicesObject.map((invoice: Invoice) => (
             invoice.items.map((item: ItemInvoice, index: number) => (
               <div key={invoice.id + index.toString()} className="flex text-sm">
-                <div className="w-full text-gray-700 uppercase">{item.description}</div>
+                <div className="w-full text-gray-700 uppercase">{`${reservation.pax.length} x ${item.description}`}</div>
                 <div className="text-teal-700 font-semibold">{formatter.format(item.price)}</div>
               </div>
             ))
@@ -88,10 +89,7 @@ export default () => {
 
         </div>
       </div>
-      <div className="p-4 flex border-t">
-        <div className="w-full uppercase text-gray-600 font-semibold">Discount</div>
-        <div className="text-teal-700 font-semibold">0,00%</div>
-      </div>
+
 
       <div className="p-4 flex border-t">
         <div className="w-full uppercase text-gray-600 font-semibold">Total</div>
@@ -169,45 +167,7 @@ export default () => {
   }
 
   const Itinerary = () => (
-    <div className="flex-cols mb-16">
-      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
-      <div className=" carrusel py-4 flex border-b pl-4">
-        {reservation.pax.map((p:Contact, index:number) => (
-          <div
-            onClick={() => setItineraryGuestSelected(p)}
-            key={`itinpax${index.toString()}`}
-            className="flex-cols justify-center avatarBox"
-          >
-            <div className="avatar rounded-full" />
-            <div className="text-xs font-semibold text-xs">
-              {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
-
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {reservation.program.defaultItinerary.map((i, indexItinerary: number) => (
-        <div key={`iti${indexItinerary.toString()}`} className="mt-4">
-          <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
-          {getItineraryCard(i.service)}
-        </div>
-      ))}
-      <style>
-        {`
-        
-          .avatar {
-            background:url('/img/people_avatar.png');
-            background-repeat: no-repeat;
-            height: 60px;
-          }
-
-          .avatarBox {
-            width: 90px;
-          }
-        `}
-      </style>
-    </div>
+    <ItinerayList reservation={reservation} />
   )
 
   const PreTrip = () => (
@@ -284,15 +244,37 @@ export default () => {
     }
 
     const fetch = async () => {
-      const reservationToken = await bs.getReservationAccessToken(accessToken as string)
-      await bs.createConsumerToken(reservationToken)
+      let reservationToken = await bs.getReservationAccessToken(accessToken as string)
+      const token : TokenOuttripper = await bs.getToken()
+      if (!token) {
+        router.push(`/consumer/login?accessToken=${accessToken}`)
+        return
+      }
+
+      if (!reservationToken.travellerId) {
+        reservationToken = await bs.bindTravellerIdToContact(reservationToken, token.userId)
+      }
+
+      const org: Organization = await bs.getOrganizationById(reservationToken.organizationId)
+      token.organizationCn = org.cn
+      token.organizationId = org.id
+      token.rol = 'CONSUMER'
+      bs.setToken(token)
       const r = await bs.getReservation(reservationToken.reservationId)
-      setOrganization(await bs.getOrganization())
+      dispatch(setMyTripReservation(r))
+      dispatch(setMyTripGroupLeader(r.pax[0]))
+      dispatch(setMyTripReservationToken(reservationToken))
+      setOrganization(org)
       setReservation(r)
-      setIsLoading(false)
+      if (reservationToken.contactId === r.pax[0].id && !reservationToken.paymentCommitmentKind) {
+        router.push('/consumer/reservation/welcome_to_my_trip')
+      } else {
+        setIsLoading(false)
+      }
     }
 
 
+    /*
     const loadChatBot = (d, m) => {
       const kommunicateSettings = {
         appId: '234f23f54af5dd66ae99133e54725f67c',
@@ -310,6 +292,7 @@ export default () => {
     }
 
     loadChatBot(document, window['kommunicate'] || {})
+    */
 
 
     fetch()

@@ -86,7 +86,7 @@ export default () => {
             key="Clear Selection"
             className="p-4 text-base text-black font-semibold border-b"
           >
-              Clear Selection
+              All Programs
           </div>
 
           {allPrograms.map((program: Program) => (

@@ -57,7 +57,7 @@ export default () => {
       <h1>OutTripper</h1>
       <p>Please, choose your favorite social network to signin</p>
       <div className="icons">
-        <div className="m-auto" onClick={() => showGoogleLogin()}><GoogleIcon /></div>
+        <div className="m-auto" onClick={showGoogleLogin}><GoogleIcon /></div>
         <div
           className="m-auto"
         >

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useDispatch } from 'react-redux'
 import ItineraryCardLodgeActivitie from '../itinerary/lodge_activitie'
 import ItineraryCardGroundTrasnfer from '../itinerary/ground_transfer_card'
-import AddButton from '../add_button'
+import Questionnarie from '../questionnaire'
 import { setContact } from '../../redux/actions/contact_calendar'
 
 
@@ -14,6 +14,7 @@ interface Props {
 export default (props: Props) => {
   const { reservation } = props
   const dispatch = useDispatch()
+  const [showQuestionnarie, setShowQuestionnarie] = useState(false)
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
 
   interface PropsIconSinglePeople {
@@ -53,9 +54,9 @@ export default (props: Props) => {
             key={`itinpax${index.toString()}`}
             className="flex-cols justify-center avatarBox"
           >
-            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${selectedPax && selectedPax.id === p.id ? 'bg-teal-500 border-teal-600 border-2' : ' bg-teal-800'}`}>
+            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${p && selectedPax && selectedPax.id === p.id ? 'bg-teal-500 border-teal-600 border-2' : ' bg-teal-800'}`}>
               <div>
-                <IconSinglePeople isSelected={selectedPax && selectedPax.id === p.id} />
+                <IconSinglePeople isSelected={p && selectedPax && selectedPax.id === p.id} />
               </div>
             </div>
             <div className="text-xs font-semibold text-xs">
@@ -66,20 +67,30 @@ export default (props: Props) => {
       </div>
 
       {selectedPax ? (
-        <div>
-          <div className="px-4 pt-4 flex justify-center"><div className="text-base text-gray-500 text-xl ">Custom itinerary for</div></div>
-          <div className="mb-4 flex justify-center"><div className="font-semibold text-xl ">{`${selectedPax.lastName} ${selectedPax.firstName}`}</div></div>
-          <Link href="/itinerary/event_selector">
-            <div className="p-4 border w-40 font-semibold text-white rounded-lg bg-teal-700 m-auto ">
-              <div>Add new event</div>
+        <div className="p-4">
+          <div className="text-blue-700 font-semibold" onClick={() => setShowQuestionnarie(!showQuestionnarie)}>{!showQuestionnarie ? 'Show Questionarie' : 'Hide Questionarie'}</div>
+
+          {showQuestionnarie ? (
+            <div>
+              <Questionnarie closeFunction={() => setShowQuestionnarie(false)} />
             </div>
-          </Link>
-          {getCustomItinerary(selectedPax).map((i, indexItinerary: number) => (
-            <div key={`iti${indexItinerary.toString()}`} className="mt-4">
-              <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
-              {getItineraryCard(i.service)}
+          ) : (
+            <div>
+              <div className="px-4 pt-4 flex justify-center"><div className="text-base text-gray-500 text-xl ">Custom itinerary for</div></div>
+              <div className="mb-4 flex justify-center"><div className="font-semibold text-xl ">{`${selectedPax.lastName} ${selectedPax.firstName}`}</div></div>
+              <Link href="/itinerary/event_selector">
+                <div className="p-4 border w-40 font-semibold text-white rounded-lg bg-teal-700 m-auto ">
+                  <div>Add new event</div>
+                </div>
+              </Link>
+              {getCustomItinerary(selectedPax).map((i, indexItinerary: number) => (
+                <div key={`iti${indexItinerary.toString()}`} className="mt-4">
+                  <div className="px-4 pt-4 font-semibold"><span>{moment(reservation.serviceFrom).add(i.day, 'days').format('LLL')}</span></div>
+                  {getItineraryCard(i.service)}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <div>

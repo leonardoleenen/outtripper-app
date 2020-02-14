@@ -5,7 +5,7 @@ import { userReducer, State as StateUser, initialState as initialStateUser } fro
 import { reservationReducer, State as StateReservation, initialState as InitialStateReservation } from './reducers/reservation'
 import { contactCalendarReducer, State as StateContactCalendar, initialState as initialStateContactCalendar } from './reducers/contact_calendar'
 import { paymentReducer, initialState as initialStatePayments, State as StatePayment } from './reducers/payment'
-
+import { myTripReducer, State as StateMyTrip, initialState as initialStateMyTrip } from './reducers/mytrip'
 import { coreReducer, State as StateCore, initialState as initialStateCore } from './reducers/core'
 
 
@@ -15,6 +15,7 @@ export interface StoreData {
   reservation: StateReservation,
   contactCalendar: StateContactCalendar
   payment: StatePayment
+  myTrip: StateMyTrip
 }
 
 const initialState: StoreData = {
@@ -23,6 +24,7 @@ const initialState: StoreData = {
   reservation: InitialStateReservation,
   contactCalendar: initialStateContactCalendar,
   payment: initialStatePayments,
+  myTrip: initialStateMyTrip,
 }
 
 const reducers = combineReducers({
@@ -31,6 +33,7 @@ const reducers = combineReducers({
   reservation: reservationReducer,
   contactCalendar: contactCalendarReducer,
   payment: paymentReducer,
+  myTrip: myTripReducer,
 })
 
 

@@ -77,6 +77,8 @@ const CreditCard = (props: CreditCard) => {
 
 export default () => {
   const mode = useSelector((state) => state.payment.mode)
+  const reservation: Reservation = useSelector((state) => state.reservation.reservationSelected)
+  const [customerSelected, setCustomerSelected] = useState<Contact>(reservation.pax[0])
   const goTo = useSelector((state) => state.payment.callingFrom)
   const [cardHolder, setCardHolder] = useState()
   const [cardNumber, setCardNumber] = useState()
@@ -92,15 +94,21 @@ export default () => {
 
   const proceed = () => {
     setWaiting(true)
-    bs.setAPayment(invoiceId as string, amount, mode, mode === PaymentMode.WIRETRANSFER ? parseInt(moment(paymentDate, 'YYYY-MM-DD').format('x'), 10) : new Date().getTime(), paymentReference).then(() => {
+    bs.setAPayment(invoiceId as string, amount, mode, mode === PaymentMode.WIRETRANSFER ? parseInt(moment(paymentDate, 'YYYY-MM-DD').format('x'), 10) : new Date().getTime(), paymentReference, customerSelected).then((paymentResult: Payment) => {
+      const index: number = reservation.paymentCommitments.indexOf(reservation.paymentCommitments.filter((p: PaymentCommitment) => p.pax.id === customerSelected.id)[0])
+      if (!reservation.paymentCommitments[index].payments) { reservation.paymentCommitments[index].payments = [] }
+
+      reservation.paymentCommitments[index].payments.push(paymentResult)
+      bs.updateReservation(reservation)
+
       router.push(goTo)
     }).catch((err) => {
-      console.error(err)
       setWaiting(false)
     })
   }
 
 
+  console.log(customerSelected)
   if (waiting) return <Loading />
 
 
@@ -156,6 +164,18 @@ export default () => {
               className=" mx-4 mb-2 font-light flex items-center bg-transparent  "
               placeholder="1000"
             />
+          </div>
+          <div className=" pb-1 mb-4 mx-4 bg-white  shadow-xl rounded input   ">
+            <div className=" flex px-4 pt-2 pb-1 items-center font-normal    ">Whose payment is this?</div>
+            <div className="inline-block relative pl-4 w-full">
+              <select onChange={(e) => setCustomerSelected(reservation.pax.filter((p:Contact) => p && p.id === e.target.value)[0])} className="block appearance-none w-full bg-white  py-2 pr-8 rounded  leading-tight focus:outline-none focus:shadow-outline">
+
+                {reservation.paymentCommitments.map((pc: PaymentCommitment) => <option value={pc.pax.id} key={pc.pax.id}>{`${pc.pax.lastName}, ${pc.pax.firstName}`}</option>)}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+              </div>
+            </div>
           </div>
         </div>
       ) : (

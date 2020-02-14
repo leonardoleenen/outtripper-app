@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import Page from '../../components/reservation/page'
-import { setCallingPage, setHolderIsAPartyMember } from '../../redux/actions/contact_calendar'
+import { setCallingPage, setHolderIsAPartyMember, unSetContact } from '../../redux/actions/contact_calendar'
 import { setReservationHolder } from '../../redux/actions/reservation'
 
 
@@ -11,6 +11,13 @@ export default () => {
   const router = useRouter()
   const [isPartyMember, setIsPartyMemeber] = useState(true)
   const holder : Contact = useSelector((state) => state.contactCalendar.contactSelected)
+
+  /*
+  useEffect(() => {
+    dispatch(unSetContact())
+  }, []) */
+
+
   return (
     <Page back="/availability" label="" title="Reserve this program to">
       {!holder
