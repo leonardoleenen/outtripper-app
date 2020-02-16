@@ -4,6 +4,8 @@ export const SET_MY_TRIP_RESERVATION = 'SET_MY_TRIP_RESERVATION'
 export const SET_MY_TRIP_GROUP_LEADER = 'SET_MY_TRIP_GROUP_LEADER'
 export const SET_PAYMENT_COMMITMENT_KIND = 'SET_PAYMENT_COMMITMENT_KIND'
 export const SET_MY_TRIP_RESERVATION_TOKEN = 'SET_MY_TRIP_RESERVATION_TOKEN'
+export const SET_MY_TRIP_IS_GROUP_LEADER = 'SET_MY_TRIP_IS_GROUP_LEADER'
+
 
 export interface State {
   groupLeader: Contact,
@@ -23,6 +25,8 @@ export const initialState = {
 
 export const myTripReducer = (state : State = initialState, action) => {
   switch (action.type) {
+    case SET_MY_TRIP_IS_GROUP_LEADER:
+      return { ...state, areGroupLeader: action.areGroupLeader }
     case SET_MY_TRIP_RESERVATION_TOKEN:
       return { ...state, reservationAccessToken: action.reservationAccessToken }
     case SET_PAYMENT_COMMITMENT_KIND:

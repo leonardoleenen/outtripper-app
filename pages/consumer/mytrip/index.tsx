@@ -1,15 +1,145 @@
-import React from 'react'
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-return-assign */
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import Loading from '../../../components/loading'
+import bs from '../../../services/business'
+import Icon, { ICONS } from '../../../components/mytrip/icons'
+import SectionContact from '../../../components/mytrip/section_contact'
+import SectionPreTrip from '../../../components/mytrip/section_pretrip'
+import SectionCheckList from '../../../components/mytrip/section_checklist'
+import ItinerayList from '../../../components/reservation/itinerary_list'
+import PaymentTeamMember from '../../../components/mytrip/payment_team_member'
+import {
+  setMyTripReservation, setMyTripGroupLeader, setMyTripReservationToken, setMyTripAreGroupLeader,
+} from '../../../redux/actions/mytrip'
 
 export default () => {
-  console.log('Pepe')
+  const SECTIONS = ICONS
+  const [sectionSelected, setSectionSelected] = useState(SECTIONS.CONTACT)
+  const router = useRouter()
+  const { accessToken } = router.query
+  const [isLoading, setIsLoading] = useState(true)
+  const [reservation, setReservation] = useState<Reservation>(null)
+  const [reservationToken, setReservationToken] = useState<ReservationToken>(null)
+  const dispatch = useDispatch()
+  const [organization, setOrganization] = useState<Organization>(null)
+
+  useEffect(() => {
+    document.getElementsByTagName('html')[0].style.background = 'black'
+
+    const fetch = async () => {
+      if (!accessToken) {
+        router.push('/consumer/404')
+      }
+
+      let rt = await bs.getReservationAccessToken(accessToken as string)
+      const token : TokenOuttripper = await bs.getToken()
+      if (!token) {
+        router.push(`/consumer/login?accessToken=${accessToken}`)
+        return
+      }
+
+      if (!rt.travellerId) {
+        rt = await bs.bindTravellerIdToContact(rt, token.userId)
+      }
+
+      const org: Organization = await bs.getOrganizationById(rt.organizationId)
+      token.organizationCn = org.cn
+      token.organizationId = org.id
+      token.rol = 'CONSUMER'
+      bs.setToken(token)
+      const r = await bs.getReservation(rt.reservationId)
+      dispatch(setMyTripReservation(r))
+      dispatch(setMyTripGroupLeader(r.pax[0]))
+      dispatch(setMyTripReservationToken(rt))
+      setOrganization(org)
+      setReservationToken(rt)
+      setReservation(r)
+      if (rt.contactId === r.pax[0].id && !rt.paymentCommitmentKind) {
+        router.push('/consumer/reservation/welcome_to_my_trip')
+      } else {
+        setIsLoading(false)
+      }
+      dispatch(setMyTripAreGroupLeader(r.pax[0].id === rt.contactId))
+    }
+
+    fetch()
+  }, [])
+
+  const renderSection = () => {
+    const paymentsOfCustomer : Array<Payment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].payments || []
+    switch (sectionSelected) {
+      case SECTIONS.PRETRIP:
+        return <SectionPreTrip reservation={reservation} />
+      case SECTIONS.CONTACT:
+        return <SectionContact />
+      case SECTIONS.CHECKLIST:
+        return <SectionCheckList reservation={reservation} />
+      case SECTIONS.PAYMENTS:
+        return (
+          <div>
+            <PaymentTeamMember
+              groupLeader={reservation.pax[0]}
+              payments={paymentsOfCustomer}
+              purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)
+                .map((pc:PaymentCommitment) => pc.amount).reduce((t, v) => t += v)}
+            />
+          </div>
+        )
+      default:
+        return <ItinerayList darkMode reservation={reservation} />
+    }
+  }
+
+  if (isLoading) return <Loading />
+
   return (
     <div className="h-screen w-screen bg-black p-4">
       <header>
-        <div className=""><span className="text-white">Jurassic Lake - FullWeek program</span></div>
-        <div />
-        <div>asdfasdf</div>
+        <div className="mb-4 flex items-center mb-4">
+          <div><IconBack /></div>
+          <span className="text-white ml-6">Jurassic Lake - FullWeek program</span>
+        </div>
+        <div>
+          <img alt="" src="https://res.cloudinary.com/dtyymz4nn/image/upload/v1581790163/Jurassic%20Lake/84191608_1794103200734607_3579079479928029184_n.jpg" />
+        </div>
+        <div className="flex overflow-x-scroll">
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.CONTACT)}>
+            <Icon icon={ICONS.CONTACT} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.CONTACT ? 'text-teal-500' : ''}`}>Contact</span>
+          </div>
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.PAYMENTS)}>
+            <Icon icon={ICONS.PAYMENTS} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.PAYMENTS ? 'text-teal-500' : ''}`}>Payments</span>
+          </div>
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.ITINERARY)}>
+            <Icon icon={ICONS.ITINERARY} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.ITINERARY ? 'text-teal-500' : ''}`}>Itinerary</span>
+          </div>
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.PRETRIP)}>
+            <Icon icon={ICONS.PRETRIP} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.PRETRIP ? 'text-teal-500' : ''}`}>Pre Trip</span>
+          </div>
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.CHECKLIST)}>
+            <Icon icon={ICONS.CHECKLIST} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.CHECKLIST ? 'text-teal-500' : ''}`}>Check List</span>
+          </div>
+        </div>
       </header>
+      <article className="text-white mb-8">
+        {renderSection()}
+      </article>
 
     </div>
   )
 }
+
+
+const IconBack = () => (
+  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6.33496 12.9502C6.51953 13.1279 6.73828 13.2236 6.99805 13.2236C7.52441 13.2236 7.95508 12.7998 7.95508 12.2734C7.95508 12.0137 7.8457 11.7676 7.6543 11.583L3.00586 7.05762L7.6543 2.5459C7.8457 2.35449 7.95508 2.1084 7.95508 1.85547C7.95508 1.3291 7.52441 0.905273 6.99805 0.905273C6.73145 0.905273 6.5127 0.994141 6.33496 1.17188L1.0918 6.29883C0.859375 6.52441 0.743164 6.77051 0.743164 7.06445C0.743164 7.35156 0.852539 7.59766 1.0918 7.83008L6.33496 12.9502Z" fill="#F7FAFC" />
+  </svg>
+
+)

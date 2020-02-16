@@ -3,6 +3,7 @@ import {
   SET_MY_TRIP_RESERVATION,
   SET_PAYMENT_COMMITMENT_KIND,
   SET_MY_TRIP_RESERVATION_TOKEN,
+  SET_MY_TRIP_IS_GROUP_LEADER,
 } from '../reducers/mytrip'
 
 
@@ -25,4 +26,9 @@ export const setPaymentCommitmentKind = (kind :string) => (dispatch) => dispatch
 export const setMyTripReservationToken = (reservationAccessToken :ReservationToken) => (dispatch) => dispatch({
   type: SET_MY_TRIP_RESERVATION_TOKEN,
   reservationAccessToken,
+})
+
+export const setMyTripAreGroupLeader = (areGroupLeader :boolean) => (dispatch) => dispatch({
+  type: SET_MY_TRIP_IS_GROUP_LEADER,
+  areGroupLeader,
 })

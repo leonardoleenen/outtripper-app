@@ -67,6 +67,7 @@ interface Services {
   getOrganization() : Promise<Organization>
   getOrganizationById(id: string): Promise<Organization>
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation>
+  getDebtors(reservation: Reservation) : Array<Contact>
 }
 
 
@@ -569,6 +570,16 @@ class BusinessService implements Services {
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken> {
     reservationAccessToken.paymentCommitmentKind = kind
     return this.getToken().then((token: TokenOuttripper) => this.da.updateReservationAccessToken(reservationAccessToken))
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getDebtors(reservation: Reservation): Contact[] {
+    return reservation.paymentCommitments
+      .filter((pc: PaymentCommitment) => pc.amount !== 0)
+      .filter((pc: PaymentCommitment) => pc.payments)
+      // eslint-disable-next-line no-return-assign
+      .filter((pc: PaymentCommitment) => pc.amount - pc.payments.map((p: Payment) => p.amount).reduce((t, v) => t += v) > 0)
+      .map((pc: PaymentCommitment) => pc.pax)
   }
 
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation> {

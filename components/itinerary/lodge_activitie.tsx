@@ -2,14 +2,15 @@ import React from 'react'
 
 interface Props {
   text : string
+  darkMode: boolean
 }
 
 export default (props: Props) => {
-  const { text } = props
+  const { text, darkMode } = props
 
   return (
-    <div className="m-4 border shadow rounded">
-      <div className="flex items-center bg-gray-200 p-2">
+    <div className={`m-4  shadow rounded ${darkMode ? '' : 'border'}`}>
+      <div className={`flex items-center p-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
         <div>
           <Icon />
         </div>
@@ -17,8 +18,8 @@ export default (props: Props) => {
           <span>Activities</span>
         </div>
       </div>
-      <div className="flex bg-gray-100">
-        <div className="bg-white p-4 font-thin antialiased text-justify">{text}</div>
+      <div className="flex">
+        <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-100'}  p-4 font-thin antialiased text-justify`}>{text}</div>
       </div>
 
     </div>

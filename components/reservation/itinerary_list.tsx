@@ -9,10 +9,11 @@ import { setContact } from '../../redux/actions/contact_calendar'
 
 
 interface Props {
-  reservation: Reservation
+  reservation: Reservation,
+  darkMode: boolean
 }
 export default (props: Props) => {
-  const { reservation } = props
+  const { reservation, darkMode } = props
   const dispatch = useDispatch()
   const [showQuestionnarie, setShowQuestionnarie] = useState(false)
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
@@ -29,9 +30,20 @@ export default (props: Props) => {
   const getItineraryCard = (service: ItineraryGroundTransfer | ItineraryActivities) => {
     switch (service.kind) {
       case 'GROUNDTRANSFER':
-        return <ItineraryCardGroundTrasnfer from={(service as ItineraryGroundTransfer).from} to={(service as ItineraryGroundTransfer).to} />
+        return (
+          <ItineraryCardGroundTrasnfer
+            darkMode={darkMode}
+            from={(service as ItineraryGroundTransfer).from}
+            to={(service as ItineraryGroundTransfer).to}
+          />
+        )
       case 'LODGEACTIVITIE':
-        return <ItineraryCardLodgeActivitie text={(service as ItineraryActivities).text} />
+        return (
+          <ItineraryCardLodgeActivitie
+            darkMode={darkMode}
+            text={(service as ItineraryActivities).text}
+          />
+        )
       default:
         return ''
     }

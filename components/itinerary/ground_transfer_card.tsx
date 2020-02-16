@@ -1,27 +1,30 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface Props {
   from: string
   to: string
+  darkMode: boolean
 }
 
 export default (props: Props) => {
-  const { from, to } = props
+  const { from, to, darkMode } = props
+  const [token, setToken] = useState<TokenOuttripper>()
+
 
   return (
-    <div className="m-4 border shadow rounded">
-      <div className="flex items-center bg-gray-200 p-2">
+    <div className={`m-4  shadow rounded ${darkMode ? '' : 'border'}`}>
+      <div className={`flex items-center p-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
         <div><IconShuttle /></div>
         <div className="ml-4"><span>Ground Transfer</span></div>
       </div>
-      <div className="flex bg-gray-100">
+      <div className={`flex  ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
         <div className="p-4"><IconAvatar /></div>
         <div className="p-4 font-thin antialiased">
           <div>{`From: ${from}`}</div>
           <div>{`To: ${to}`}</div>
         </div>
       </div>
-      <footer className="flex p-4">
+      <footer className={`flex p-4 ${darkMode ? 'bg-gray-800' : ''}`}>
         <div className="flex uppercase items-center text-gray-300 font-semibold">
           <div><IconLocation /></div>
           <div className="ml-2"><span>Location</span></div>

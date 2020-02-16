@@ -78,7 +78,7 @@ const CreditCard = (props: CreditCard) => {
 export default () => {
   const mode = useSelector((state) => state.payment.mode)
   const reservation: Reservation = useSelector((state) => state.reservation.reservationSelected)
-  const [customerSelected, setCustomerSelected] = useState<Contact>(reservation.pax[0])
+  const [customerSelected, setCustomerSelected] = useState<Contact>(bs.getDebtors(reservation)[0])
   const goTo = useSelector((state) => state.payment.callingFrom)
   const [cardHolder, setCardHolder] = useState()
   const [cardNumber, setCardNumber] = useState()
@@ -108,7 +108,6 @@ export default () => {
   }
 
 
-  console.log(customerSelected)
   if (waiting) return <Loading />
 
 
@@ -169,8 +168,7 @@ export default () => {
             <div className=" flex px-4 pt-2 pb-1 items-center font-normal    ">Whose payment is this?</div>
             <div className="inline-block relative pl-4 w-full">
               <select onChange={(e) => setCustomerSelected(reservation.pax.filter((p:Contact) => p && p.id === e.target.value)[0])} className="block appearance-none w-full bg-white  py-2 pr-8 rounded  leading-tight focus:outline-none focus:shadow-outline">
-
-                {reservation.paymentCommitments.map((pc: PaymentCommitment) => <option value={pc.pax.id} key={pc.pax.id}>{`${pc.pax.lastName}, ${pc.pax.firstName}`}</option>)}
+                {bs.getDebtors(reservation).map((debtor: Contact) => <option value={debtor.id} key={debtor.id}>{`${debtor.lastName}, ${debtor.firstName}`}</option>)}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>

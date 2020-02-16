@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable no-param-reassign */
 /* eslint-disable dot-notation */
 import React, { useState, useEffect } from 'react'
@@ -12,7 +13,10 @@ import { setCallingFrom as setCallingPaymentPage } from '../../../redux/actions/
 import ItineraryCardGroundTrasnfer from '../../../components/itinerary/ground_transfer_card'
 import ItineraryCardLodgeActivitie from '../../../components/itinerary/lodge_activitie'
 import ItinerayList from '../../../components/reservation/itinerary_list'
-import { setMyTripReservation, setMyTripGroupLeader, setMyTripReservationToken } from '../../../redux/actions/mytrip'
+import PaymentTeamMember from '../../../components/mytrip/payment_team_member'
+import {
+  setMyTripReservation, setMyTripGroupLeader, setMyTripReservationToken, setMyTripAreGroupLeader,
+} from '../../../redux/actions/mytrip'
 import '../../../statics/style/customer.css'
 
 import Page from './page'
@@ -30,6 +34,7 @@ export default () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [reservation, setReservation] = useState<Reservation>(null)
+  const [reservationToken, setReservationToken] = useState<ReservationToken>(null)
   const [activeTab, setActiveTab] = useState(ACTIVE_TAB.CONTACT)
   const { accessToken } = router.query
   const dispatch = useDispatch()
@@ -58,98 +63,18 @@ export default () => {
     </div>
   )
 
-  const Payments = () => (
-    <div className="flex-cols">
-      <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
-      <div className=" carrusel py-4 flex border-b pl-4">
-        {reservation.pax.map((p:Contact, index:number) => (
-          <div
-            key={uuid4()}
-            className="flex-cols justify-center avatarBox"
-          >
-            <div className="avatar rounded-full" />
-            <div className="text-xs font-semibold text-xs">
-              {p ? `${p.lastName}, ${p.firstName}` : 'Guest'}
-
-            </div>
-          </div>
-        ))}
+  const Payments = () => {
+    const paymentsOfCustomer : Array<Payment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].payments || []
+    return (
+      <div>
+        <PaymentTeamMember
+          groupLeader={reservation.pax[0]}
+          payments={paymentsOfCustomer}
+          purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId).map((pc:PaymentCommitment) => pc.amount).reduce((t, v) => t += v)}
+        />
       </div>
-      <div className="p-4">
-        <div className="uppercase font-semibold text-gray-600 mb-2">Invoice Items</div>
-        <div>
-          {reservation.invoicesObject.map((invoice: Invoice) => (
-            invoice.items.map((item: ItemInvoice, index: number) => (
-              <div key={invoice.id + index.toString()} className="flex text-sm">
-                <div className="w-full text-gray-700 uppercase">{`${reservation.pax.length} x ${item.description}`}</div>
-                <div className="text-teal-700 font-semibold">{formatter.format(item.price)}</div>
-              </div>
-            ))
-          ))}
-
-        </div>
-      </div>
-
-
-      <div className="p-4 flex border-t">
-        <div className="w-full uppercase text-gray-600 font-semibold">Total</div>
-        <div className="text-teal-700 font-semibold text-xl">{formatter.format(reservation.amountOfPurchase)}</div>
-      </div>
-
-      <div className="p-4 flex-cols border-t mb-8">
-        <div className="w-full uppercase text-gray-600 font-semibold">Payments</div>
-        {reservation.payments.map((p: Payment) => (
-          <div className="flex text-sm" key={p.id}>
-            <div>{moment(p.date).format('DD/MM/YYYY')}</div>
-            <div className="w-full ml-4">{p.kind}</div>
-            <div>{formatter.format(p.amount)}</div>
-          </div>
-        ))}
-
-      </div>
-
-      <div className="p-4 flex border-t">
-        <div className="w-full uppercase text-gray-600 font-semibold">Balance</div>
-        <div className="text-teal-700 font-semibold text-xl">{formatter.format(reservation.amountOfPurchase - reservation.amountOfPayment)}</div>
-      </div>
-
-      {(reservation.amountOfPurchase - reservation.amountOfPayment) !== 0 ? (
-        <div className="bg-gray-200 p-4 text-sm flex items-center">
-          <div className="w-3/4">
-            <div><span className="text-base font-semibold">{reservation.program.name}</span></div>
-            <div><span>{`${moment(reservation.serviceFrom).format('MMM Do YYYY')} to ${moment(reservation.serviceTo).format('MMM Do YYYY')} `}</span></div>
-            <div>{`${reservation.pax.length} pax`}</div>
-          </div>
-          <div
-            onClick={() => {
-              dispatch(setCallingPaymentPage(`/consumer/reservation?accessToken=${accessToken}`))
-              router.push(`/pay?invoiceId=${reservation.invoices[0]}`)
-            }}
-            className="p-2 bg-teal-500 text-white uppercase"
-          >
-            Pay Now
-          </div>
-        </div>
-      ) : ''}
-
-
-      <style>
-        {`
-        
-          .avatar {
-            background:url('/img/people_avatar.png');
-            background-repeat: no-repeat;
-            height: 60px;
-          }
-
-          .avatarBox {
-            width: 90px;
-          }
-        `}
-      </style>
-
-    </div>
-  )
+    )
+  }
 
   const Members = () => (
     <div className="flex-cols">Members</div>
@@ -158,16 +83,16 @@ export default () => {
   const getItineraryCard = (service: ItineraryGroundTransfer | ItineraryActivities) => {
     switch (service.kind) {
       case 'GROUNDTRANSFER':
-        return <ItineraryCardGroundTrasnfer from={(service as ItineraryGroundTransfer).from} to={(service as ItineraryGroundTransfer).to} />
+        return <ItineraryCardGroundTrasnfer darkMode from={(service as ItineraryGroundTransfer).from} to={(service as ItineraryGroundTransfer).to} />
       case 'LODGEACTIVITIE':
-        return <ItineraryCardLodgeActivitie text={(service as ItineraryActivities).text} />
+        return <ItineraryCardLodgeActivitie darkMode text={(service as ItineraryActivities).text} />
       default:
         return ''
     }
   }
 
   const Itinerary = () => (
-    <ItinerayList reservation={reservation} />
+    <ItinerayList darkMode reservation={reservation} />
   )
 
   const PreTrip = () => (
@@ -244,33 +169,35 @@ export default () => {
     }
 
     const fetch = async () => {
-      let reservationToken = await bs.getReservationAccessToken(accessToken as string)
+      let rt = await bs.getReservationAccessToken(accessToken as string)
       const token : TokenOuttripper = await bs.getToken()
       if (!token) {
         router.push(`/consumer/login?accessToken=${accessToken}`)
         return
       }
 
-      if (!reservationToken.travellerId) {
-        reservationToken = await bs.bindTravellerIdToContact(reservationToken, token.userId)
+      if (!rt.travellerId) {
+        rt = await bs.bindTravellerIdToContact(rt, token.userId)
       }
 
-      const org: Organization = await bs.getOrganizationById(reservationToken.organizationId)
+      const org: Organization = await bs.getOrganizationById(rt.organizationId)
       token.organizationCn = org.cn
       token.organizationId = org.id
       token.rol = 'CONSUMER'
       bs.setToken(token)
-      const r = await bs.getReservation(reservationToken.reservationId)
+      const r = await bs.getReservation(rt.reservationId)
       dispatch(setMyTripReservation(r))
       dispatch(setMyTripGroupLeader(r.pax[0]))
-      dispatch(setMyTripReservationToken(reservationToken))
+      dispatch(setMyTripReservationToken(rt))
       setOrganization(org)
+      setReservationToken(rt)
       setReservation(r)
-      if (reservationToken.contactId === r.pax[0].id && !reservationToken.paymentCommitmentKind) {
+      if (rt.contactId === r.pax[0].id && !rt.paymentCommitmentKind) {
         router.push('/consumer/reservation/welcome_to_my_trip')
       } else {
         setIsLoading(false)
       }
+      dispatch(setMyTripAreGroupLeader(r.pax[0].id === rt.contactId))
     }
 
 
