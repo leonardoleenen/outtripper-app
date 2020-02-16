@@ -317,7 +317,7 @@ export default () => {
       </header>
 
       <article className="relative bg-gray-100">
-        {tabSelected === 'INVOICE' ? <ComponentInvoice /> : <ItinerayList reservation={reservation} /> }
+        {tabSelected === 'INVOICE' ? <ComponentInvoice /> : <ItinerayList darkMode={false} reservation={reservation} /> }
       </article>
 
 
