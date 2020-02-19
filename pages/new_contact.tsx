@@ -7,7 +7,6 @@ import uuid4 from 'uuid4'
 import { newContact } from '../redux/actions/contact_calendar'
 import { StoreData } from '../redux/store'
 import Loading from '../components/loading'
-import '../statics/style/style.css'
 
 interface FormData {
   lastName: string

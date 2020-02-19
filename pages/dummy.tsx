@@ -3,6 +3,7 @@ import '../statics/style/style.css'
 import BottomBar from '../components/bottom_nav_bar'
 import Auth from '../components/authorization'
 
+/*
 export default () => (
   <Auth>
     <div>
@@ -13,4 +14,9 @@ export default () => (
       <BottomBar />
     </div>
   </Auth>
+)
+*/
+
+export default () => (
+  <div>Dummy Test page</div>
 )

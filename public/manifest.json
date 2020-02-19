@@ -1,0 +1,16 @@
+{
+    "name": "OutTripper",
+    "short_name": "OutTripper",
+    "icons": [
+      {
+        "src": "/img/logo120.png",
+        "type": "image/jpg",
+        "sizes": "120x120"
+      }
+    ],
+    "background_color": "#FFFFFF",
+    "description": "Outtripper",
+    "display": "fullscreen",
+    "start_url": "/",
+    "theme_color": "#000"
+  }

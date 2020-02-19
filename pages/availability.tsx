@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Calendar from '../components/availability/calendar'
-import '../statics/style/style.css'
 import BottomNavBar from '../components/bottom_nav_bar'
 import bs from '../services/business'
 import Loading from '../components/loading'

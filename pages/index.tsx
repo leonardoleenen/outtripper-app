@@ -19,6 +19,26 @@ export default () => {
 
 
   useEffect(() => {
+    const fetch = async () => {
+      const token = await bs.getToken()
+      if (token) {
+        setIsLoading(true)
+        switch (token.organizationKind) {
+          case 'LODGE':
+            router.push('/home')
+            break
+          case 'AGENCY':
+            router.push('/agency')
+            break
+          default:
+            router.push('/consumer')
+            break
+        }
+      }
+    }
+
+    fetch()
+
     dbs.fb.auth().getRedirectResult().then((result) => {
       const { user } = result
       setIsLoading(true)

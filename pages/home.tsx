@@ -10,7 +10,6 @@ import _ from 'underscore'
 import BottomNavBar from '../components/bottom_nav_bar'
 import Loading from '../components/loading'
 import bs from '../services/business'
-import '../statics/style/style.css'
 import { IconSearch } from '../statics/icons'
 
 let reservationIndex = null
@@ -21,6 +20,7 @@ export default () => {
   const [reservations, setReservations] = useState<Array<Reservation>>(null)
   const [textToSearch, setTextToSearch] = useState('')
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   useEffect(() => {
     const fetch = async () => {
       const reservationsList = await bs.getMyReservations()
@@ -46,7 +46,7 @@ export default () => {
   })
 
 
-  if (!reservations) return <Loading />
+  if (!reservations || isLoading) return <Loading />
 
   if (reservationIndex) {
     reservationFiltered = reservations.filter((c:Reservation) => reservationIndex.search(`*${textToSearch}*`).filter((cf) => cf.ref.trim() === c.id.trim()).length > 0)
@@ -78,7 +78,14 @@ export default () => {
               <div className="w-24 mr-4">{name === 'PAID' ? 'Total' : 'Balance'}</div>
             </div>
             {groupedList[name].map((r: Reservation) => (
-              <div key={r.id} className="border-b rounded-lg  m-4 bg-white shadow" onClick={() => router.push(`/reservation/voucher?id=${r.id}`)}>
+              <div
+                key={r.id}
+                className="border-b rounded-lg  m-4 bg-white shadow"
+                onClick={() => {
+                  setIsLoading(true)
+                  router.push(`/reservation/voucher?id=${r.id}`)
+                }}
+              >
                 <div className="flex p-4">
                   <div className="w-full">
                     <div className="flex items-center">
