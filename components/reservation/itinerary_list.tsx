@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import moment from 'moment'
 import Link from 'next/link'
 import { useDispatch } from 'react-redux'
+import uuid4 from 'uuid4'
+import ClipboardJS from 'clipboard'
+import bs from '../../services/business'
 import ItineraryCardLodgeActivitie from '../itinerary/lodge_activitie'
 import ItineraryCardGroundTrasnfer from '../itinerary/ground_transfer_card'
 import Questionnarie from '../questionnaire'
@@ -17,7 +20,11 @@ export default (props: Props) => {
   const dispatch = useDispatch()
   const [showQuestionnarie, setShowQuestionnarie] = useState(false)
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
+  const [myTripLink, seMyTripLink] = useState<string>('')
 
+  useEffect(() => {
+    const b = new ClipboardJS('.btn-myTripLink')
+  }, [])
   interface PropsIconSinglePeople {
     isSelected: boolean
   }
@@ -49,6 +56,21 @@ export default (props: Props) => {
     }
   }
 
+  const generateVoucherURL = (idReservationToken: string) : string => `${window.location.protocol}//${window.location.host}/consumer/reservation?accessToken=${idReservationToken}`
+
+
+  const getReservationTokenUrl = (pax: Contact) => {
+    bs.getReservationAccessTokenByReservationIdAndContact(reservation.id, pax).then((reservationToken: ReservationToken) => {
+      if (reservationToken) {
+        seMyTripLink(generateVoucherURL(reservationToken.id))
+      } else {
+        bs.createReservationAccessToken(uuid4(), reservation.id, pax).then((newReservationToken: ReservationToken) => {
+          seMyTripLink(generateVoucherURL(newReservationToken.id))
+        })
+      }
+    })
+  }
+
 
   const getCustomItinerary = (pax: Contact) : Array<{day: number, service : ItineraryGroundTransfer | ItineraryActivities}> => reservation.program.defaultItinerary
     .concat(reservation.customItineraries.filter((i) => i.contactId === pax.id)).sort((e) => e.day)
@@ -61,6 +83,8 @@ export default (props: Props) => {
           <div
             onClick={() => {
               setSelectedPax(p)
+              seMyTripLink(null)
+              if (p) getReservationTokenUrl(p)
               dispatch(setContact(p))
             }}
             key={`itinpax${index.toString()}`}
@@ -88,6 +112,18 @@ export default (props: Props) => {
             </div>
           ) : (
             <div>
+              {myTripLink ? (
+                <div>
+                  <div>My Trip Link </div>
+                  <div className="flex">
+                    <input readOnly id="myTripURLLink" value={myTripLink} className="w-full rounded-l-lg border-l border-t border-b h-8" />
+                    <button type="button" className="btn-myTripLink bg-gray-300 h-8 w-8 flex items-center justify-center" data-clipboard-target="#myTripURLLink">
+                      <img alt="" src="/icons/copy.svg" className="h-6 w-6" />
+                    </button>
+                  </div>
+                </div>
+              ) : ''}
+
               <div className="px-4 pt-4 flex justify-center"><div className="text-base text-gray-500 text-xl ">Custom itinerary for</div></div>
               <div className="mb-4 flex justify-center"><div className="font-semibold text-xl ">{`${selectedPax.lastName} ${selectedPax.firstName}`}</div></div>
               <Link href="/itinerary/event_selector">

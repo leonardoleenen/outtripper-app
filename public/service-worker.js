@@ -16,6 +16,7 @@ self.addEventListener('install', (event) => {
           'img/splash15362048.jpg',
           'img/splash16682224.jpg',
           'img/splash20482732.jpg',
+          'icons/copy.svg',
         ],
       )
     }).catch((err) => console.log(err)),

@@ -6,6 +6,7 @@ import moment from 'moment'
 import uuid4 from 'uuid4'
 import { useSelector, useDispatch } from 'react-redux'
 import Link from 'next/link'
+
 import Loading from '../../components/loading'
 import bs from '../../services/business'
 import { setCallingPage, unSetContact } from '../../redux/actions/contact_calendar'
@@ -57,10 +58,10 @@ export default () => {
       setReservation(r)
       dispatch(setReservationRedux(r))
     }
+
     fetch()
   }, [])
 
-  const generateVoucherURL = (idReservationToken: string) : string => `${window.location.protocol}//${window.location.host}/consumer/reservation?accessToken=${idReservationToken}`
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -81,24 +82,6 @@ export default () => {
     router.push('/contact_list')
   }
 
-  const copyToClipboard = (e) => {
-    bs.getReservationAccessTokenByReservationIdAndContact(reservation.id, paxToAdd).then((reservationToken: ReservationToken) => {
-      if (reservationToken) {
-        // setVoucherURL(generateVoucherURL(reservationToken.id))
-        document.getElementsByTagName('textarea')[0].innerHTML = generateVoucherURL(reservationToken.id)
-        voucherURLRef.current.select()
-        document.execCommand('copy')
-        setShowMenu(false)
-      } else {
-        bs.createReservationAccessToken(uuid4(), reservation.id, paxToAdd).then((newReservationToken: ReservationToken) => {
-          document.getElementsByTagName('textarea')[0].innerHTML = generateVoucherURL(newReservationToken.id)
-          voucherURLRef.current.select()
-          document.execCommand('copy')
-          setShowMenu(false)
-        })
-      }
-    })
-  }
 
   const Menu = () => (
     <div className="relative h-screen bg-gray-500">
@@ -106,15 +89,6 @@ export default () => {
         <div className="flex justify-center" onClick={() => setShowMenu(false)}>
           <div className="h-2 w-24 bg-gray-300 m-3 rounded-lg" />
         </div>
-        {paxToAdd ? (
-          <div className="p-4 border-b flex items-center">
-            <div className="text-blue-500 font-semibold w-full" onClick={copyToClipboard}>Generate reservation voucher link</div>
-            <div className="mr-4">
-              <IconArrowMenu />
-            </div>
-            <textarea className="absolute" value={voucherURL} ref={voucherURLRef} />
-          </div>
-        ) : ''}
         <div className="p-4 border-b flex items-center">
           <div className="text-red-500 font-semibold w-full">Remove / Cancel reservation</div>
           <div className="mr-4">
