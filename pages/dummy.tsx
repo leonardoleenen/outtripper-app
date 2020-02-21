@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../statics/style/style.css'
 import BottomBar from '../components/bottom_nav_bar'
 import Auth from '../components/authorization'
@@ -17,6 +17,15 @@ export default () => (
 )
 */
 
-export default () => (
-  <div>Dummy Test page</div>
-)
+export default () => {
+  const [texto, setTexto] = useState('')
+  return (
+    <div>
+      <input
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+        className="border"
+      />
+    </div>
+  )
+}
