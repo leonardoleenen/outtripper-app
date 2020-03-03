@@ -43,8 +43,15 @@ declare interface DataService {
   setPax(organizationId: string, reservationid: string, pax: Contact, index: number) : Promise<Reservation>
   updateAvailableDate(organizationid: string, date: AvailableDate) : void
   deleteAvailableDate(organizationId: string, date: AvailableDate): void
+
+  // Payments
   getPaymentsByInvoiceId(organizationId: string, invoiceId: string) : Promise<Array<Payment>>
   createPayment(organizationId: string, payment: Payment) : void
+  getPaymetGatewayCredentials(organizationId: string) : Promise<{
+    credentials: PaymentGatewayStripe,
+    kind: string
+  }>
+
   getMyReservations(organizationId: string) : Promise<Array<Reservation>>
   updateInvoice(organizationId: string, invoice: Invoice) : void
   createInvitation(invite: Invitation) : Promise<Invitation>
@@ -417,6 +424,21 @@ export class DataAccessService implements DataService {
       .collection('payments')
       .doc(payment.id)
       .set(payment)
+  }
+
+  getPaymetGatewayCredentials(organizationId: string): Promise<{
+    credentials: PaymentGatewayStripe,
+    kind: string
+  }> {
+    return this.fb
+      .firestore()
+      .collection(organizationId)
+      .doc('paymentGateway')
+      .get()
+      .then((doc) => doc.data() as {
+        credentials: PaymentGatewayStripe,
+        kind: string
+      })
   }
 
   async getMyReservations(organizationId: string): Promise<Reservation[]> {

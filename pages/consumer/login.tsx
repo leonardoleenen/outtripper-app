@@ -20,7 +20,7 @@ export default () => {
       const { user } = result
       if (user) {
         bs.login(user.uid, user.displayName, user.email, user.photoURL).then((token: TokenOuttripper) => {
-          router.push(`/consumer/reservation?accessToken=${accessToken}`)
+          router.push(`/consumer/mytrip?accessToken=${accessToken}`)
           setIsLoading(false)
           return <div> Esperando el redirect</div>
         })

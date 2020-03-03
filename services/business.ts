@@ -3,6 +3,7 @@ import uuidv4 from 'uuid4'
 import axios from 'axios'
 import moment from 'moment'
 import voucherVodes from 'voucher-code-generator'
+import { Token } from '@stripe/stripe-js'
 import dataAccessService, { DataAccessService } from './database'
 
 
@@ -59,7 +60,14 @@ interface Services {
   getRoles(): Promise<Array<Role>>
   createUser(user: User, invitation: Invitation) : Promise<TokenOuttripper>
   createReservationAccessToken(id: string, reservationId: string, contact: Contact) : Promise<ReservationToken>
+
+  // Payments
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken>
+  getPaymentGatewayCredentials() : Promise<{
+    credentials: PaymentGatewayStripe,
+    kind: string
+  }>
+
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
   bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string) : Promise<ReservationToken>
@@ -68,6 +76,7 @@ interface Services {
   getOrganizationById(id: string): Promise<Organization>
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation>
   getDebtors(reservation: Reservation) : Array<Contact>
+
 }
 
 
@@ -570,6 +579,32 @@ class BusinessService implements Services {
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken> {
     reservationAccessToken.paymentCommitmentKind = kind
     return this.getToken().then((token: TokenOuttripper) => this.da.updateReservationAccessToken(reservationAccessToken))
+  }
+
+  getPaymentGatewayCredentials(): Promise<{
+    credentials: PaymentGatewayStripe,
+    kind: string
+  }> {
+    return this.getToken().then((token: TokenOuttripper) => this.da.getPaymetGatewayCredentials(token.organizationId))
+  }
+
+
+  // eslint-disable-next-line class-methods-use-this
+  async createCreditCardPaymentStripeIntent(amount: number) : Promise<string> {
+    // https://us-central1-norse-carport-258615.cloudfunctions.net/createPaymentIntent
+    return axios.post(
+      'https://us-central1-norse-carport-258615.cloudfunctions.net/createPaymentIntent',
+      {
+        amount: (amount * 100),
+      },
+      {
+        headers: {
+          Authorization: `Basic ${sessionStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    // eslint-disable-next-line dot-notation
+    ).then((result) => result.data['client_secret'])
   }
 
   // eslint-disable-next-line class-methods-use-this

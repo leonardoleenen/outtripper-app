@@ -6,6 +6,6 @@ interface Props {
 export default (props: Props) => {
   const { children } = props
   return (
-    <div className="mt-4 p-4 bg-gray-800 rounded-lg text-gray-400 font-thin">{children}</div>
+    <div className="mt-4 p-4 bg-gray-900 rounded-lg text-gray-400 font-thin">{children}</div>
   )
 }

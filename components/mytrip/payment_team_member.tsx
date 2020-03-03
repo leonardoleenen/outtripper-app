@@ -1,24 +1,54 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
-import React from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
-import { formatter } from '../../services/business'
+import { loadStripe } from '@stripe/stripe-js'
+import bs, { formatter } from '../../services/business'
+import Panel from './panel'
+
+import CheckoutPaymentForm from '../payment_checkout'
 
 interface Props {
   groupLeader: Contact
   purchaseAmount: number
   payments: Array<Payment>
+  token: TokenOuttripper
+  reservation: Reservation
+  reservationToken: ReservationToken
 }
 
+
 export default (props:Props) => {
+  const items = [{
+    id: 'INSTALLMENT1',
+    name: 'installment 1',
+    amount: 1500,
+  },
+  {
+    id: 'INSTALLMENT2',
+    name: 'installment 1',
+    amount: 1500,
+  },
+  {
+    id: 'INSTALLMENT3',
+    name: 'installment 3',
+    amount: 1500,
+  }]
+
   const {
-    purchaseAmount, payments, groupLeader,
+    purchaseAmount, payments, groupLeader, reservation, token, reservationToken,
   } = props
 
-  const paymentAmount = payments.length === 0 ? 0 : payments.map((p: Payment) => p.amount).reduce((t, v) => t += v)
+
+  const callBack = (result) => {
+    console.log(result)
+  }
+
+  const paymentAmount: number = 0
   return (
     <div className="p-4">
-      <div><span className="text-2xl font-bold">{`Group leader ${groupLeader.firstName} ${groupLeader.lastName}   invited you to pay`}</span></div>
+      <div><span className="text-xl font-semibold">{`Group leader ${groupLeader.firstName} ${groupLeader.lastName}   invited you to pay`}</span></div>
 
       <div className="pt-2">
         {payments.map((p:Payment) => (
@@ -43,17 +73,22 @@ export default (props:Props) => {
 
       {purchaseAmount - paymentAmount === 0 ? <div className="flex  h-64 justify-center items-center"><IconDone /></div> : (
         <div>
-          <div className="flex bg-gray-900 rounded-lg h-64 justify-center items-center">
+          <div className="py-4 flex bg-gray-900 rounded-lg justify-center items-center">
             <span className="font-bold text-teal-700 text-4xl">{formatter.format(purchaseAmount - paymentAmount)}</span>
           </div>
         </div>
       )}
 
+      <Panel>
+        <div className="my-2">
+          <span className="font-semibold text-white">Terms and Conditions</span>
+        </div>
+        <div className=""><span className="text-white italic">2 payments, $5,600 due on Nov., 30, 2019, $5600 due on Feb., 3, 2020</span></div>
+      </Panel>
 
-      <div className="">
-        <div className="mt-4"><span className="font-semibold text-gray-700">Terms and Conditions</span></div>
-        <div className=""><span className="text-gray-600 italic">2 payments, $5,600 due on Nov., 30, 2019, $5600 due on Feb., 3, 2020</span></div>
-      </div>
+      <CheckoutPaymentForm callFunction={callBack} items={items} chargeDescription="Test from dummy" />
+
+
     </div>
   )
 }

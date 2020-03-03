@@ -180,7 +180,17 @@ export default () => {
         <div className="py-2">You can choose pay all you, that means that all invoice will be assigned to you </div>
         <div className="py-2">Or you can choose slipt the check with your party members</div>
         <div className="flex">
-          <button className="p-4 border border-teal-700 rounded-lg px-10 m-2 text-teal-700" type="button">I pay entire invoice</button>
+          <button
+            className="p-4 border border-teal-700 rounded-lg px-10 m-2 text-teal-700"
+            type="button"
+            onClick={() => {
+              bs.setPaymentCommitmentKindInReservationAccessToken(PAYMENT_COMMITMENT_KIND.NO_SLIP, reservationAccessToken)
+              router.push(`/consumer/mytrip?accessToken=${reservationAccessToken.id}`)
+            }}
+          >
+I pay entire invoice
+
+          </button>
           <button onClick={() => setSplitTheCheck()} type="button" className="p-4 bg-teal-700 m-2 rounded-lg text-white">I want to slipt the check</button>
         </div>
       </article>

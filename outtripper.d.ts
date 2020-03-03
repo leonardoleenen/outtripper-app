@@ -28,6 +28,10 @@ type Organization = {
   chatbotUserName: string
   chatbotUserTitle: string
   chatbotAvatar: string
+  paymentGateway? : {
+    credentials: PaymentGatewayStripe,
+    kind: string
+  }
 }
 
 type TokenOuttripper = {
@@ -203,6 +207,11 @@ type PaymentCommitment = {
   pax: Contact,
   amount: number,
   payments: Array<Payment>
+}
+
+type PaymentGatewayStripe = {
+  privateKey: string,
+  publicKey: string
 }
 
 type CreditCard = {

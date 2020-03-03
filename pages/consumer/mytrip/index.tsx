@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
+
 import Loading from '../../../components/loading'
+import Panel from '../../../components/mytrip/panel'
+
 import bs from '../../../services/business'
 import Icon, { ICONS } from '../../../components/mytrip/icons'
 import SectionContact from '../../../components/mytrip/section_contact'
@@ -21,7 +24,9 @@ export default () => {
   const router = useRouter()
   const { accessToken } = router.query
   const [isLoading, setIsLoading] = useState(true)
+  const [token, setToken] = useState(null)
   const [reservation, setReservation] = useState<Reservation>(null)
+  const [showCheckoutStripe, setShowCheckouStripe] = useState(false)
   const [reservationToken, setReservationToken] = useState<ReservationToken>(null)
   const dispatch = useDispatch()
   const [organization, setOrganization] = useState<Organization>(null)
@@ -35,27 +40,29 @@ export default () => {
       }
 
       let rt = await bs.getReservationAccessToken(accessToken as string)
-      const token : TokenOuttripper = await bs.getToken()
-      if (!token) {
+      const tk : TokenOuttripper = await bs.getToken()
+
+      if (!tk) {
         router.push(`/consumer/login?accessToken=${accessToken}`)
         return
       }
 
       if (!rt.travellerId) {
-        rt = await bs.bindTravellerIdToContact(rt, token.userId)
+        rt = await bs.bindTravellerIdToContact(rt, tk.userId)
       }
 
       const org: Organization = await bs.getOrganizationById(rt.organizationId)
-      token.organizationCn = org.cn
-      token.organizationId = org.id
-      token.rol = 'CONSUMER'
-      bs.setToken(token)
+      tk.organizationCn = org.cn
+      tk.organizationId = org.id
+      tk.rol = 'CONSUMER'
+      bs.setToken(tk)
       const r = await bs.getReservation(rt.reservationId)
       dispatch(setMyTripReservation(r))
       dispatch(setMyTripGroupLeader(r.pax[0]))
       dispatch(setMyTripReservationToken(rt))
       setOrganization(org)
       setReservationToken(rt)
+      setToken(tk)
       setReservation(r)
       if (rt.contactId === r.pax[0].id && !rt.paymentCommitmentKind) {
         router.push('/consumer/reservation/welcome_to_my_trip')
@@ -81,6 +88,9 @@ export default () => {
         return (
           <div>
             <PaymentTeamMember
+              token={token}
+              reservationToken={reservationToken}
+              reservation={reservation}
               groupLeader={reservation.pax[0]}
               payments={paymentsOfCustomer}
               purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)
@@ -92,6 +102,7 @@ export default () => {
         return <ItinerayList darkMode reservation={reservation} />
     }
   }
+
 
   if (isLoading) return <Loading />
 

@@ -18,6 +18,7 @@ self.addEventListener('install', (event) => {
           'img/splash20482732.jpg',
           'img/logowhite.png',
           'icons/copy.svg',
+          'icons/payment_loading.svg',
         ],
       )
     }).catch((err) => console.log(err)),

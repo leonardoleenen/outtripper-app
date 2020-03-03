@@ -68,6 +68,10 @@ export default () => {
     return (
       <div>
         <PaymentTeamMember
+          reservation={reservation}
+          reservationToken={null}
+          token={null}
+          key="1"
           groupLeader={reservation.pax[0]}
           payments={paymentsOfCustomer}
           purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId).map((pc:PaymentCommitment) => pc.amount).reduce((t, v) => t += v)}
