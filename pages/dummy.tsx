@@ -33,7 +33,7 @@ export default () => {
   }]
   return (
     <div className="bg-black h-screen relative">
-      <CheckoutPaymentForm callFunction={() => console.log('Funca')} items={items} chargeDescription="Test from dummy" />
+      test
     </div>
   )
 }

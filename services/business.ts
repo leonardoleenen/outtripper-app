@@ -65,7 +65,10 @@ interface Services {
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken>
   getPaymentGatewayCredentials() : Promise<{
     credentials: PaymentGatewayStripe,
-    kind: string
+    kind: string,
+    chargeFeeServiceToCustomer: boolean
+    serviceChargeFeePercentage: number
+    serviceChargeFeeFixedAmount: number
   }>
 
   // Retrieve unpaid installment given a reservation and pax
@@ -73,6 +76,10 @@ interface Services {
     installment: Installment,
     balance: number
   }>
+
+  getChargeServiceFeeToCustomer(): Promise<boolean>
+  getServiceChargeFeeSettings(): Promise<{serviceChargeFeePercentage: number,
+    serviceChargeFeeFixedAmount: number}>
 
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
@@ -593,13 +600,20 @@ class BusinessService implements Services {
   getPaymentGatewayCredentials(): Promise<{
     credentials: PaymentGatewayStripe,
     kind: string
+    chargeFeeServiceToCustomer: boolean
+    serviceChargeFeePercentage: number
+    serviceChargeFeeFixedAmount: number
   }> {
-    return this.getToken().then((token: TokenOuttripper) => this.da.getPaymetGatewayCredentials(token.organizationId))
+    return this.getToken().then((token: TokenOuttripper) => this.da.getPaymentGatewayCredentials(token.organizationId))
   }
 
 
   // eslint-disable-next-line class-methods-use-this
   async createCreditCardPaymentStripeIntent(amount: number) : Promise<string> {
+    const credentials = await this.getPaymentGatewayCredentials()
+
+    amount = credentials.chargeFeeServiceToCustomer ? amount + ((amount * credentials.serviceChargeFeePercentage) / 100) + credentials.serviceChargeFeeFixedAmount : amount
+
     // https://us-central1-norse-carport-258615.cloudfunctions.net/createPaymentIntent
     return axios.post(
       'https://us-central1-norse-carport-258615.cloudfunctions.net/createPaymentIntent',
@@ -654,6 +668,16 @@ class BusinessService implements Services {
       amountOfPayments = amountOfPayments >= i.amount ? amountOfPayments - i.amount : 0
     })
     return result
+  }
+
+  getChargeServiceFeeToCustomer(): Promise<boolean> {
+    return this.getPaymentGatewayCredentials()
+      .then((credentials) => credentials.chargeFeeServiceToCustomer)
+  }
+
+  getServiceChargeFeeSettings(): Promise<{ serviceChargeFeePercentage: number; serviceChargeFeeFixedAmount: number }> {
+    return this.getPaymentGatewayCredentials()
+      .then((result) => ({ serviceChargeFeePercentage: result.serviceChargeFeePercentage, serviceChargeFeeFixedAmount: result.serviceChargeFeeFixedAmount }))
   }
 
 

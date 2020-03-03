@@ -2,7 +2,7 @@
 /* eslint-disable no-return-assign */
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Loading from '../../../components/loading'
 import Panel from '../../../components/mytrip/panel'
@@ -25,12 +25,18 @@ export default () => {
   const { accessToken } = router.query
   const [isLoading, setIsLoading] = useState(true)
   const [token, setToken] = useState(null)
-  const [reservation, setReservation] = useState<Reservation>(null)
+  // const [reservation, setReservation] = useState<Reservation>(null)
+  const reservation : Reservation = useSelector((state) => state.myTrip.reservation)
+  // const myTrip = useSelector((state) => state.myTrip)
   const [showCheckoutStripe, setShowCheckouStripe] = useState(false)
   const [reservationToken, setReservationToken] = useState<ReservationToken>(null)
+  const [chargeServiceFeeToCustomer, setChargeServiceFeeToCustomer] = useState<boolean>(false)
+  const [serviceChargeFeeSettings, setServiceChargeFeeSettings] = useState<{serviceChargeFeePercentage: number
+    serviceChargeFeeFixedAmount: number}>(null)
   const dispatch = useDispatch()
   const [organization, setOrganization] = useState<Organization>(null)
 
+  console.log(reservation)
   useEffect(() => {
     document.getElementsByTagName('html')[0].style.background = 'black'
 
@@ -63,7 +69,9 @@ export default () => {
       setOrganization(org)
       setReservationToken(rt)
       setToken(tk)
-      setReservation(r)
+      setChargeServiceFeeToCustomer(await bs.getChargeServiceFeeToCustomer())
+      setServiceChargeFeeSettings(await bs.getServiceChargeFeeSettings())
+      // setReservation(r)
       if (rt.contactId === r.pax[0].id && !rt.paymentCommitmentKind) {
         router.push('/consumer/reservation/welcome_to_my_trip')
       } else {
@@ -77,6 +85,7 @@ export default () => {
 
   const renderSection = () => {
     const paymentsOfCustomer : Array<Payment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].payments || []
+
     switch (sectionSelected) {
       case SECTIONS.PRETRIP:
         return <SectionPreTrip reservation={reservation} />
@@ -89,8 +98,10 @@ export default () => {
           <div>
             <PaymentTeamMember
               token={token}
+              serviceChargeFeeSettings={serviceChargeFeeSettings}
               reservationToken={reservationToken}
               reservation={reservation}
+              chargeServiceFeeToCustomer={chargeServiceFeeToCustomer}
               groupLeader={reservation.pax[0]}
               payments={paymentsOfCustomer}
               purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)

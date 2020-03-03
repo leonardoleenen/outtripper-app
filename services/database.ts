@@ -47,10 +47,14 @@ declare interface DataService {
   // Payments
   getPaymentsByInvoiceId(organizationId: string, invoiceId: string) : Promise<Array<Payment>>
   createPayment(organizationId: string, payment: Payment) : void
-  getPaymetGatewayCredentials(organizationId: string) : Promise<{
+  getPaymentGatewayCredentials(organizationId: string) : Promise<{
     credentials: PaymentGatewayStripe,
-    kind: string
+    kind: string,
+    chargeFeeServiceToCustomer: boolean,
+    serviceChargeFeePercentage: number,
+    serviceChargeFeeFixedAmount: number
   }>
+
 
   getMyReservations(organizationId: string) : Promise<Array<Reservation>>
   updateInvoice(organizationId: string, invoice: Invoice) : void
@@ -426,9 +430,12 @@ export class DataAccessService implements DataService {
       .set(payment)
   }
 
-  getPaymetGatewayCredentials(organizationId: string): Promise<{
+  getPaymentGatewayCredentials(organizationId: string): Promise<{
     credentials: PaymentGatewayStripe,
     kind: string
+    chargeFeeServiceToCustomer: boolean
+    serviceChargeFeePercentage: number
+    serviceChargeFeeFixedAmount: number
   }> {
     return this.fb
       .firestore()
@@ -438,6 +445,9 @@ export class DataAccessService implements DataService {
       .then((doc) => doc.data() as {
         credentials: PaymentGatewayStripe,
         kind: string
+        chargeFeeServiceToCustomer: boolean
+        serviceChargeFeePercentage: number
+        serviceChargeFeeFixedAmount: number
       })
   }
 

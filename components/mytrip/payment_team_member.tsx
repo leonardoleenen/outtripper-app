@@ -5,9 +5,11 @@ import React, { useState } from 'react'
 import moment from 'moment'
 import { loadStripe } from '@stripe/stripe-js'
 
+import { useDispatch } from 'react-redux'
 import bs, { formatter } from '../../services/business'
 import Panel from './panel'
 import CheckoutPaymentForm from '../payment_checkout'
+import { setMyTripReservation } from '../../redux/actions/mytrip'
 
 interface Props {
   groupLeader: Contact
@@ -16,29 +18,18 @@ interface Props {
   token: TokenOuttripper
   reservation: Reservation
   reservationToken: ReservationToken
+  chargeServiceFeeToCustomer: boolean
+  serviceChargeFeeSettings: {
+    serviceChargeFeePercentage: number; serviceChargeFeeFixedAmount: number
+  }
 }
 
 
 export default (props:Props) => {
-  /* const items = [{
-    id: 'INSTALLMENT1',
-    name: 'installment 1',
-    amount: 1500,
-  },
-  {
-    id: 'INSTALLMENT2',
-    name: 'installment 1',
-    amount: 1500,
-  },
-  {
-    id: 'INSTALLMENT3',
-    name: 'installment 3',
-    amount: 1500,
-  }] */
-
+  const dispatch = useDispatch()
 
   const {
-    purchaseAmount, payments, groupLeader, reservation, token, reservationToken,
+    purchaseAmount, payments, groupLeader, reservation, token, reservationToken, serviceChargeFeeSettings, chargeServiceFeeToCustomer,
   } = props
 
 
@@ -46,13 +37,21 @@ export default (props:Props) => {
     .map((p, index) => ({ id: index.toString(), name: `Due on ${moment(p.installment.dueDate).format('MMM,  Do YYYY')}`, amount: p.balance }))
 
 
-  const callBack = (result) => {
-    console.log(result)
+  const paymentAmount: number = payments.length === 0 ? 0 : payments.map((p:Payment) => p.amount).reduce((t, v) => t += v)
+  const paxSelected: Contact = reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0]
+
+  const callBack = (result, itemsSelected) => {
+    // console.log(result, itemsSelected)
+    bs.setAPayment(reservation.invoices[0], itemsSelected.map((i) => i.amount).reduce((t, v) => t += v), 'CREDIT_CARD', new Date().getTime(), 'Trip Payment', paxSelected)
+      .then((paymentInserted: Payment) => {
+        const index: number = reservation.paymentCommitments.indexOf(reservation.paymentCommitments.filter((p: PaymentCommitment) => p.pax.id === paxSelected.id)[0])
+        if (!reservation.paymentCommitments[index].payments) { reservation.paymentCommitments[index].payments = [] }
+
+        reservation.paymentCommitments[index].payments.push(paymentInserted)
+        bs.updateReservation(reservation)
+        dispatch(setMyTripReservation({ ...reservation }))
+      })
   }
-
-  const paymentAmount: number = 0
-
-
   return (
     <div className="p-4">
       <div><span className="text-xl font-semibold">{`Group leader ${groupLeader.firstName} ${groupLeader.lastName}   invited you to pay`}</span></div>
@@ -93,7 +92,13 @@ export default (props:Props) => {
         <div className=""><span className="text-white italic">2 payments, $5,600 due on Nov., 30, 2019, $5600 due on Feb., 3, 2020</span></div>
       </Panel>
 
-      <CheckoutPaymentForm callFunction={callBack} items={items} chargeDescription="Test from dummy" />
+      <CheckoutPaymentForm
+        chargeServiceFeeToCustomer={chargeServiceFeeToCustomer}
+        serviceChargeFeeSettings={serviceChargeFeeSettings}
+        callFunction={callBack}
+        items={items}
+        chargeDescription={`${paxSelected.firstName} ${paxSelected.lastName} - ${reservation.program.name} ${moment(reservation.serviceFrom).format('MMM Do YYYY')}`}
+      />
 
 
     </div>

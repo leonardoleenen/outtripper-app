@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable max-len */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
@@ -26,6 +27,10 @@ interface Props {
   chargeDescription: string
   items: Array<Item>
   callFunction: Function
+  chargeServiceFeeToCustomer: boolean
+  serviceChargeFeeSettings: {
+    serviceChargeFeePercentage: number; serviceChargeFeeFixedAmount: number
+  }
 }
 
 interface ContentProps {
@@ -33,10 +38,13 @@ interface ContentProps {
 }
 
 export default (props: Props) => {
-  const { items, chargeDescription, callFunction } = props
+  const {
+    items, chargeDescription, callFunction, chargeServiceFeeToCustomer, serviceChargeFeeSettings,
+  } = props
   const [itemsCopy, setItemsCopy] = useState<Array<Item>>(items)
   const [payBalance, setPayBalance] = useState<boolean>(false)
   const totalSelected = !payBalance && itemsCopy.filter((i:Item) => i.checked).length === 0 ? 0 : payBalance ? items.map((i:Item) => i.amount).reduce((t, v) => t += v) : itemsCopy.filter((i:Item) => i.checked).map((i:Item) => i.amount).reduce((t, v) => t += v)
+  // totalSelected = chargeServiceFeeToCustomer ? totalSelected
   const [transactionSuccess, setTransactionSuccess] = useState(false)
   const [transactionError, setTransactionError] = useState(null)
   const [show, setShow] = useState(false)
@@ -65,12 +73,8 @@ export default (props: Props) => {
             },
           },
         }).then((result) => {
-          // TODO: Set payment in reservation
-          // const invoice: string = reservation.invoices[0]
-          // const customer : Contact = reservation.pax.filter((p:Contact) => p.id === reservationToken.contactId)[0]
-
           setTransactionSuccess(true)
-          callFunction(result)
+          callFunction(result, payBalance ? itemsCopy : itemsCopy.filter((i:Item) => i.checked))
           // bs.setAPayment(invoice, amountToPay, PaymentMode.CREDITCARD, new Date().getTime(), 'Payment With Credit Card', customer).then(() => setShowSuccess(true))
         })
           .catch((err) => {
@@ -85,7 +89,7 @@ export default (props: Props) => {
     }
 
     return (
-      <form onSubmit={handleSubmit} className="mt-8">
+      <form onSubmit={handleSubmit} className="mt-4">
         <CardElement />
 
         <div className="flex justify-center mt-4 hidden buttonLoading">
@@ -95,7 +99,7 @@ export default (props: Props) => {
         </div>
 
         <div className="flex justify-center mt-4 buttonPay ">
-          <button type="submit" disabled={!stripe} className={`py-2 px-8  ${itemsCopy.filter((i:Item) => i.checked).length === 0 ? 'bg-gray-300' : 'bg-teal-500'} text-white font-semibold rounded-lg`}>{totalSelected === 0 ? 'Pay Now' : `Pay ${formatter.format(totalSelected)} Now`}</button>
+          <button type="submit" disabled={!stripe} className={`py-2 px-8  ${itemsCopy.filter((i:Item) => i.checked).length === 0 ? 'bg-gray-300' : 'bg-teal-500'} text-white font-semibold rounded-lg`}>{totalSelected === 0 ? 'Select an Item' : `Pay ${formatter.format(chargeServiceFeeToCustomer ? totalSelected + ((totalSelected * serviceChargeFeeSettings.serviceChargeFeePercentage) / 100) : totalSelected)} Now`}</button>
         </div>
 
 
@@ -113,7 +117,7 @@ export default (props: Props) => {
     const { visible } = propsPaymentContent
 
     return (
-      <div className={!visible ? 'hidden' : ''}>
+      <div className={`mt-4 ${!visible ? 'hidden' : ''}`}>
         <div className="px-4 flex">
           <div className="w-full text-lg font-semibold">Items to pay</div>
           <div
@@ -155,16 +159,27 @@ export default (props: Props) => {
             </div>
           ))}
 
+
           <div className="flex py-2 mt-4 border-t">
             <div className="px-4 w-full text-sm">Total Selected</div>
             <div>{formatter.format(totalSelected)}</div>
           </div>
+          {chargeServiceFeeToCustomer ? (
+            <div className="flex py-2">
+              <div className="px-4 w-full text-sm">Service Charge</div>
+              <div className="font-semibold">{formatter.format((totalSelected * serviceChargeFeeSettings.serviceChargeFeePercentage) / 100)}</div>
+            </div>
+          ) : '' }
 
           <div className="flex py-2">
-            <div className="px-4 w-full text-sm">Service Charge</div>
-            <div>{formatter.format(totalSelected)}</div>
+            <div className="px-4 w-full text-sm">Total to pay</div>
+            <div className="font-semibold">{formatter.format(chargeServiceFeeToCustomer ? totalSelected + ((totalSelected * serviceChargeFeeSettings.serviceChargeFeePercentage) / 100) : totalSelected)}</div>
           </div>
 
+
+          <div className="mt-4 py-2 border-t">
+            <span className="text-lg font-semibold">Insert your credit card info</span>
+          </div>
           <Elements stripe={stripePromise}>
             <CheckoutForm />
           </Elements>
@@ -184,7 +199,7 @@ export default (props: Props) => {
           <span className="text-3xl font-bold text-center">Thank you</span>
         </div>
         <div className="mt-4 flex">
-          <span className="text-sm text-center px-4">Your payment for $3,660.00 has been correctly processed</span>
+          <span className="text-sm text-center px-4">{`Your payment for ${formatter.format(chargeServiceFeeToCustomer ? totalSelected + ((totalSelected * serviceChargeFeeSettings.serviceChargeFeePercentage) / 100) : totalSelected)} has been correctly processed`}</span>
         </div>
       </div>
     )
