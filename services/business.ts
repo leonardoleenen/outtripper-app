@@ -68,6 +68,12 @@ interface Services {
     kind: string
   }>
 
+  // Retrieve unpaid installment given a reservation and pax
+  getUnPaidInstallments(reservation: Reservation, pax: Contact): Array<{
+    installment: Installment,
+    balance: number
+  }>
+
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
   bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string) : Promise<ReservationToken>
@@ -576,6 +582,9 @@ class BusinessService implements Services {
     return this.getToken().then((token: TokenOuttripper) => this.da.updateReservation(token.organizationId, reservation))
   }
 
+
+  // Payments implementation methods
+
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken> {
     reservationAccessToken.paymentCommitmentKind = kind
     return this.getToken().then((token: TokenOuttripper) => this.da.updateReservationAccessToken(reservationAccessToken))
@@ -616,6 +625,37 @@ class BusinessService implements Services {
       .filter((pc: PaymentCommitment) => pc.amount - pc.payments.map((p: Payment) => p.amount).reduce((t, v) => t += v) > 0)
       .map((pc: PaymentCommitment) => pc.pax)
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  getUnPaidInstallments(reservation: Reservation, pax: Contact): { installment: Installment; balance: number }[] {
+    // reservation.amountOfPurchase
+    const result : Array<{
+      installment: Installment,
+      balance: number
+    }> = []
+
+    reservation.invoicesObject[0].installments.forEach((i:Installment) => {
+      const paymentsCommitmentsByPax : Array<PaymentCommitment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === pax.id)
+
+
+      let amountOfPayments : number = 0
+
+      if (paymentsCommitmentsByPax.length === 0) return
+
+      if (paymentsCommitmentsByPax[0].payments) {
+        // eslint-disable-next-line no-return-assign
+        amountOfPayments = paymentsCommitmentsByPax[0].payments.map((p:Payment) => p.amount).reduce((t, v) => t += v)
+      }
+      result.push({
+        installment: i,
+        balance: amountOfPayments >= i.amount ? 0 : i.amount - amountOfPayments,
+      })
+
+      amountOfPayments = amountOfPayments >= i.amount ? amountOfPayments - i.amount : 0
+    })
+    return result
+  }
+
 
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getReservation(token.organizationId, reservationId)

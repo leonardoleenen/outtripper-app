@@ -4,9 +4,9 @@
 import React, { useState } from 'react'
 import moment from 'moment'
 import { loadStripe } from '@stripe/stripe-js'
+
 import bs, { formatter } from '../../services/business'
 import Panel from './panel'
-
 import CheckoutPaymentForm from '../payment_checkout'
 
 interface Props {
@@ -20,7 +20,7 @@ interface Props {
 
 
 export default (props:Props) => {
-  const items = [{
+  /* const items = [{
     id: 'INSTALLMENT1',
     name: 'installment 1',
     amount: 1500,
@@ -34,11 +34,16 @@ export default (props:Props) => {
     id: 'INSTALLMENT3',
     name: 'installment 3',
     amount: 1500,
-  }]
+  }] */
+
 
   const {
     purchaseAmount, payments, groupLeader, reservation, token, reservationToken,
   } = props
+
+
+  const items = bs.getUnPaidInstallments(reservation, reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0])
+    .map((p, index) => ({ id: index.toString(), name: `Due on ${moment(p.installment.dueDate).format('MMM,  Do YYYY')}`, amount: p.balance }))
 
 
   const callBack = (result) => {
@@ -46,6 +51,8 @@ export default (props:Props) => {
   }
 
   const paymentAmount: number = 0
+
+
   return (
     <div className="p-4">
       <div><span className="text-xl font-semibold">{`Group leader ${groupLeader.firstName} ${groupLeader.lastName}   invited you to pay`}</span></div>
