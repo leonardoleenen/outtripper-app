@@ -120,6 +120,7 @@ type Contact = {
   collectionKind?:string
   rawText?: string
   travellerId?: string
+  avatar?: string
 }
 
 type SystemNotification = {

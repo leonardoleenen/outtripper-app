@@ -84,7 +84,7 @@ interface Services {
 
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
-  bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string) : Promise<ReservationToken>
+  bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string, avatar: string) : Promise<ReservationToken>
   createConsumerToken(reservationAccessToken: ReservationToken) : Promise<TokenOuttripper>
   getOrganization() : Promise<Organization>
   getOrganizationById(id: string): Promise<Organization>
@@ -558,8 +558,15 @@ class BusinessService implements Services {
     return this.da.getReservationAccessTokenByReservationIdAndContact(reservationId, contact)
   }
 
-  bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string): Promise<ReservationToken> {
+  async bindTravellerIdToContact(reservationAccess: ReservationToken, travellerId: string, avatar: string): Promise<ReservationToken> {
     reservationAccess.travellerId = travellerId
+
+    const r = await this.getReservation(reservationAccess.reservationId)
+    r.pax.forEach((p:Contact, index: number) => {
+      if (p && p.id === reservationAccess.contactId) { r.pax[index].avatar = avatar }
+    })
+
+    await this.updateReservation(r)
     return this.da.updateReservationAccessToken(reservationAccess)
   }
 

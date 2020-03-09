@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import moment from 'moment'
 import Link from 'next/link'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import uuid4 from 'uuid4'
 import ClipboardJS from 'clipboard'
 import bs from '../../services/business'
@@ -21,10 +21,18 @@ export default (props: Props) => {
   const [showQuestionnarie, setShowQuestionnarie] = useState(false)
   const [selectedPax, setSelectedPax] = useState<Contact>(null)
   const [myTripLink, seMyTripLink] = useState<string>('')
-
+  const [token, setToken] = useState<TokenOuttripper>(null)
+  const myTrip = useSelector((state) => state.myTrip)
   useEffect(() => {
-    const b = new ClipboardJS('.btn-myTripLink')
+    const fetch = async () => {
+      const b = new ClipboardJS('.btn-myTripLink')
+      setToken(await bs.getToken())
+      // reservation.pax.filter((p:Contact) => p && p.id === token.userId)
+      setSelectedPax(myTrip.reservationAccessToken ? reservation.pax.filter((p:Contact) => p && p.id === myTrip.reservationAccessToken.contactId)[0] : null)
+    }
+    fetch()
   }, [])
+
   interface PropsIconSinglePeople {
     isSelected: boolean
   }
@@ -75,6 +83,7 @@ export default (props: Props) => {
   const getCustomItinerary = (pax: Contact) : Array<{day: number, service : ItineraryGroundTransfer | ItineraryActivities}> => reservation.program.defaultItinerary
     .concat(reservation.customItineraries.filter((i) => i.contactId === pax.id)).sort((e) => e.day)
 
+
   return (
     <div className="relative flex-cols mb-16">
       <div className="font-semibold text-base text-gray-600 mt-4 ml-4">{`${reservation.pax.length} Guest`}</div>
@@ -82,17 +91,23 @@ export default (props: Props) => {
         {reservation.pax.map((p:Contact, index:number) => (
           <div
             onClick={() => {
-              setSelectedPax(p)
-              seMyTripLink(null)
-              if (p) getReservationTokenUrl(p)
-              dispatch(setContact(p))
+              if (token.rol !== 'CONSUMER' || (myTrip && myTrip.areGroupLeader)) {
+                setSelectedPax(p)
+                seMyTripLink(null)
+                if (p) getReservationTokenUrl(p)
+                dispatch(setContact(p))
+              }
             }}
             key={`itinpax${index.toString()}`}
             className="flex-cols justify-center avatarBox"
           >
             <div className={`h-16 w-16 rounded-full flex items-center justify-center ${p && selectedPax && selectedPax.id === p.id ? 'bg-teal-500 border-teal-600 border-2' : ' bg-teal-800'}`}>
               <div>
-                <IconSinglePeople isSelected={p && selectedPax && selectedPax.id === p.id} />
+                {p && p.avatar ? (
+                  <div>
+                    <img className="rounded-full" alt="avatar" src={p.avatar} />
+                  </div>
+                ) : <IconSinglePeople isSelected={p && selectedPax && selectedPax.id === p.id} />}
               </div>
             </div>
             <div className="text-xs font-semibold text-xs">

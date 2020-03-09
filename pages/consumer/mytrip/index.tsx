@@ -53,7 +53,7 @@ export default () => {
       }
 
       if (!rt.travellerId) {
-        rt = await bs.bindTravellerIdToContact(rt, tk.userId)
+        rt = await bs.bindTravellerIdToContact(rt, tk.userId, tk.photoAvatar)
       }
 
       const org: Organization = await bs.getOrganizationById(rt.organizationId)
