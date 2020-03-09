@@ -62,6 +62,7 @@ interface Services {
   createReservationAccessToken(id: string, reservationId: string, contact: Contact) : Promise<ReservationToken>
 
   // Payments
+  getReservationAccessTokenByReservationId(id: string): Promise<Array<ReservationToken>>
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken>
   getPaymentGatewayCredentials() : Promise<{
     credentials: PaymentGatewayStripe,
@@ -592,9 +593,13 @@ class BusinessService implements Services {
 
   // Payments implementation methods
 
+  getReservationAccessTokenByReservationId(id: string): Promise<Array<ReservationToken>> {
+    return this.da.getReservationAccessTokenByReservationId(id)
+  }
+
   setPaymentCommitmentKindInReservationAccessToken(kind: PAYMENT_COMMITMENT_KIND, reservationAccessToken: ReservationToken): Promise<ReservationToken> {
     reservationAccessToken.paymentCommitmentKind = kind
-    return this.getToken().then((token: TokenOuttripper) => this.da.updateReservationAccessToken(reservationAccessToken))
+    return this.da.updateReservationAccessToken(reservationAccessToken)
   }
 
   getPaymentGatewayCredentials(): Promise<{
@@ -618,7 +623,7 @@ class BusinessService implements Services {
     return axios.post(
       'https://us-central1-norse-carport-258615.cloudfunctions.net/createPaymentIntent',
       {
-        amount: (amount * 100),
+        amount: (parseInt(amount.toString(), 10)) * 100,
       },
       {
         headers: {
@@ -648,25 +653,36 @@ class BusinessService implements Services {
       balance: number
     }> = []
 
+    let amountOfPayments : number = 0
+
+    const paymentsCommitmentsByPax : Array<PaymentCommitment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === pax.id)
+
+    if (paymentsCommitmentsByPax.length === 0) return result
+
+    const amountEachInstallment : number = paymentsCommitmentsByPax[0].amount / reservation.invoicesObject[0].installments.length
+
+
+    // All paid
+    // eslint-disable-next-line no-return-assign
+    if (paymentsCommitmentsByPax[0].payments && paymentsCommitmentsByPax[0].payments.map((p:Payment) => p.amount).reduce((t, v) => t += v) === paymentsCommitmentsByPax[0].amount) return result
+
+
+    if (paymentsCommitmentsByPax[0].payments) {
+      // eslint-disable-next-line no-return-assign
+      amountOfPayments = paymentsCommitmentsByPax[0].payments.map((p:Payment) => p.amount).reduce((t, v) => t += v)
+    }
+
+
     reservation.invoicesObject[0].installments.forEach((i:Installment) => {
-      const paymentsCommitmentsByPax : Array<PaymentCommitment> = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === pax.id)
-
-
-      let amountOfPayments : number = 0
-
-      if (paymentsCommitmentsByPax.length === 0) return
-
-      if (paymentsCommitmentsByPax[0].payments) {
-        // eslint-disable-next-line no-return-assign
-        amountOfPayments = paymentsCommitmentsByPax[0].payments.map((p:Payment) => p.amount).reduce((t, v) => t += v)
+      if ((amountOfPayments >= amountEachInstallment ? 0 : amountEachInstallment - amountOfPayments) !== 0) {
+        result.push({
+          installment: i,
+          balance: amountOfPayments >= amountEachInstallment ? 0 : amountEachInstallment - amountOfPayments,
+        })
       }
-      result.push({
-        installment: i,
-        balance: amountOfPayments >= i.amount ? 0 : i.amount - amountOfPayments,
-      })
-
-      amountOfPayments = amountOfPayments >= i.amount ? amountOfPayments - i.amount : 0
+      amountOfPayments = amountOfPayments >= amountEachInstallment ? amountOfPayments - amountEachInstallment : 0
     })
+
     return result
   }
 

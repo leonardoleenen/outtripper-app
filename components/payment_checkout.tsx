@@ -41,6 +41,7 @@ export default (props: Props) => {
   const {
     items, chargeDescription, callFunction, chargeServiceFeeToCustomer, serviceChargeFeeSettings,
   } = props
+
   const [itemsCopy, setItemsCopy] = useState<Array<Item>>(items)
   const [payBalance, setPayBalance] = useState<boolean>(false)
   const totalSelected = !payBalance && itemsCopy.filter((i:Item) => i.checked).length === 0 ? 0 : payBalance ? items.map((i:Item) => i.amount).reduce((t, v) => t += v) : itemsCopy.filter((i:Item) => i.checked).map((i:Item) => i.amount).reduce((t, v) => t += v)
@@ -223,15 +224,21 @@ export default (props: Props) => {
       </div>
     )
   }
-
-
   return (
     <div className="text-black">
-      <div className={`flex justify-center mt-4 ${!show ? '' : 'hidden'}`}>
-        <button type="button" className="px-8 py-4 bg-teal-700 text-white rounded-lg" onClick={() => setShow(true)}>
-          <span>Pay with credit card</span>
-        </button>
-      </div>
+
+      {items.length > 0 ? (
+        <div className={`flex justify-center mt-4 ${!show ? '' : 'hidden'}`}>
+          <div className="flex-cols">
+            <button type="button" className="px-8 py-4 bg-teal-700 text-white rounded-lg" onClick={() => setShow(true)}>
+              <span>Pay now with credit card</span>
+            </button>
+            {chargeServiceFeeToCustomer ? <div className="text-gray-600 text-xs font-thin text-center mt-2">{`${serviceChargeFeeSettings.serviceChargeFeePercentage}% will be charge as Service Fee`}</div> : '' }
+          </div>
+        </div>
+      ) : '' }
+
+
       <div className={`absolute inset-x-0 bottom-0 bg-gray-100 rounded-lg ${!show ? 'hidden' : ''}`} style={{ height: '85%' }}>
         <header className="p-4 flex justify-end ">
           <div

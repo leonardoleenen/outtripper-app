@@ -56,7 +56,7 @@ export default (props: Props) => {
     }
   }
 
-  const generateVoucherURL = (idReservationToken: string) : string => `${window.location.protocol}//${window.location.host}/consumer/reservation?accessToken=${idReservationToken}`
+  const generateVoucherURL = (idReservationToken: string) : string => `${window.location.protocol}//${window.location.host}/consumer/mytrip?accessToken=${idReservationToken}`
 
 
   const getReservationTokenUrl = (pax: Contact) => {

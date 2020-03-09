@@ -33,7 +33,7 @@ export default () => {
   }]
   return (
     <div className="bg-black h-screen relative">
-      test
+      <input type="tel" />
     </div>
   )
 }

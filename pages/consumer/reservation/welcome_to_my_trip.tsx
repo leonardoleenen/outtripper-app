@@ -32,6 +32,11 @@ export default () => {
   const [indexPaymentCommitment, setIndexPaymentCommitment] = useState<number>(0)
   const [stage, setStage] = useState<STAGE>(STAGE.START)
   const [amountToPay, setAmountToPay] = useState<number>(reservation.paymentCommitments[0].amount)
+  const [commitmentSplited, setCommitmentSplited] = useState<Array< {
+    commitment: PaymentCommitment,
+    selected: boolean,
+  } >>([])
+
   const router = useRouter()
 
   const dispatch = useDispatch()
@@ -51,10 +56,17 @@ export default () => {
 
   const setSplitTheCheck = () => {
     reservation.paymentCommitments = reservation.pax.filter((p:Contact) => p).map((pax: Contact, index:number) => ({
-      amount: index === 0 ? reservation.amountOfPurchase : 0,
+      amount: reservation.amountOfPurchase / reservation.pax.filter((p:Contact) => p).length,
       pax,
     } as PaymentCommitment))
     dispatch(setMyTripReservation(reservation))
+    reservation.paymentCommitments.forEach((pc:PaymentCommitment) => {
+      commitmentSplited.push({
+        commitment: pc,
+        selected: true,
+      })
+    })
+    setCommitmentSplited(commitmentSplited)
     setStage(STAGE.SPLIT)
   }
 
@@ -111,12 +123,13 @@ export default () => {
 
   const save = () => {
     reservationAccessToken.paymentCommitmentKind = PAYMENT_COMMITMENT_KIND.SPLIT
+    reservation.paymentCommitments = commitmentSplited.map((cs) => cs.commitment)
     bs.updateReservation(reservation)
     bs.setPaymentCommitmentKindInReservationAccessToken(stage === STAGE.SPLIT ? PAYMENT_COMMITMENT_KIND.SPLIT : PAYMENT_COMMITMENT_KIND.NO_SLIP, reservationAccessToken)
     router.push(`/consumer/mytrip?accessToken=${reservationAccessToken.id}`)
   }
 
-  const Split = () => (
+  const SplitOld = () => (
     <div>
       <header className="p-4 flex items-center justify-end">
         <div>
@@ -129,6 +142,7 @@ export default () => {
           <div className="flex justify-center">
             <div>
               <input
+                type="tel"
                 value={amountToPay}
                 readOnly={indexPaymentCommitment === 0}
                 autoFocus
@@ -161,11 +175,61 @@ export default () => {
           ))}
         </div>
         <footer className="flex justify-center mt-8">
-          <div className="p-4 bg-teal-700 rounded-lg text-white ml-2 px-16" onClick={() => save()}>Save</div>
+          <div className="p-4 bg-teal-700 rounded-lg text-white ml-2 px-16" onClick={() => save()}>Finish</div>
         </footer>
       </article>
     </div>
   )
+
+
+  const Split = () => {
+    const itemClick = (index: number) => {
+      if ((commitmentSplited[index].selected) && (commitmentSplited.filter((c) => c.selected).length === 1)) return
+
+      commitmentSplited[index].selected = !commitmentSplited[index].selected
+
+      commitmentSplited.forEach((c, idx) => {
+      // eslint-disable-next-line max-len
+        commitmentSplited[idx].commitment.amount = c.selected ? reservation.amountOfPurchase / commitmentSplited.filter((cs) => cs.selected).length : 0
+      })
+
+      setCommitmentSplited(Object.assign([], commitmentSplited))
+    }
+    return (
+      <div className="h-screen bg-white">
+        <header className="flex justify-center p-4">
+          <div className="mt-16 mx-12 text-lg font-bold text-center">Split the payments within your team</div>
+        </header>
+        <div className="p-4">
+          <div className="text-base text-center">Total trip balance</div>
+          <div className="text-base text-center text-3xl font-semibold text-teal-500">{formatter.format(reservation.amountOfPurchase)}</div>
+        </div>
+
+        {commitmentSplited.map((c, index) => (
+          <div
+            key={`${index.toString()}cms`}
+            onClick={() => itemClick(index)}
+            className={`m-4 flex p-4 items-center ${c.selected ? 'border border-teal-500' : ''}`}
+          >
+            <div>
+              {c.selected ? <IconChecked /> : <div className="border border-gray-500 rounded-full w-4 h-4" />}
+            </div>
+            <div className="w-full text-sm ml-4">{`${c.commitment.pax.firstName} ${c.commitment.pax.lastName}`}</div>
+            <div className="text-xs w-24">Will pay:</div>
+            <div className="text-sm">{formatter.format(c.commitment.amount)}</div>
+          </div>
+        ))}
+
+
+        <div className="flex p-4 justify-center">
+          <div>
+            <button type="button" onClick={() => save()} className="flex px-16 py-4 bg-teal-500 rounded-lg text-white justify-center">Finish</button>
+          </div>
+        </div>
+
+      </div>
+    )
+  }
 
   const SelectPaymentCommitmentKind = () => (
     <div className="">
@@ -206,6 +270,7 @@ I pay entire invoice
 
   if (stage === STAGE.SPLIT) return <Split />
 
+  console.log(commitmentSplited)
   // if (document.getElementsByClassName('amountToPay').length > 0) document.getElementsByClassName('amountToPay')[0].focus()
   return (
     <div className="">
@@ -216,8 +281,8 @@ I pay entire invoice
       </header>
 
       <div className="bg-gray-100 h-screen p-4">
-        <div className="text-2xl font-bold py-4">Wecome Leonardo!  </div>
-        <div className="font-thin py-2 text-justify">As Group Leader we need that you define who is coming with you and how they pay for his trip. </div>
+        <div className="text-2xl font-bold py-4">Wecome!  </div>
+        <div className="font-thin py-2 text-justify">As Group Leader we need that you define party members and how they pay for his trip. </div>
         <div className="font-thin py-2 text-justify">In this step, we need to define  for all unknown guest, first name, last name and email.</div>
         <div className="font-thin py-2 text-justify">If you dont have this information yet, you shall do do it later. </div>
 
@@ -251,5 +316,11 @@ I pay entire invoice
 const IconSinglePeople = () => (
   <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M10.8624 10.4872C13.4512 10.4872 15.6086 8.20163 15.6086 5.27464C15.6086 2.42929 13.4396 0.190315 10.8624 0.190315C8.29693 0.190315 6.11627 2.45261 6.12793 5.28631C6.12793 8.20163 8.27361 10.4872 10.8624 10.4872ZM3.64407 21.3789H18.0808C20.0749 21.3789 20.7512 20.7375 20.7512 19.6297C20.7512 16.6444 16.903 12.5396 10.8624 12.5396C4.8102 12.5396 0.973633 16.6444 0.973633 19.6297C0.973633 20.7375 1.64999 21.3789 3.64407 21.3789Z" fill="#A1C3C3" />
+  </svg>
+)
+
+const IconChecked = () => (
+  <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.19629 13.9453C11.0107 13.9453 14.1689 10.7871 14.1689 6.97266C14.1689 3.16504 11.0039 0 7.18945 0C3.38184 0 0.223633 3.16504 0.223633 6.97266C0.223633 10.7871 3.38867 13.9453 7.19629 13.9453ZM7.19629 12.7832C3.96973 12.7832 1.39258 10.1992 1.39258 6.97266C1.39258 3.75293 3.96289 1.16211 7.18945 1.16211C10.416 1.16211 13 3.75293 13.0068 6.97266C13.0137 10.1992 10.4229 12.7832 7.19629 12.7832ZM6.33496 10.3906C6.56055 10.3906 6.74512 10.2812 6.88867 10.0693L10.2656 4.75781C10.3545 4.62109 10.4297 4.46387 10.4297 4.31348C10.4297 3.99902 10.1562 3.80762 9.86914 3.80762C9.69141 3.80762 9.51367 3.91016 9.39062 4.11523L6.30762 9.05762L4.72168 7.00684C4.56445 6.80176 4.40039 6.72656 4.21582 6.72656C3.91504 6.72656 3.67578 6.97266 3.67578 7.28027C3.67578 7.43066 3.7373 7.57422 3.83984 7.7041L5.74707 10.0693C5.93164 10.2949 6.10938 10.3906 6.33496 10.3906Z" fill="#38B2AC" />
   </svg>
 )

@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import moment from 'moment'
 import { loadStripe } from '@stripe/stripe-js'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import bs, { formatter } from '../../services/business'
 import Panel from './panel'
 import CheckoutPaymentForm from '../payment_checkout'
@@ -28,6 +28,9 @@ interface Props {
 export default (props:Props) => {
   const dispatch = useDispatch()
 
+  // Only force re-render - Monkey patch
+  const myTrip = useSelector((state) => state.myTrip)
+  const reservationMonkey = useSelector((state) => state.myTrip.reservation)
   const {
     purchaseAmount, payments, groupLeader, reservation, token, reservationToken, serviceChargeFeeSettings, chargeServiceFeeToCustomer,
   } = props
@@ -35,7 +38,6 @@ export default (props:Props) => {
 
   const items = bs.getUnPaidInstallments(reservation, reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0])
     .map((p, index) => ({ id: index.toString(), name: `Due on ${moment(p.installment.dueDate).format('MMM,  Do YYYY')}`, amount: p.balance }))
-
 
   const paymentAmount: number = payments.length === 0 ? 0 : payments.map((p:Payment) => p.amount).reduce((t, v) => t += v)
   const paxSelected: Contact = reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0]
@@ -52,23 +54,28 @@ export default (props:Props) => {
         dispatch(setMyTripReservation({ ...reservation }))
       })
   }
+
   return (
     <div className="p-4">
-      <div><span className="text-xl font-semibold">{`Group leader ${groupLeader.firstName} ${groupLeader.lastName}   invited you to pay`}</span></div>
+      <div><span className="text-xl font-semibold">{items.length === 0 ? 'Your trip is fully paid' : 'Your balance is: '}</span></div>
 
       <div className="pt-2">
         {payments.map((p:Payment) => (
-          <div key={p.id} className="flex pt-2 border-t mt-2">
-            <div className="flex w-1/3">
+          <div
+            key={p.id}
+            className="flex pt-2 border-t mt-2 font-thin text-sm"
+          >
+            <div className="flex">
               <div><IconCreditCard /></div>
-              <div className="ml-2"><span className="font-semibold text-gray-700">Payment</span></div>
             </div>
-            <div className="flex w-2/3 justify-end">
-              <div className="mr-2"><span className="font-thin">{moment(p.date).format('ddd DD MMM YYYY')}</span></div>
-              <div className="w-24 flex justify-end"><span className="font-semibold text-gray-700">{formatter.format(p.amount)}</span></div>
+            <div className="flex justify-end">
+              <div className="mr-2 w-full ml-4 "><span className="font-thin">{moment(p.date).format('ddd DD MMM YYYY')}</span></div>
+              <div className="flex justify-end"><span className="font-semibold text-gray-700">{formatter.format(p.amount)}</span></div>
             </div>
           </div>
         ))}
+
+
         {payments.length === 0 ? '' : (
           <div className="flex justify-end pt-4 mt-4 border-t">
             <div><span className="text-gray-700 uppercase">Total Paid</span></div>
@@ -89,7 +96,7 @@ export default (props:Props) => {
         <div className="my-2">
           <span className="font-semibold text-white">Terms and Conditions</span>
         </div>
-        <div className=""><span className="text-white italic">2 payments, $5,600 due on Nov., 30, 2019, $5600 due on Feb., 3, 2020</span></div>
+        <div className=""><span className="text-white italic">{reservation.termsAndConditionsLiteral}</span></div>
       </Panel>
 
       <CheckoutPaymentForm

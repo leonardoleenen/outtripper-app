@@ -65,7 +65,7 @@ declare interface DataService {
   createUser(user: User) : Promise<User>
   addDealAccess(user: User, organizationId: string, role: Role) : void
   getReservationAccessToken(id: string) : Promise<ReservationToken>
-  getReservationAccessTokenByReservationId(id: string) : Promise<ReservationToken>
+  getReservationAccessTokenByReservationId(id: string) : Promise<Array<ReservationToken>>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
   createReservationAccessToken(reservationToken: ReservationToken) : Promise<ReservationToken>
   getOrganization(organizationId: string) : Promise<Organization>
@@ -290,7 +290,7 @@ export class DataAccessService implements DataService {
     reservation.payments = payments
     // eslint-disable-next-line no-param-reassign
     reservation.amountOfPayment = payments.length > 0 ? payments.map((p: Payment) => p.amount).reduce((total, v) => total += v) : 0
-    // reservation.reservationAccessToken = await this.getReservationAccessTokenByReservationId(reservation.id)
+
     if ((reservation.amountOfPurchase - reservation.amountOfPayment) === 0) {
       reservation.financialState = 'PAID'
     }
@@ -591,13 +591,18 @@ export class DataAccessService implements DataService {
       .then((doc) => doc.data() as Organization)
   }
 
-  getReservationAccessTokenByReservationId(id: string): Promise<ReservationToken> {
+  getReservationAccessTokenByReservationId(id: string): Promise<Array<ReservationToken>> {
+    const result : Array<ReservationToken> = []
+
     return this.fb
       .firestore()
       .collection('reservationsAccessTokens')
       .where('reservationId', '==', id)
       .get()
-      .then((snap) => snap.docs.map((doc) => doc.data() as ReservationToken)[0])
+      .then((snap) => {
+        snap.docs.map((doc) => result.push(doc.data() as ReservationToken))
+        return result
+      })
   }
 
   updateReservation(organizationId: string, reservation: Reservation): Promise<Reservation> {
