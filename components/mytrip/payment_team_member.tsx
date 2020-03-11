@@ -19,6 +19,7 @@ interface Props {
   reservation: Reservation
   reservationToken: ReservationToken
   chargeServiceFeeToCustomer: boolean
+  otherPaymentMethods?: string
   serviceChargeFeeSettings: {
     serviceChargeFeePercentage: number; serviceChargeFeeFixedAmount: number
   }
@@ -28,11 +29,19 @@ interface Props {
 export default (props:Props) => {
   const dispatch = useDispatch()
 
+  const [showOtherPaymentMethods, setShowOtherPaymentMethods] = useState(false)
+
   // Only force re-render - Monkey patch
   const myTrip = useSelector((state) => state.myTrip)
   const reservationMonkey = useSelector((state) => state.myTrip.reservation)
   const {
-    purchaseAmount, payments, groupLeader, reservation, token, reservationToken, serviceChargeFeeSettings, chargeServiceFeeToCustomer,
+    purchaseAmount,
+    payments,
+    groupLeader,
+    reservation,
+    token,
+    otherPaymentMethods,
+    reservationToken, serviceChargeFeeSettings, chargeServiceFeeToCustomer,
   } = props
 
 
@@ -53,6 +62,19 @@ export default (props:Props) => {
         bs.updateReservation(reservation)
         dispatch(setMyTripReservation({ ...reservation }))
       })
+  }
+
+  if (showOtherPaymentMethods) {
+    return (
+      <div className="inset-x-0 bottom-0 absolute bg-gray-100 text-black rounded-t-lg mt-8">
+        <header className="flex p-4">
+          <div className="text-sm w-full text-gray-600">Payment Methods</div>
+          <div className="text-gray-700 text-base font-semibold" onClick={() => setShowOtherPaymentMethods(false)}>Close</div>
+        </header>
+        <div className="text-gray-800 text-lg font-semibold p-4">Other payment methods</div>
+        <div className="px-4 text-gray-600 font-thin pb-8">{otherPaymentMethods}</div>
+      </div>
+    )
   }
 
   return (
@@ -92,12 +114,6 @@ export default (props:Props) => {
         </div>
       )}
 
-      <Panel>
-        <div className="my-2">
-          <span className="font-semibold text-white">Terms and Conditions</span>
-        </div>
-        <div className=""><span className="text-white italic">{reservation.termsAndConditionsLiteral}</span></div>
-      </Panel>
 
       <CheckoutPaymentForm
         chargeServiceFeeToCustomer={chargeServiceFeeToCustomer}
@@ -106,6 +122,15 @@ export default (props:Props) => {
         items={items}
         chargeDescription={`${paxSelected.firstName} ${paxSelected.lastName} - ${reservation.program.name} ${moment(reservation.serviceFrom).format('MMM Do YYYY')}`}
       />
+
+      {otherPaymentMethods ? <div className="text-center text-gray-300 mt-4 underline" onClick={() => setShowOtherPaymentMethods(true)}>Other Payment Methods</div> : '' }
+
+      <Panel>
+        <div className="my-2">
+          <span className="font-semibold text-white">Terms and Conditions</span>
+        </div>
+        <div className=""><span className="text-white italic">{reservation.termsAndConditionsLiteral}</span></div>
+      </Panel>
 
 
     </div>

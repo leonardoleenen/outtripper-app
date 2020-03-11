@@ -70,6 +70,7 @@ interface Services {
     chargeFeeServiceToCustomer: boolean
     serviceChargeFeePercentage: number
     serviceChargeFeeFixedAmount: number
+    otherPaymentMethods: string
   }>
 
   // Retrieve unpaid installment given a reservation and pax
@@ -81,6 +82,7 @@ interface Services {
   getChargeServiceFeeToCustomer(): Promise<boolean>
   getServiceChargeFeeSettings(): Promise<{serviceChargeFeePercentage: number,
     serviceChargeFeeFixedAmount: number}>
+  getOtherPaymentMethods(): Promise<string>
 
   getReservationAccessToken(id: string) : Promise<ReservationToken>
   getReservationAccessTokenByReservationIdAndContact(reservationId: string, contact: Contact) : Promise<ReservationToken>
@@ -374,7 +376,17 @@ class BusinessService implements Services {
   }
 
   setPax(reservation: Reservation, pax: Contact, index: number) : Promise<Reservation> {
-    return this.getToken().then((token: TokenOuttripper) => this.da.setPax(token.organizationId, reservation.id, pax, index))
+    reservation.paymentCommitments.push({ amount: 0, pax, payments: null })
+    reservation.pax[index] = pax
+    // return this.da.updateReservation(reservation)
+
+    return this.getToken().then((token: TokenOuttripper) => this.da.updateReservation(token.organizationId, reservation))
+    /*
+    return this.getToken().then(async (token: TokenOuttripper) => {
+      await this.da.setPax(token.organizationId, reservation.id, pax, index)
+      return this.da.updateReservation(token.id, reservation)
+    })
+    */
   }
 
   updateAvailableDate(date: AvailableDate, reservation: Reservation): void {
@@ -615,6 +627,7 @@ class BusinessService implements Services {
     chargeFeeServiceToCustomer: boolean
     serviceChargeFeePercentage: number
     serviceChargeFeeFixedAmount: number
+    otherPaymentMethods: string
   }> {
     return this.getToken().then((token: TokenOuttripper) => this.da.getPaymentGatewayCredentials(token.organizationId))
   }
@@ -701,6 +714,11 @@ class BusinessService implements Services {
   getServiceChargeFeeSettings(): Promise<{ serviceChargeFeePercentage: number; serviceChargeFeeFixedAmount: number }> {
     return this.getPaymentGatewayCredentials()
       .then((result) => ({ serviceChargeFeePercentage: result.serviceChargeFeePercentage, serviceChargeFeeFixedAmount: result.serviceChargeFeeFixedAmount }))
+  }
+
+  getOtherPaymentMethods(): Promise<string> {
+    return this.getPaymentGatewayCredentials()
+      .then((result) => result.otherPaymentMethods)
   }
 
 

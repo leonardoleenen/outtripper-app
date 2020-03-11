@@ -52,7 +52,8 @@ declare interface DataService {
     kind: string,
     chargeFeeServiceToCustomer: boolean,
     serviceChargeFeePercentage: number,
-    serviceChargeFeeFixedAmount: number
+    serviceChargeFeeFixedAmount: number,
+    otherPaymentMethods: string
   }>
 
 
@@ -436,6 +437,7 @@ export class DataAccessService implements DataService {
     chargeFeeServiceToCustomer: boolean
     serviceChargeFeePercentage: number
     serviceChargeFeeFixedAmount: number
+    otherPaymentMethods: string
   }> {
     return this.fb
       .firestore()
@@ -448,6 +450,7 @@ export class DataAccessService implements DataService {
         chargeFeeServiceToCustomer: boolean
         serviceChargeFeePercentage: number
         serviceChargeFeeFixedAmount: number
+        otherPaymentMethods: string
       })
   }
 

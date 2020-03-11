@@ -68,7 +68,7 @@ export default () => {
       <div className="bg-gray-200">
         {contactFiltered.map((c: Contact, index:number) => (
           <div
-            key={c.email}
+            key={c.id}
             onClick={() => {
               dispatch(setContact(c))
               router.push(goTo)

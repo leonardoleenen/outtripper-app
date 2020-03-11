@@ -129,58 +129,6 @@ export default () => {
     router.push(`/consumer/mytrip?accessToken=${reservationAccessToken.id}`)
   }
 
-  const SplitOld = () => (
-    <div>
-      <header className="p-4 flex items-center justify-end">
-        <div>
-          <button className="text-teal-700" onClick={() => setStage(STAGE.SELECT_PAYMENT_COMMITMENT_KIND)} type="button">Back</button>
-        </div>
-      </header>
-      <article className="h-screen p-4 bg-gray-100">
-        <div className="py-4 text-2xl font-bold">Please, indicate how do you do payment collection</div>
-        <div className="mt-8">
-          <div className="flex justify-center">
-            <div>
-              <input
-                type="tel"
-                value={amountToPay}
-                readOnly={indexPaymentCommitment === 0}
-                autoFocus
-                onChange={(e) => setAmountToPay(parseInt(e.target.value || '0', 10))}
-                onBlur={() => updateCommitmentAmount(indexPaymentCommitment, amountToPay)}
-                className="amountToPay text-4xl text-teal-700 font-bold text-center w-64"
-              />
-            </div>
-          </div>
-          <div className="flex justify-center"><span className="font-thin">{`Will be charge ${indexPaymentCommitment === 0 ? 'to you' : `to ${reservation.paymentCommitments[indexPaymentCommitment].pax.firstName} ${reservation.paymentCommitments[indexPaymentCommitment].pax.lastName}`}`}</span></div>
-        </div>
-
-        <div className="mt-8">
-          {reservation.paymentCommitments.map((commitment: PaymentCommitment, index: number) => (
-            <div
-              onClick={() => {
-                setIndexPaymentCommitment(index)
-                setAmountToPay(reservation.paymentCommitments[index].amount)
-              }}
-              className={`flex p-4  my-4 shadow-xl items-center ${indexPaymentCommitment === index ? 'bg-teal-200' : 'bg-white'}`}
-              key={`paxCommitment${index.toString()}`}
-            >
-              <div className="w-full"><span>{`${commitment.pax.firstName} ${commitment.pax.lastName}`}</span></div>
-              <div className="flex justify-end w-full">
-                <div>
-                  <span>{formatter.format(commitment.amount)}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <footer className="flex justify-center mt-8">
-          <div className="p-4 bg-teal-700 rounded-lg text-white ml-2 px-16" onClick={() => save()}>Finish</div>
-        </footer>
-      </article>
-    </div>
-  )
-
 
   const Split = () => {
     const itemClick = (index: number) => {

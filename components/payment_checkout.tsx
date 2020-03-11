@@ -49,6 +49,7 @@ export default (props: Props) => {
   const [transactionSuccess, setTransactionSuccess] = useState(false)
   const [transactionError, setTransactionError] = useState(null)
   const [show, setShow] = useState(false)
+
   const CheckoutForm = () => {
     const stripe = useStripe()
     const elements = useElements()
@@ -224,6 +225,7 @@ export default (props: Props) => {
       </div>
     )
   }
+
   return (
     <div className="text-black">
 
@@ -231,9 +233,10 @@ export default (props: Props) => {
         <div className={`flex justify-center mt-4 ${!show ? '' : 'hidden'}`}>
           <div className="flex-cols">
             <button type="button" className="px-8 py-4 bg-teal-700 text-white rounded-lg" onClick={() => setShow(true)}>
-              <span>Pay now with credit card</span>
+              <span>Pay now</span>
             </button>
             {chargeServiceFeeToCustomer ? <div className="text-gray-600 text-xs font-thin text-center mt-2">{`${serviceChargeFeeSettings.serviceChargeFeePercentage}% will be charge as Service Fee`}</div> : '' }
+
           </div>
         </div>
       ) : '' }

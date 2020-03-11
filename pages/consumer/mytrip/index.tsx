@@ -32,6 +32,7 @@ export default () => {
   const [chargeServiceFeeToCustomer, setChargeServiceFeeToCustomer] = useState<boolean>(false)
   const [serviceChargeFeeSettings, setServiceChargeFeeSettings] = useState<{serviceChargeFeePercentage: number
     serviceChargeFeeFixedAmount: number}>(null)
+  const [otherPaymentMethods, setOtherPaymentMethods] = useState(null)
   const dispatch = useDispatch()
   const [organization, setOrganization] = useState<Organization>(null)
 
@@ -62,8 +63,6 @@ export default () => {
       tk.rol = 'CONSUMER'
       bs.setToken(tk)
       const r = await bs.getReservation(rt.reservationId)
-      dispatch(setMyTripReservation(r))
-      dispatch(setMyTripGroupLeader(r.pax[0]))
 
       const reservationTokenList : Array<ReservationToken> = await bs.getReservationAccessTokenByReservationId(rt.reservationId)
 
@@ -73,6 +72,23 @@ export default () => {
         rt.paymentCommitmentKind = reservationTokenParent.paymentCommitmentKind
         bs.setPaymentCommitmentKindInReservationAccessToken(reservationTokenParent.paymentCommitmentKind as PAYMENT_COMMITMENT_KIND, rt)
       }
+
+      if (r.pax.length === 1) {
+        r.paymentCommitments = []
+        r.paymentCommitments.push({
+          amount: reservation.amountOfPurchase,
+          pax: reservation.pax[0],
+          payments: null,
+        })
+        bs.updateReservation(r)
+        rt.paymentCommitmentKind = PAYMENT_COMMITMENT_KIND.SPLIT
+        bs.setPaymentCommitmentKindInReservationAccessToken(PAYMENT_COMMITMENT_KIND.SPLIT, rt)
+      }
+
+      setOtherPaymentMethods(await bs.getOtherPaymentMethods())
+
+      dispatch(setMyTripReservation(r))
+      dispatch(setMyTripGroupLeader(r.pax[0]))
 
       dispatch(setMyTripReservationToken(rt))
       setOrganization(org)
@@ -119,6 +135,7 @@ export default () => {
                 chargeServiceFeeToCustomer={chargeServiceFeeToCustomer}
                 groupLeader={reservation.pax[0]}
                 payments={paymentsOfCustomer}
+                otherPaymentMethods={otherPaymentMethods}
                 purchaseAmount={reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)
                   .map((pc:PaymentCommitment) => pc.amount).reduce((t, v) => t += v)}
               />
@@ -137,8 +154,13 @@ export default () => {
 
   if (isLoading) return <Loading />
 
+
+  // eslint-disable-next-line max-len
+  const isInvited : boolean = !reservation.paymentCommitments.filter((pc) => pc.pax.id === reservationToken.contactId)[0].payments && reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].amount === 0
+
+
   return (
-    <div className="h-screen w-screen bg-black p-4">
+    <div className="h-screen w-screen bg-black p-4 relative">
       <header>
         <div className="mb-4 flex items-center mb-4">
           <div><IconBack /></div>
@@ -152,10 +174,13 @@ export default () => {
             <Icon icon={ICONS.CONTACT} selected={sectionSelected} />
             <span className={`text-white text-xs ${sectionSelected === SECTIONS.CONTACT ? 'text-teal-500' : ''}`}>Contact</span>
           </div>
-          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.PAYMENTS)}>
-            <Icon icon={ICONS.PAYMENTS} selected={sectionSelected} />
-            <span className={`text-white text-xs ${sectionSelected === SECTIONS.PAYMENTS ? 'text-teal-500' : ''}`}>Payments</span>
-          </div>
+          {!isInvited ? (
+            <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.PAYMENTS)}>
+              <Icon icon={ICONS.PAYMENTS} selected={sectionSelected} />
+              <span className={`text-white text-xs ${sectionSelected === SECTIONS.PAYMENTS ? 'text-teal-500' : ''}`}>Payments</span>
+            </div>
+          ) : ''}
+
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.ITINERARY)}>
             <Icon icon={ICONS.ITINERARY} selected={sectionSelected} />
             <span className={`text-white text-xs ${sectionSelected === SECTIONS.ITINERARY ? 'text-teal-500' : ''}`}>Itinerary</span>
