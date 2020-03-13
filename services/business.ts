@@ -79,6 +79,7 @@ interface Services {
     balance: number
   }>
 
+
   getChargeServiceFeeToCustomer(): Promise<boolean>
   getServiceChargeFeeSettings(): Promise<{serviceChargeFeePercentage: number,
     serviceChargeFeeFixedAmount: number}>
@@ -92,7 +93,8 @@ interface Services {
   getOrganizationById(id: string): Promise<Organization>
   setItineraryGroundTransfer(reservationId: string, pax: Contact, day: number, service: ItineraryGroundTransfer) : Promise<Reservation>
   getDebtors(reservation: Reservation) : Array<Contact>
-
+  updatePaxQuestionnarie(reservationId: string, pax: Contact, questionnarie: Array<QuestionarieComponent>) : Promise<Reservation>
+  getQuestionnariePax(reservation: Reservation, pax: Contact) : Array<QuestionarieComponent>
 }
 
 
@@ -729,6 +731,35 @@ class BusinessService implements Services {
         this.da.updateReservation(token.organizationId, r)
         return r
       }))
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getQuestionnariePax(reservation: Reservation, pax: Contact) : Array<QuestionarieComponent> {
+    if (!reservation.questionnaries) { return null }
+    if (reservation.questionnaries && reservation.questionnaries.filter((q) => q.contactId === pax.id).length === 0) {
+      return null
+    }
+
+    return reservation.questionnaries.filter((q) => q.contactId === pax.id)[0].questionnarie
+  }
+
+  updatePaxQuestionnarie(reservationId: string, pax: Contact, questionnarie: Array<QuestionarieComponent>) : Promise<Reservation> {
+    return this.getToken().then(async (token:TokenOuttripper) => {
+      const reservation: Reservation = await this.da.getReservation(token.organizationId, reservationId)
+
+      if (!reservation.questionnaries) { reservation.questionnaries = [] }
+
+      if (reservation.questionnaries.filter((qp) => qp.contactId === pax.id).length === 0) {
+        reservation.questionnaries.push({
+          contactId: pax.id,
+          questionnarie,
+        })
+      } else {
+        reservation.questionnaries[reservation.questionnaries.map((q) => q.contactId).indexOf(pax.id)].questionnarie = questionnarie
+      }
+
+      return this.da.updateReservation(token.organizationId, reservation)
+    })
   }
 }
 

@@ -1,52 +1,221 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+
 
 interface Props {
-  closeFunction : Function
+  defaultQuestionnarie: DefaultQuestionnarie
+  paxQuestionnarie: Array<QuestionarieComponent>
+  callFunction: Function
 }
 
+enum COMPONENT_KIND {
+  TEXT='TEXT',
+  MULTI_SELECT= 'MULTI_SELECT',
+  SINGLE_SELECTION = 'SINGLE_SELECTION'
+}
+
+
 export default (props: Props) => {
-  const { closeFunction } = props
+  const { defaultQuestionnarie, paxQuestionnarie, callFunction } = props
+  const [showForm, setShowForm] = useState(false)
+  const [myQuestionnarie, setMyQuestionnarie] = useState<Array<QuestionarieComponent>>([])
+  const [inputSelected, setInputSelected] = useState(null)
 
-  return (
-    <div className="bg-gray-100 p-4">
-      <label htmlFor="lastName">
-        <div className="mt-4">
-          <span>Last Name</span>
-          <input className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal" name="lastName" type="text" />
-        </div>
-      </label>
-      <label htmlFor="firstName">
-        <div className="mt-4">
-          <span>First Name</span>
-          <input className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal" name="firstName" type="text" />
-        </div>
-      </label>
+  useEffect(() => {
+    const loadComponents = () => {
+      const components : Array<QuestionarieComponent> = []
 
-      <label htmlFor="email">
-        <div className="mt-4">
-          <span>Email</span>
-          <input className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal" name="email" type="text" />
-        </div>
-      </label>
+      if (defaultQuestionnarie.birthDate) {
+        components.push({
+          id: 'BIRTHDATE',
+          description: 'Birth Date',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
 
-      <label htmlFor="state">
-        <span>State</span>
-        <div className="inline-block relative  mt-4">
+      if (defaultQuestionnarie.dietaryRestrictions) {
+        components.push({
+          id: 'DIETARIERESTRICTIONS',
+          description: 'Dietarie Restrictions',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
 
-          <select name="state" className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
-            <option>Really long option that will likely overlap the chevron</option>
-            <option>Option 2</option>
-            <option>Option 3</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+      if (defaultQuestionnarie.email) {
+        components.push({
+          id: 'EMAIL',
+          description: 'Email',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.emergencyContactInfo) {
+        components.push({
+          id: 'EMERGENCYCONTACTINFO',
+          description: 'Emergency Contact Info',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.gender) {
+        components.push({
+          id: 'GENDER',
+          description: 'Gender',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.languages) {
+        components.push({
+          id: 'LANGUAGES',
+          description: 'Languages',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.medicalConditions) {
+        components.push({
+          id: 'MEDICALCONDITIONS',
+          description: 'Medical Conditions',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.name) {
+        components.push({
+          id: 'NAME',
+          description: 'Name',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.nickName) {
+        components.push({
+          id: 'NICKNAME',
+          description: 'NickName',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.passport) {
+        components.push({
+          id: 'PASSPORT',
+          description: 'Passport',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.physicalLimitations) {
+        components.push({
+          id: 'PHYSICALLIMITATIONS',
+          description: 'Physical Limitations',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      if (defaultQuestionnarie.workPhone) {
+        components.push({
+          id: 'WORKPHONE',
+          description: 'WorkPhone',
+          kind: COMPONENT_KIND.TEXT,
+          mandatory: true,
+        })
+      }
+
+      paxQuestionnarie.forEach((q:QuestionarieComponent) => {
+        const idx: number = components.map((c:QuestionarieComponent) => c.id).indexOf(q.id)
+        if (idx > -1) {
+          components[idx].value = q.value
+        }
+      })
+
+      setMyQuestionnarie(components)
+    }
+
+    loadComponents()
+  }, [])
+
+
+  const Landing = () => (
+    <div className="">
+      <div className="flex justify-center">
+        <div className="text-lg font-semibold p-4">Pre trip questionnarie</div>
+      </div>
+      <div className="flex justify-center">
+        <div className="text-gray-400 text-center">We need to know some information about you to enrich your experience. Please, make sure you complete this questionnarie before your trip.</div>
+      </div>
+      <div className="flex justify-center">
+        <button onClick={() => setShowForm(true)} type="button" className="bg-teal-500 text-white px-16 py-4 mt-4 rounded-lg">Complete questionnarie</button>
+      </div>
+    </div>
+  )
+
+  const ProgressBar = () => (
+    <div className="pt-4">
+      <div className="w-full text-center py-2">{`${myQuestionnarie.filter((q:QuestionarieComponent) => q.mandatory).filter((q:QuestionarieComponent) => q.value).length} of ${myQuestionnarie.filter((q:QuestionarieComponent) => q.mandatory).length}`}</div>
+      <div className="flex">
+        <div className="h-1 w-1/5 bg-teal-400" />
+        <div className="h-1 w-4/5 bg-gray-400" />
+      </div>
+
+    </div>
+  )
+  const Form = () => (
+    <div className="bg-gray-100 text-gray-800 rounded-t-lg pb-8 absolute inset-x-0 bottom-0 p-4">
+      <header className="p-4">
+        <div className="flex">
+          <div className="w-full" onClick={() => setShowForm(false)}>Cancel</div>
+          <div
+            className="text-base font-semibold text-teal-500"
+            onClick={() => {
+              setMyQuestionnarie(myQuestionnarie)
+              setShowForm(false)
+              callFunction(myQuestionnarie)
+            }}
+          >
+Save
+
           </div>
         </div>
-      </label>
+        <ProgressBar />
+        <div className="mt-8 text-lg font-semibold">Trip Questionnarie</div>
+      </header>
 
-      <div className="flex w-full justify-center mt-4">
-        <button onClick={() => closeFunction()} type="button" className="px-8 py-4 border text-white font-semibold uppercase rounded-lg bg-teal-700"> Save</button>
+      <div className="overflow-y-auto" style={{ height: '450px' }}>
+        { myQuestionnarie.map((c:QuestionarieComponent, index:number) => (
+          <div className={`p-4 m-4 bg-white ${c.mandatory && c.value ? 'border border-green-500' : 'border border-red-500'}`} key={c.id}>
+            <div className="text-base font-semibold">{c.description}</div>
+            <input
+              onChange={(e) => {
+                setInputSelected(c.id)
+                myQuestionnarie[index].value = e.target.value
+                setMyQuestionnarie(Object.assign([], myQuestionnarie))
+              }}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={inputSelected === c.id}
+              value={c.value}
+              className="py-2 w-full focus:outline-none"
+              placeholder={c.description}
+            />
+          </div>
+        ))}
       </div>
+    </div>
+  )
+
+  return (
+    <div className="p-4 text-gray-100">
+      {showForm ? <Form /> : <Landing />}
     </div>
   )
 }

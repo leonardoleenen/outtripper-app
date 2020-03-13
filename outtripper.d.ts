@@ -97,6 +97,7 @@ type Program = {
     service : ItineraryActivities | ItineraryGroundTransfer
   }>
   gear : Array<Gear>
+  defaultQuestionnarie: DefaultQuestionnarie
 }
 
 
@@ -170,6 +171,10 @@ type Reservation = {
     contactId: string,
     day: number,
     service : ItineraryGroundTransfer | ItineraryActivities
+  }>
+  questionnaries?: Array<{
+    contactId: string
+    questionnarie: Array<QuestionarieComponent>
   }>
   paymentCommitments: Array<PaymentCommitment>
 }
@@ -281,4 +286,33 @@ type Gear = {
 type DealAccess = {
   organization: string
   rol: string
+}
+
+
+type DefaultQuestionnarie = {
+  name: boolean
+  nickName: boolean
+  workPhone: boolean
+  gender: boolean
+  email: boolean
+  address: boolean
+  passport: boolean
+  languages: boolean
+  birthDate: boolean
+  emergencyContactInfo: boolean
+  medicalConditions: boolean
+  dietaryRestrictions: boolean
+  physicalLimitations: boolean
+}
+
+type QuestionarieComponent = {
+  id: string
+  description: string
+  kind: COMPONENT_KIND,
+  values?: Array<{
+    id: string,
+    value: string
+  }>,
+  mandatory: boolean
+  value?: StringDecoder
 }

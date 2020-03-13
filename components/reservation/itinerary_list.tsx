@@ -123,7 +123,7 @@ export default (props: Props) => {
 
           {showQuestionnarie ? (
             <div>
-              <Questionnarie closeFunction={() => setShowQuestionnarie(false)} />
+              <div> Mostrar Cuestionario </div>
             </div>
           ) : (
             <div>

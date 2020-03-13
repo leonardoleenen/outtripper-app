@@ -12,6 +12,8 @@ import Icon, { ICONS } from '../../../components/mytrip/icons'
 import SectionContact from '../../../components/mytrip/section_contact'
 import SectionPreTrip from '../../../components/mytrip/section_pretrip'
 import SectionCheckList from '../../../components/mytrip/section_checklist'
+import SectionQuestionnarie from '../../../components/mytrip/section_questionnarie'
+
 import ItinerayList from '../../../components/reservation/itinerary_list'
 import PaymentTeamMember from '../../../components/mytrip/payment_team_member'
 import {
@@ -123,6 +125,14 @@ export default () => {
         return <SectionContact />
       case SECTIONS.CHECKLIST:
         return <SectionCheckList reservation={reservation} />
+      case SECTIONS.QUESTIONNARIE:
+        return (
+          <SectionQuestionnarie
+            callBackFunction={(result) => bs.updatePaxQuestionnarie(reservation.id, reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0], result)}
+            paxQuestionnarie={bs.getQuestionnariePax(reservation, reservation.pax.filter((p:Contact) => p && p.id === reservationToken.contactId)[0])}
+            defaultQuestionnarie={reservation.program.defaultQuestionnarie}
+          />
+        )
       case SECTIONS.PAYMENTS:
         return (
           <div>
@@ -192,6 +202,10 @@ export default () => {
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.CHECKLIST)}>
             <Icon icon={ICONS.CHECKLIST} selected={sectionSelected} />
             <span className={`text-white text-xs ${sectionSelected === SECTIONS.CHECKLIST ? 'text-teal-500' : ''}`}>Check List</span>
+          </div>
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.QUESTIONNARIE)}>
+            <Icon icon={ICONS.QUESTIONNARIE} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.QUESTIONNARIE ? 'text-teal-500' : ''}`}>Questionnarie</span>
           </div>
         </div>
       </header>
