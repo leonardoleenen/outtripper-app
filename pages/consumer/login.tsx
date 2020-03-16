@@ -16,16 +16,29 @@ export default () => {
 
 
   useEffect(() => {
-    dbs.fb.auth().getRedirectResult().then((result) => {
+    dbs.fb.auth().getRedirectResult().then(async (result) => {
       const { user } = result
       if (user) {
+        /*
+        console.log('Tiene usuario')
         bs.login(user.uid, user.displayName, user.email, user.photoURL).then((token: TokenOuttripper) => {
           router.push(`/consumer/mytrip?accessToken=${accessToken}`)
+          console.log('paso el login')
           setIsLoading(false)
           return <div> Esperando el redirect</div>
         })
+        */
+        const token : TokenOuttripper = await bs.login(user.uid, user.displayName, user.email, user.photoURL)
+
+        if (token) {
+          router.push(`/consumer/mytrip?accessToken=${accessToken}`)
+          return
+        }
       }
+
       setIsLoading(false)
+
+      // setIsLoading(false)
     }).catch((error) => {
       // Handle Errors here.
       const errorCode = error.code
@@ -47,37 +60,38 @@ export default () => {
         <img src="/img/logowhite.png" className="h-10 w-10" alt="" />
       </div>
       <div className="p-8 flex items-center justify-center">
-        <span className="text-4xl font-bold flex text-center">Welcome to OutTripper</span>
+        <span className="text-4xl font-bold flex text-center">Welcome, </span>
       </div>
 
-      <div className="p-8">
-        <span className="font-thin flex text-center leading-relaxed">
-          {`Your Next Trip to Jurassic Lake it's coming!
+      <div className="px-8">
+        <span className="text-sm font-thin flex text-center leading-relaxed">
+          {`Your Next Trip coming soon!
 
-In order to get you an outstanding trip, OutTripper family has developed for you a Customized Trip Sheet with all concerned information about this trip. 
-You can manage your reservation, make online payments, check your gear and a hundred different actions that will become the most beautiful trip of your life. `}
+Sign up to manage your reservation, make online payments, check your pre-trip and gear recomendations, among other things to enrich your travel experience. `}
         </span>
       </div>
 
-      <div className="p-4 flex items-center justify-center">
-        <span>Please, sign in to continue</span>
-      </div>
 
-      <div className="flex items-center justify-center">
-        <button className="flex mx-8 w-full rounded-lg px-4 py-2 bg-gray-300" type="button" onClick={() => showGoogleLogin()}>
-          <div>
-            <IconGoogle />
-          </div>
-          <div className="w-full">
-            <span className="ml-4 text-gray-800 font-semibold">Continue with Google</span>
-          </div>
-        </button>
+      <div className="fixed bottom-0 justify-center w-full mb-8">
+        <div className="flex items-center justify-center">
+          <button className="flex mx-8 w-full rounded-lg px-4 py-2 bg-gray-300" type="button" onClick={() => showGoogleLogin()}>
+            <div>
+              <IconGoogle />
+            </div>
+            <div className="w-full">
+              <span className="ml-4 text-gray-800 font-semibold">Continue with Google</span>
+            </div>
+          </button>
+        </div>
+        <div className="p-4 font-thin flex items-center justify-center">
+          <span>Powered By Outtripper</span>
+        </div>
       </div>
 
       <style>
         {`
           .h-screen {
-            background: linear-gradient(270deg, #306771 0%, #549594 100%);
+            background-image: url('/img/mytrip_background.jpg');
           }
         `}
       </style>

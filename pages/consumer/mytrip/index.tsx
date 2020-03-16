@@ -13,7 +13,7 @@ import SectionContact from '../../../components/mytrip/section_contact'
 import SectionPreTrip from '../../../components/mytrip/section_pretrip'
 import SectionCheckList from '../../../components/mytrip/section_checklist'
 import SectionQuestionnarie from '../../../components/mytrip/section_questionnarie'
-
+import SectionGuests from '../../../components/mytrip/section_guests'
 import ItinerayList from '../../../components/reservation/itinerary_list'
 import PaymentTeamMember from '../../../components/mytrip/payment_team_member'
 import {
@@ -125,6 +125,8 @@ export default () => {
         return <SectionContact />
       case SECTIONS.CHECKLIST:
         return <SectionCheckList reservation={reservation} />
+      case SECTIONS.GUESTS:
+        return <SectionGuests paxs={reservation.pax} />
       case SECTIONS.QUESTIONNARIE:
         return (
           <SectionQuestionnarie
@@ -179,7 +181,7 @@ export default () => {
         <div>
           <img alt="" src="https://res.cloudinary.com/dtyymz4nn/image/upload/v1581790163/Jurassic%20Lake/84191608_1794103200734607_3579079479928029184_n.jpg" />
         </div>
-        <div className="flex overflow-x-scroll">
+        <div className="flex overflow-x-scroll  items-baseline">
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.CONTACT)}>
             <Icon icon={ICONS.CONTACT} selected={sectionSelected} />
             <span className={`text-white text-xs ${sectionSelected === SECTIONS.CONTACT ? 'text-teal-500' : ''}`}>Contact</span>
@@ -191,17 +193,22 @@ export default () => {
             </div>
           ) : ''}
 
+          <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.GUESTS)}>
+            <Icon icon={ICONS.GUESTS} selected={sectionSelected} />
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.GUESTS ? 'text-teal-500' : ''}`}>Guests</span>
+          </div>
+
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.ITINERARY)}>
             <Icon icon={ICONS.ITINERARY} selected={sectionSelected} />
             <span className={`text-white text-xs ${sectionSelected === SECTIONS.ITINERARY ? 'text-teal-500' : ''}`}>Itinerary</span>
           </div>
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.PRETRIP)}>
             <Icon icon={ICONS.PRETRIP} selected={sectionSelected} />
-            <span className={`text-white text-xs ${sectionSelected === SECTIONS.PRETRIP ? 'text-teal-500' : ''}`}>Pre Trip</span>
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.PRETRIP ? 'text-teal-500' : ''}`}>PreTrip</span>
           </div>
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.CHECKLIST)}>
             <Icon icon={ICONS.CHECKLIST} selected={sectionSelected} />
-            <span className={`text-white text-xs ${sectionSelected === SECTIONS.CHECKLIST ? 'text-teal-500' : ''}`}>Check List</span>
+            <span className={`text-white text-xs ${sectionSelected === SECTIONS.CHECKLIST ? 'text-teal-500' : ''}`}>CheckList</span>
           </div>
           <div className="p-4 h-24 w-24 flex-cols" onClick={() => setSectionSelected(SECTIONS.QUESTIONNARIE)}>
             <Icon icon={ICONS.QUESTIONNARIE} selected={sectionSelected} />

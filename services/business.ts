@@ -60,6 +60,7 @@ interface Services {
   getRoles(): Promise<Array<Role>>
   createUser(user: User, invitation: Invitation) : Promise<TokenOuttripper>
   createReservationAccessToken(id: string, reservationId: string, contact: Contact) : Promise<ReservationToken>
+  removePaxFromReservation(reservationId: string, pax: Contact) : Promise<Reservation>
 
   // Payments
   getReservationAccessTokenByReservationId(id: string): Promise<Array<ReservationToken>>
@@ -561,6 +562,14 @@ class BusinessService implements Services {
         travellerId: contact.travellerId || null,
       }
       return this.da.createReservationAccessToken(rat)
+    })
+  }
+
+  removePaxFromReservation(reservationId: string, pax: Contact) : Promise<Reservation> {
+    return this.getToken().then(async (token: TokenOuttripper) => {
+      const reservation: Reservation = await this.da.getReservation(token.organizationId, reservationId)
+      reservation.pax = reservation.pax.filter((p:Contact) => p && p.id !== pax.id)
+      return this.da.updateReservation(token.organizationId, reservation)
     })
   }
 
