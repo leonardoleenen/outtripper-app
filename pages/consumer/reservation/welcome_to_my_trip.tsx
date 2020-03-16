@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
@@ -32,6 +33,9 @@ export default () => {
   const [indexPaymentCommitment, setIndexPaymentCommitment] = useState<number>(0)
   const [stage, setStage] = useState<STAGE>(STAGE.START)
   const [amountToPay, setAmountToPay] = useState<number>(reservation.paymentCommitments[0].amount)
+  const [selectedPaxToEdit, setSelectedPaxToEdit] = useState<Contact>(null)
+  const [inputSelected, setInputSelected] = useState(null)
+
   const [commitmentSplited, setCommitmentSplited] = useState<Array< {
     commitment: PaymentCommitment,
     selected: boolean,
@@ -42,13 +46,18 @@ export default () => {
   const dispatch = useDispatch()
 
   const onSubmitNewContact = (data: FormData) => {
-    const index : number = _.indexOf(reservation.pax, null)
+    let index : number = null
 
-    const newContact: Contact = {
-      ...data,
-      id: uuid4(),
-    }
-    reservation.pax[index] = newContact
+    if (!selectedPaxToEdit.id) { index = _.indexOf(reservation.pax, null) } else { index = reservation.pax.filter((p:Contact) => p).map((p:Contact) => p.id).indexOf(selectedPaxToEdit.id) }
+    reservation.pax[index] = { ...selectedPaxToEdit, id: selectedPaxToEdit.id ? selectedPaxToEdit.id : uuid4() }
+    bs.updateReservation(reservation)
+    dispatch(setMyTripReservation(reservation))
+    setShowNewContactForm(false)
+  }
+
+  const removeGuest = (pax: Contact) => {
+    const index : number = reservation.pax.filter((p:Contact) => p).map((p:Contact) => p.id).indexOf(pax.id)
+    reservation.pax[index] = null
     bs.updateReservation(reservation)
     dispatch(setMyTripReservation(reservation))
     setShowNewContactForm(false)
@@ -71,12 +80,23 @@ export default () => {
   }
 
   const NewContactForm = () => (
-    <div>
+    <div className="fixed bottom-0 inset-x-0 px-4 bg-gray-100 rounded-t-lg">
       <form onSubmit={handleSubmit(onSubmitNewContact)}>
-        <div className="">
+        <div>
+          <header className="flex py-4">
+            <div className="w-full text-sm text-gray-600">Add party member</div>
+            <div onClick={() => setShowNewContactForm(false)} className="text-base font-semibold text-gray-700">Close</div>
+          </header>
           <fieldset className="p-4 bg-white my-4 shadow-xl">
             <div>First Name</div>
             <input
+
+              onChange={(e) => {
+                setInputSelected('firstName')
+                setSelectedPaxToEdit({ ...selectedPaxToEdit, firstName: e.target.value })
+              }}
+              value={selectedPaxToEdit.firstName}
+              autoFocus={inputSelected === 'firstName'}
               placeholder="William"
               className="pl-4 bg-white focus:outline-none focus:shadow-outline rounded-lg py-2 pr-4 block w-full appearance-none leading-normal"
               name="firstName"
@@ -87,6 +107,12 @@ export default () => {
             <div>Last Name</div>
             <input
               placeholder="Smith"
+              onChange={(e) => {
+                setInputSelected('lastName')
+                setSelectedPaxToEdit({ ...selectedPaxToEdit, lastName: e.target.value })
+              }}
+              value={selectedPaxToEdit.lastName}
+              autoFocus={inputSelected === 'lastName'}
               className="pl-4 bg-white focus:outline-none focus:shadow-outline rounded-lg py-2 pr-4 block w-full appearance-none leading-normal"
               name="lastName"
               ref={register}
@@ -96,14 +122,20 @@ export default () => {
             <div>Email</div>
             <input
               placeholder="john@gmail.com"
+              onChange={(e) => {
+                setInputSelected('email')
+                setSelectedPaxToEdit({ ...selectedPaxToEdit, email: e.target.value })
+              }}
+              value={selectedPaxToEdit.email}
+              autoFocus={inputSelected === 'email'}
               className="pl-4 bg-white focus:outline-none focus:shadow-outline  rounded-lg py-2 pr-4 block w-full appearance-none leading-normal"
               name="email"
               ref={register}
             />
           </fieldset>
-          <div className="p-2 flex items-center justify-center">
-            <button onClick={() => setShowNewContactForm(false)} className="p-4 border border-teal-700 rounded-lg px-10 m-2 text-teal-700 " type="button"> Cancel</button>
-            <button className="p-4 bg-teal-700 m-2 rounded-lg text-white px-12" type="submit"> Save</button>
+          <div className="">
+            <div className="flex justify-center"><button className="bg-teal-700 text-white" type="submit"> Save</button></div>
+            <div className="flex justify-center p-2 underline text-gray-700 pb-16" onClick={() => removeGuest(selectedPaxToEdit)}><span>Remove Guest</span></div>
           </div>
         </div>
       </form>
@@ -181,29 +213,34 @@ export default () => {
 
   const SelectPaymentCommitmentKind = () => (
     <div className="">
-      <header className="p-4 flex items-center justify-end">
+      <header className="p-4 flex items-center justify-end bg-teal-700">
         <div>
-          <button className="text-teal-700" onClick={() => setStage(STAGE.START)} type="button">Back</button>
+          <button className="text-gray-100" onClick={() => setStage(STAGE.START)} type="button">Back</button>
         </div>
       </header>
       <article className="p-4 bg-gray-100 font-thin h-screen">
-        <div className="py-4 text-2xl font-bold">How do you want manage your payments</div>
-        <div className="py-2">A now, we need to knwo how do you want manage your payments of party member</div>
-        <div className="py-2">You can choose pay all you, that means that all invoice will be assigned to you </div>
-        <div className="py-2">Or you can choose slipt the check with your party members</div>
-        <div className="flex">
-          <button
-            className="p-4 border border-teal-700 rounded-lg px-10 m-2 text-teal-700"
-            type="button"
-            onClick={() => {
-              bs.setPaymentCommitmentKindInReservationAccessToken(PAYMENT_COMMITMENT_KIND.NO_SLIP, reservationAccessToken)
-              router.push(`/consumer/mytrip?accessToken=${reservationAccessToken.id}`)
-            }}
-          >
+        <div className="py-4 text-xl font-bold text-center mt-16">How would you like to manage this trips’ payments?</div>
+        <div className="py-2 px-4 mb-4 text-center">This trip could be payed entirely by you, or you can invite other members to pay as well.</div>
+        <div className="">
+          <div className="flex justify-center">
+            <button
+              className="p-4 border border-teal-700 rounded-lg px-10 m-2 text-teal-700 w-64"
+              type="button"
+              onClick={() => {
+                bs.setPaymentCommitmentKindInReservationAccessToken(PAYMENT_COMMITMENT_KIND.NO_SLIP, reservationAccessToken)
+                router.push(`/consumer/mytrip?accessToken=${reservationAccessToken.id}`)
+              }}
+            >
 I pay entire invoice
 
-          </button>
-          <button onClick={() => setSplitTheCheck()} type="button" className="p-4 bg-teal-700 m-2 rounded-lg text-white">I want to slipt the check</button>
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <button onClick={() => setSplitTheCheck()} type="button" className="p-4 w-64 bg-teal-700 m-2 rounded-lg text-white">I want to slipt the check</button>
+          </div>
+          <div className="flex justify-center">
+            <div className="pt-2 text-sm font-thin px-4 text-center w-64 italic">If your group splits the check, you will still be responsible for the trips payment.</div>
+          </div>
         </div>
       </article>
 
@@ -211,46 +248,49 @@ I pay entire invoice
     </div>
   )
 
-
-  //  if (showNewContactForm) { return <NewContactForm /> }
-
   if (stage === STAGE.SELECT_PAYMENT_COMMITMENT_KIND) return <SelectPaymentCommitmentKind />
 
   if (stage === STAGE.SPLIT) return <Split />
-
-  console.log(commitmentSplited)
-  // if (document.getElementsByClassName('amountToPay').length > 0) document.getElementsByClassName('amountToPay')[0].focus()
   return (
     <div className="">
-      <header className="p-4 flex items-center justify-end">
-        <div>
-          <button className="text-teal-700" onClick={() => setStage(STAGE.SELECT_PAYMENT_COMMITMENT_KIND)} type="button">Continue</button>
+      <header className="p-4 flex items-center justify-end bg-teal-700">
+        <div className="pt-4">
+          <button className="text-gray-100 font-semibold text-sm" onClick={() => setStage(STAGE.SELECT_PAYMENT_COMMITMENT_KIND)} type="button">Continue </button>
         </div>
       </header>
 
-      <div className="bg-gray-100 h-screen p-4">
-        <div className="text-2xl font-bold py-4">Wecome!  </div>
-        <div className="font-thin py-2 text-justify">As Group Leader we need that you define party members and how they pay for his trip. </div>
-        <div className="font-thin py-2 text-justify">In this step, we need to define  for all unknown guest, first name, last name and email.</div>
-        <div className="font-thin py-2 text-justify">If you dont have this information yet, you shall do do it later. </div>
+      <div className={` h-screen p-4 pt-16  ${showNewContactForm ? 'bg-gray-400' : 'bg-gray-100'}`}>
+        <div className="text-xl font-bold py-4 text-center">Wecome!  </div>
+        <div className="font-thin py-2 text-justify text-center px-8">As a group leader for this trip, we need you to define the other party members, and how will the group pay for this trip.. </div>
+        <div className="font-thin py-2 text-justify text-center px-8">Select the empty guests and add the other party members. </div>
 
 
         <div className="flex mt-8">
           {reservation.pax.map((p:Contact, index: number) => (
             <div
               onClick={() => {
-                if (!p) setShowNewContactForm(true)
+                if (index === 0) return
+                if (!p) {
+                  setSelectedPaxToEdit({
+                    id: null,
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                  })
+                } else { setSelectedPaxToEdit(p) }
+
+                setShowNewContactForm(true)
               }}
               className="w-24 mx-2"
               key={`pax${index.toString()}`}
             >
-              <div className="h-16 w-16 bg-teal-600 rounded-full flex"><IconSinglePeople /></div>
+              <div className="h-16 w-16 bg-teal-600 rounded-full flex">{p ? p.avatar ? <img className="rounded-full" alt="" src={p.avatar} /> : <IconSinglePeople /> : <IconQuestion />}</div>
               <div className="text-sm text-gray-700">{p ? `${p.firstName} ${p.lastName}` : 'Guest'}</div>
             </div>
           ))}
         </div>
 
-        <div>
+        <div className="fixed bottom-0 inset-x-0 px-4">
           {showNewContactForm ? <NewContactForm /> : ''}
         </div>
 
@@ -271,4 +311,11 @@ const IconChecked = () => (
   <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M7.19629 13.9453C11.0107 13.9453 14.1689 10.7871 14.1689 6.97266C14.1689 3.16504 11.0039 0 7.18945 0C3.38184 0 0.223633 3.16504 0.223633 6.97266C0.223633 10.7871 3.38867 13.9453 7.19629 13.9453ZM7.19629 12.7832C3.96973 12.7832 1.39258 10.1992 1.39258 6.97266C1.39258 3.75293 3.96289 1.16211 7.18945 1.16211C10.416 1.16211 13 3.75293 13.0068 6.97266C13.0137 10.1992 10.4229 12.7832 7.19629 12.7832ZM6.33496 10.3906C6.56055 10.3906 6.74512 10.2812 6.88867 10.0693L10.2656 4.75781C10.3545 4.62109 10.4297 4.46387 10.4297 4.31348C10.4297 3.99902 10.1562 3.80762 9.86914 3.80762C9.69141 3.80762 9.51367 3.91016 9.39062 4.11523L6.30762 9.05762L4.72168 7.00684C4.56445 6.80176 4.40039 6.72656 4.21582 6.72656C3.91504 6.72656 3.67578 6.97266 3.67578 7.28027C3.67578 7.43066 3.7373 7.57422 3.83984 7.7041L5.74707 10.0693C5.93164 10.2949 6.10938 10.3906 6.33496 10.3906Z" fill="#38B2AC" />
   </svg>
+)
+
+const IconQuestion = () => (
+  <svg width="14" height="22" viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0.00012207 5.96014H3.44148C3.55863 4.14427 4.77409 2.98739 6.66317 2.98739C8.50833 2.98739 9.73843 4.11498 9.73843 5.66725C9.73843 7.11702 9.12338 7.9078 7.30751 9.0061C5.28663 10.1923 4.43727 11.5102 4.56907 13.6776L4.58372 14.7173H7.98114V13.8679C7.98114 12.4035 8.52297 11.642 10.4413 10.5291C12.4329 9.34292 13.5459 7.776 13.5459 5.53546C13.5459 2.31376 10.866 0 6.85355 0C2.50426 0 0.117275 2.51878 0.00012207 5.96014ZM6.32636 21.6C7.51253 21.6 8.44975 20.6774 8.44975 19.5205C8.44975 18.3637 7.51253 17.4557 6.32636 17.4557C5.14019 17.4557 4.18833 18.3637 4.18833 19.5205C4.18833 20.6774 5.14019 21.6 6.32636 21.6Z" fill="#CBD5E0" />
+  </svg>
+
 )
