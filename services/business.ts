@@ -567,6 +567,9 @@ class BusinessService implements Services {
 
   removePaxFromReservation(reservationId: string, pax: Contact) : Promise<Reservation> {
     return this.getToken().then(async (token: TokenOuttripper) => {
+      // Move payments commitments to GL if are any available
+
+
       const reservation: Reservation = await this.da.getReservation(token.organizationId, reservationId)
       reservation.pax = reservation.pax.filter((p:Contact) => p && p.id !== pax.id)
       return this.da.updateReservation(token.organizationId, reservation)

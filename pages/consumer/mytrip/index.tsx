@@ -114,9 +114,7 @@ export default () => {
 
   const renderSection = () => {
     let paymentsOfCustomer : Array<Payment> = null
-
     if (reservationToken.paymentCommitmentKind) { paymentsOfCustomer = reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].payments || [] }
-
 
     switch (sectionSelected) {
       case SECTIONS.PRETRIP:
@@ -126,7 +124,7 @@ export default () => {
       case SECTIONS.CHECKLIST:
         return <SectionCheckList reservation={reservation} />
       case SECTIONS.GUESTS:
-        return <SectionGuests paxs={reservation.pax} />
+        return <SectionGuests reservation={reservation} />
       case SECTIONS.QUESTIONNARIE:
         return (
           <SectionQuestionnarie
@@ -168,7 +166,7 @@ export default () => {
 
 
   // eslint-disable-next-line max-len
-  const isInvited : boolean = !reservation.paymentCommitments.filter((pc) => pc.pax.id === reservationToken.contactId)[0].payments && reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax.id === reservationToken.contactId)[0].amount === 0
+  const isInvited : boolean = !reservation.paymentCommitments.filter((pc) => pc.pax && pc.pax.id === reservationToken.contactId)[0].payments && reservation.paymentCommitments.filter((pc: PaymentCommitment) => pc.pax && pc.pax.id === reservationToken.contactId)[0].amount === 0
 
 
   return (

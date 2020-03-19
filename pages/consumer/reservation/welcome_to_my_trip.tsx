@@ -53,6 +53,7 @@ export default () => {
     bs.updateReservation(reservation)
     dispatch(setMyTripReservation(reservation))
     setShowNewContactForm(false)
+    setInputSelected('firstName')
   }
 
   const removeGuest = (pax: Contact) => {
